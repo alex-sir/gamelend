@@ -1,75 +1,285 @@
+/* Dark color theme */
+:root {
+  --color-black: #121212;
+  --color-gray: #262626;
+  --color-white: #ffffff;
+  --color-blue: #084ba6;
+  --color-orange: #fa9d28;
+}
+
 body {
-  margin: 0;
-}
-.container {
-  display: flex;
-  margin: 0;
-  background-color: rgb(226, 229, 237);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  padding: 30px;
-  gap: 20px;
+  font-family: "Open Sans", sans-serif, Helvetica, Arial;
+  background-color: var(--color-black);
+  color: var(--color-white);
 }
 
-.container .left-listings {
-  flex: 1;
-  max-width: 200px;
-  margin: 0;
-  background-color: rgb(255, 255, 255);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  padding: 10px;
-}
-
-.container .main-content {
-  flex: 2;
-  max-width: auto;
-  margin: 0;
-  background-color: rgb(255, 255, 255);
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  padding: 10px;
-}
-
-.main-content {
-  text-align: center;
-}
-
-.searchbar {
-  display: flex;
-  background-color: #291ec2;
-  padding: 14px;
-  text-align: center;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
+/* Navbar styling */
 .navbar {
-  background-color: #ffffff;
-  padding: 14px;
-  text-align: center;
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-black);
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.navbar a {
-  margin: 20px;
-  color: rgb(12, 12, 12);
-  text-decoration: none;
-}
-
-.logo {
-  color: white;
-  font-size: 22px;
+.navbar-brand {
+  font-size: 1.5rem;
   font-weight: bold;
-  flex: 1;
-  text-align: left;
+  color: var(--color-orange);
 }
 
-.searchbar input {
-  padding: 8px;
-  border-radius: 5px;
+.navbar-brand:hover {
+  color: var(--color-orange);
+}
+
+.navbar .search-bar {
+  max-width: 400px;
+  width: 100%;
+}
+
+.navbar .search-bar .form-control {
+  background-color: var(--color-black);
+  border: 1px solid #444;
+  color: var(--color-white);
+}
+
+.navbar .search-bar .form-control:focus {
+  background-color: var(--color-black);
+  border-color: var(--color-blue);
+  color: var(--color-white);
+  box-shadow: 0 0 0 0.2rem rgba(8, 75, 166, 0.25);
+}
+
+.btn-login {
+  background-color: transparent;
+  border: 1px solid var(--color-blue);
+  color: var(--color-blue);
+  padding: 0.5rem 1.25rem;
+  margin-right: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-login:hover {
+  background-color: var(--color-blue);
+  color: var(--color-white);
+}
+
+.btn-signup {
+  background-color: var(--color-blue);
+  color: var(--color-white);
+  padding: 0.5rem 1.25rem;
   border: none;
-  width: 300px;
+  transition: all 0.3s;
 }
 
-.spacer {
-  flex: 1;
+.btn-signup:hover {
+  background-color: #0a5fc7;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 5rem 0;
+  background-color: var(--color-black);
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.hero-section p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+.btn-primary-custom {
+  background-color: var(--color-blue);
+  border: none;
+  color: var(--color-white);
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+  transition: all 0.3s;
+}
+
+.btn-primary-custom:hover {
+  background-color: #0a5fc7;
+}
+
+.btn-secondary-custom {
+  background-color: transparent;
+  border: 2px solid var(--color-orange);
+  color: var(--color-orange);
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+}
+
+.btn-secondary-custom:hover {
+  background-color: var(--color-orange);
+  color: var(--color-black);
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* How It Works Section */
+.how-it-works-section {
+  padding: 5rem 0;
+  background-color: var(--color-gray);
+}
+
+.how-it-works-section h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.role-card {
+  background-color: var(--color-black);
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+  height: 100%;
+}
+
+.role-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+.role-card i {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-card.lend i {
+  color: var(--color-blue);
+}
+
+.role-card.borrow i {
+  color: var(--color-orange);
+}
+
+.role-card h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.role-card p {
+  font-size: 1rem;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+/* Marketplace Section */
+.marketplace-section {
+  padding: 5rem 0;
+  background-color: var(--color-black);
+}
+
+.marketplace-section h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: var(--color-blue);
+  border-radius: 50%;
+  padding: 1.5rem;
+}
+
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.carousel-caption h5 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Footer */
+footer {
+  background-color: var(--color-gray);
+  padding: 3rem 0 1.5rem;
+  margin-top: 0;
+}
+
+footer h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-blue);
+}
+
+footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+footer ul li {
+  margin-bottom: 0.5rem;
+}
+
+footer a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+footer a:hover {
+  color: var(--color-orange);
+}
+
+footer .copyright {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #444;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .navbar .search-bar {
+    margin: 1rem 0;
+  }
+
+  .btn-primary-custom,
+  .btn-secondary-custom {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+  }
 }
