@@ -2,6 +2,8 @@
 
 GameLend is a peer-to-peer web application for renting and lending physical video games, consoles, and gaming accessories. It connects gamers who have idle items with borrowers who want short-term access instead of buying new hardware or titles.
 
+![Home page screenshot](assets/images/gamelend.png)
+
 ## Features
 
 - User registration and login with role-based access (borrower, lender, admin)
