@@ -1,0 +1,146 @@
+/* ================================
+   Admin Page Styles
+   ================================ */
+
+.admin-page {
+  background-color: var(--color-black);
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* Header */
+.admin-header {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.admin-header p {
+  color: var(--color-light-gray);
+  margin-bottom: 0;
+}
+
+/* Sections */
+.admin-section {
+  background-color: var(--color-gray);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Metrics */
+.metric-card {
+  background-color: var(--color-black);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: var(--color-light-gray);
+}
+
+.metric-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.metric-trend {
+  font-size: 0.85rem;
+  color: var(--color-light-gray);
+}
+
+/* Analytics chart placeholder */
+.analytics-chart-placeholder {
+  background: linear-gradient(
+    135deg,
+    #1c1c1c,
+    #181818
+  );
+  border-radius: 12px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-light-gray);
+  font-size: 0.9rem;
+  border: 1px solid #2f2f2f;
+}
+
+/* Moderation list */
+.moderation-links .list-group-item {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  border-color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.moderation-links .list-group-item:hover {
+  background-color: var(--color-gray-hover);
+  cursor: pointer;
+}
+
+/* Configuration links */
+.config-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 1rem;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  color: var(--color-light-gray);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #444;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.config-links a:hover {
+  color: var(--color-orange);
+  border-color: var(--color-orange);
+  background-color: var(--color-gray-hover);
+}
+
+/* Footer link */
+.section-footer-link {
+  font-size: 0.9rem;
+  color: var(--color-orange);
+  text-decoration: none;
+}
+
+.section-footer-link:hover {
+  text-decoration: underline;
+}
+
+.admin-page .btn-settings {
+  color: var(--color-white);
+  background-color: var(--color-blue);
+  border-color: var(--color-blue);
+  border-radius: 15px;
+  transition: all 0.3s;
+}
+
+.admin-page .btn-settings:hover,
+.admin-page .btn-settings:focus {
+  background-color: var(--color-blue-hover);
+  border-color: var(--color-blue-hover);
+}
+

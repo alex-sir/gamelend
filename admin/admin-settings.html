@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GameLend · Configuration Settings</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+  </head>
+
+  <body class="admin-page d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../admin/admin-dashboard.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1" style="font-size:0.85rem; font-weight:400;">
+            Admin
+          </span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search settings"
+              aria-label="Search settings"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Admin Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <span class="text-light small">
+                Signed in as <strong>admin@gamelend.com</strong>
+              </span>
+              <a href="../auth/logout.html" class="btn btn-alternate">
+                Log Out
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="py-4">
+      <div class="container">
+        <!-- Header -->
+        <div class="admin-header mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1>Configuration</h1>
+              <p>Manage core GameLend platform settings and defaults.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- General settings -->
+        <section class="admin-section mb-4">
+          <h2 class="mb-3">Platform settings</h2>
+
+          <form>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="platformName">Platform name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="platformName"
+                  value="GameLend"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="supportEmail">Support email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="supportEmail"
+                  value="support@gamelend.com"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="defaultTimezone">Default timezone</label>
+                <select id="defaultTimezone" class="form-select">
+                  <option value="America/Los_Angeles" selected>
+                    America/Los_Angeles (PT)
+                  </option>
+                  <option value="America/Denver">America/Denver (MT)</option>
+                  <option value="America/Chicago">America/Chicago (CT)</option>
+                  <option value="America/New_York">America/New_York (ET)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="defaultCurrency">Default currency</label>
+                <select id="defaultCurrency" class="form-select">
+                  <option value="USD" selected>USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="maintenanceMode"
+                  />
+                  <label class="form-check-label" for="maintenanceMode">
+                    Enable maintenance mode
+                  </label>
+                </div>
+                <small class="text-muted">
+                  When enabled, only admins can access the platform; regular users see a maintenance message.
+                </small>
+              </div>
+
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-settings">
+                  Save platform settings
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- Rentals & payments -->
+        <section class="admin-section mb-4">
+          <h2 class="mb-3">Rentals & payments</h2>
+
+          <form>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label" for="maxActiveRentals">
+                  Max active rentals per user
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="maxActiveRentals"
+                  min="1"
+                  max="20"
+                  value="5"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="defaultRentalDays">
+                  Default rental length (days)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="defaultRentalDays"
+                  min="1"
+                  max="60"
+                  value="7"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label" for="lateFeePerDay">
+                  Late fee per day (USD)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="lateFeePerDay"
+                  min="0"
+                  step="0.50"
+                  value="2.50"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="platformFeePercent">
+                  Platform fee (% of rental price)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="platformFeePercent"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value="10"
+                />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="payoutSchedule">
+                  Payout schedule
+                </label>
+                <select id="payoutSchedule" class="form-select">
+                  <option value="daily">Daily</option>
+                  <option value="weekly" selected>Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-settings">
+                  Save rental & payment settings
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- Moderation defaults -->
+        <section class="admin-section mb-4">
+          <h2 class="mb-3">Moderation defaults</h2>
+
+          <form>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="autoFlagThreshold">
+                  Auto‑flag threshold (reports)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="autoFlagThreshold"
+                  min="1"
+                  max="20"
+                  value="3"
+                />
+                <small class="text-muted">
+                  Number of reports before a listing is automatically flagged for review.
+                </small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="autoSuspendThreshold">
+                  Auto‑suspend threshold (severe reports)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="autoSuspendThreshold"
+                  min="1"
+                  max="10"
+                  value="2"
+                />
+                <small class="text-muted">
+                  Number of high‑severity reports before a user is auto‑suspended pending review.
+                </small>
+              </div>
+
+              <div class="col-12">
+                <div class="form-check form-switch mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="notifyModeratorsEmail"
+                    checked
+                  />
+                  <label class="form-check-label" for="notifyModeratorsEmail">
+                    Email moderators when new high‑severity report is created
+                  </label>
+                </div>
+
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="userReportReceipts"
+                    checked
+                  />
+                  <label class="form-check-label" for="userReportReceipts">
+                    Send confirmation email to users when they submit a report
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary btn-settings">
+                  Save moderation settings
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <footer class="mt-4">
+      <div class="container">
+        <div class="copyright">
+          <p>&copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    ></script>
+  </body>
+</html>

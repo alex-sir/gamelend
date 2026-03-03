@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GameLend · Moderation Hub</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+  </head>
+
+  <body class="admin-page d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="admin-dashboard.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1" style="font-size:0.85rem; font-weight:400;">
+            Admin
+          </span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search reports, users, or listings"
+              aria-label="Search moderation"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Admin Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <span class="text-light small">
+                Signed in as <strong>admin@gamelend.com</strong>
+              </span>
+              <a href="../auth/logout.html" class="btn btn-alternate">
+                Log Out
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="py-4">
+      <div class="container">
+        <!-- Header -->
+        <div class="admin-header mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1>Moderation Hub</h1>
+              <p>Track reports, flagged content, and recent moderation actions.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top moderation metrics -->
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>Moderation Overview</h2>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="metric-card">
+                <div class="metric-label">Open user reports</div>
+                <div class="metric-value">3</div>
+                <div class="metric-trend">
+                  <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                  1 high severity
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="metric-card">
+                <div class="metric-label">Flagged listings</div>
+                <div class="metric-value">5</div>
+                <div class="metric-trend">
+                  <i class="bi bi-controller text-info me-1"></i>
+                  2 awaiting review
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="metric-card">
+                <div class="metric-label">Suspensions (30d)</div>
+                <div class="metric-value">4</div>
+                <div class="metric-trend">
+                  <i class="bi bi-slash-circle text-danger me-1"></i>
+                  2 users, 2 listings
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="metric-card">
+                <div class="metric-label">Avg. response time</div>
+                <div class="metric-value">6h</div>
+                <div class="metric-trend">
+                  <i class="bi bi-arrow-up-right text-success me-1"></i>
+                  Faster than last week
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- User reports preview -->
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>User reports</h2>
+            <a href="moderation-users.html" class="section-footer-link">
+              View all user reports <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-dark table-striped table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Reported user</th>
+                  <th scope="col">Reporter</th>
+                  <th scope="col">Reason</th>
+                  <th scope="col">Severity</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Created</th>
+                  <th scope="col" class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div>Riley Moore</div>
+                    <small class="text-muted">@riley</small>
+                  </td>
+                  <td>
+                    <div>Alyssa Lee</div>
+                    <small class="text-muted">@alyssa</small>
+                  </td>
+                  <td>Harassment in messages</td>
+                  <td>
+                    <span class="badge bg-danger">High</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  </td>
+                  <td>Mar 1, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-users.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>Jordan Diaz</div>
+                    <small class="text-muted">@jordand</small>
+                  </td>
+                  <td>
+                    <div>System</div>
+                    <small class="text-muted">Automated</small>
+                  </td>
+                  <td>Multiple no‑shows</td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Medium</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">In review</span>
+                  </td>
+                  <td>Feb 26, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-users.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>Alyssa Lee</div>
+                    <small class="text-muted">@alyssa</small>
+                  </td>
+                  <td>
+                    <div>Jordan Diaz</div>
+                    <small class="text-muted">@jordand</small>
+                  </td>
+                  <td>Suspicious payment behavior</td>
+                  <td>
+                    <span class="badge bg-info text-dark">Low</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success">Resolved</span>
+                  </td>
+                  <td>Feb 20, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-users.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Listing reports preview -->
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>Listing reports</h2>
+            <a href="moderation-listings.html" class="section-footer-link">
+              View all listing reports <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-dark table-striped table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Listing</th>
+                  <th scope="col">Owner</th>
+                  <th scope="col">Reason</th>
+                  <th scope="col">Severity</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Created</th>
+                  <th scope="col" class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div>“Elden Ring” (PS5)</div>
+                    <small class="text-muted">ID: LST‑1023</small>
+                  </td>
+                  <td>
+                    <div>Jordan Diaz</div>
+                    <small class="text-muted">@jordand</small>
+                  </td>
+                  <td>Inappropriate description</td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Medium</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  </td>
+                  <td>Mar 2, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-listings.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>“Zelda: TOTK” (Switch)</div>
+                    <small class="text-muted">ID: LST‑0894</small>
+                  </td>
+                  <td>
+                    <div>Alyssa Lee</div>
+                    <small class="text-muted">@alyssa</small>
+                  </td>
+                  <td>Possible duplicate listing</td>
+                  <td>
+                    <span class="badge bg-info text-dark">Low</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">In review</span>
+                  </td>
+                  <td>Feb 27, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-listings.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div>“Spider‑Man 2” (PS5)</div>
+                    <small class="text-muted">ID: LST‑0761</small>
+                  </td>
+                  <td>
+                    <div>Riley Moore</div>
+                    <small class="text-muted">@riley</small>
+                  </td>
+                  <td>Misleading condition</td>
+                  <td>
+                    <span class="badge bg-danger">High</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-success">Resolved</span>
+                  </td>
+                  <td>Feb 18, 2026</td>
+                  <td class="text-end">
+                    <a href="moderation-listings.html" class="btn btn-sm btn-outline-light">
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Recent moderator actions -->
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>Recent moderator actions</h2>
+          </div>
+
+          <ul class="list-group moderation-links">
+            <li class="list-group-item">
+              <span>
+                <i class="bi bi-shield-check me-2"></i>
+                <strong>@admin</strong> suspended user <strong>@riley</strong> for repeated harassment
+              </span>
+              <small class="text-muted">2 hours ago</small>
+            </li>
+            <li class="list-group-item">
+              <span>
+                <i class="bi bi-check2-circle me-2"></i>
+                <strong>@moderator1</strong> cleared listing <strong>LST‑0894</strong> after review
+              </span>
+              <small class="text-muted">Yesterday</small>
+            </li>
+            <li class="list-group-item">
+              <span>
+                <i class="bi bi-flag me-2"></i>
+                Automated system flagged 2 new listings for review
+              </span>
+              <small class="text-muted">2 days ago</small>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="mt-4">
+      <div class="container">
+        <div class="copyright">
+          <p>&copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    ></script>
+  </body>
+</html>
