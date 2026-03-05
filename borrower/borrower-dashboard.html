@@ -1,290 +1,342 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>GameLend Borrower Dashboard</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png">
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
 
     <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
-        rel="stylesheet">
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Existing global styles -->
-    <link rel="stylesheet" href="../styles/app.css">
+    <link rel="stylesheet" href="../styles/app.css" />
 
     <!-- Borrower page styles -->
-    <link rel="stylesheet" href="../styles/borrower.css">
-</head>
+    <link rel="stylesheet" href="../styles/borrower.css" />
+  </head>
 
-<body>
-
+  <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
-        <div class="container-fluid">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
 
-            <a class="navbar-brand" href="../index.html">
-                <i class="bi bi-controller me-2"></i>GameLend
-            </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+        <!-- Search -->
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search GameLend"
+            />
+            <button class="btn btn-primary search-submit">
+              <i class="bi bi-search fs-5"></i>
             </button>
-
-            <!-- Search -->
-            <div class="mx-lg-4 mt-2 mb-0 search-bar">
-                <form class="d-flex">
-                    <input class="form-control"
-                        type="search"
-                        placeholder="Search GameLend">
-                    <button class="btn btn-primary search-submit">
-                        <i class="bi bi-search fs-5"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Offcanvas -->
-            <div class="offcanvas offcanvas-end" id="navbarNav">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title">Menu</h5>
-                    <button class="btn-close btn-close-white"
-                        data-bs-dismiss="offcanvas"></button>
-                </div>
-
-                <div class="offcanvas-body">
-                    <a class="btn btn-main me-2">Log In</a>
-                    <a class="btn btn-alternate">Logout</a>
-                </div>
-            </div>
-
+          </form>
         </div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </nav>
 
     <!-- CATEGORY NAVBAR -->
     <nav class="navbar navbar-secondary navbar-expand-lg p-1">
-        <div class="container-fluid d-flex justify-content-center">
-            <ul class="nav flex-nowrap overflow-auto">
+      <div class="container-fluid d-flex justify-content-center">
+        <ul class="nav flex-nowrap overflow-auto">
+          <li class="nav-item">
+            <a class="nav-link px-3">Consoles</a>
+          </li>
 
-                <li class="nav-item">
-                    <a class="nav-link px-3">Consoles</a>
-                </li>
+          <li class="nav-item">
+            <a class="nav-link px-3">Games</a>
+          </li>
 
-                <li class="nav-item">
-                    <a class="nav-link px-3">Games</a>
-                </li>
+          <li class="nav-item">
+            <a class="nav-link px-3">Controllers</a>
+          </li>
 
-                <li class="nav-item">
-                    <a class="nav-link px-3">Controllers</a>
-                </li>
+          <li class="nav-item">
+            <a class="nav-link px-3">VR</a>
+          </li>
 
-                <li class="nav-item">
-                    <a class="nav-link px-3">VR</a>
-                </li>
+          <li class="nav-item">
+            <a class="nav-link px-3">Peripherals</a>
+          </li>
 
-                <li class="nav-item">
-                    <a class="nav-link px-3">Peripherals</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link px-3">Retro</a>
-                </li>
-
-            </ul>
-        </div>
+          <li class="nav-item">
+            <a class="nav-link px-3">Retro</a>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <!-- BORROWER CATALOG -->
     <section class="catalog-section py-4">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- FILTER SIDEBAR -->
+          <aside class="col-lg-2 col-md-3 mb-4">
+            <div class="filter-panel">
+              <h5 class="mb-3">Filters</h5>
 
-        <div class="container-fluid">
+              <label class="form-label">Platform</label>
+              <select class="form-select mb-3">
+                <option>All</option>
+                <option>PlayStation</option>
+                <option>Xbox</option>
+                <option>Nintendo</option>
+              </select>
 
-            <div class="row">
+              <label class="form-label">Category</label>
 
-                <!-- FILTER SIDEBAR -->
-                <aside class="col-lg-2 col-md-3 mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" />
+                <label class="form-check-label">Games</label>
+              </div>
 
-                    <div class="filter-panel">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" />
+                <label class="form-check-label">Consoles</label>
+              </div>
 
-                        <h5 class="mb-3">Filters</h5>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" />
+                <label class="form-check-label">Controllers</label>
+              </div>
 
-                        <label class="form-label">Platform</label>
-                        <select class="form-select mb-3">
-                            <option>All</option>
-                            <option>PlayStation</option>
-                            <option>Xbox</option>
-                            <option>Nintendo</option>
-                        </select>
+              <button class="btn btn-main w-100">Apply Filters</button>
+            </div>
+          </aside>
 
-                        <label class="form-label">Category</label>
+          <!-- PRODUCT AREA -->
+          <div class="col-lg-10 col-md-9">
+            <!-- CONSOLES -->
+            <h3 class="section-title">Consoles</h3>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">Games</label>
-                        </div>
+            <div class="scroll-wrapper">
+              <button
+                class="scroll-btn left"
+                onclick="scrollRow('consoleRow', -300)"
+              >
+                <i class="bi bi-chevron-left"></i>
+              </button>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">Consoles</label>
-                        </div>
-
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">Controllers</label>
-                        </div>
-
-                        <button class="btn btn-main w-100">
-                            Apply Filters
-                        </button>
-
-                    </div>
-
-                </aside>
-
-                <!-- PRODUCT AREA -->
-                <div class="col-lg-10 col-md-9">
-
-                    <!-- CONSOLES -->
-                    <h3 class="section-title">Consoles</h3>
-
-                    <div class="scroll-wrapper">
-
-                        <button class="scroll-btn left"
-                            onclick="scrollRow('consoleRow', -300)">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-
-                        <div class="product-row" id="consoleRow">
-
-                            <div class="product-card">
-                                <img src="../assets/images/playstation_1.jpg" alt="PS5">
-                                <p>PlayStation 5</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/xbox_1.jpg" alt="Xbox">
-                                <p>Xbox Series X</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/switch_1.jpg" alt="Switch">
-                                <p>Nintendo Switch 2</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/steam_1.jpg" alt="Steam Deck">
-                                <p>Steam Deck</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/NES_1.jpg" alt="Steam Deck">
-                                <p>Nintendo ES</p>
-                            </div>
-
-                        </div>
-
-                        <button class="scroll-btn right"
-                            onclick="scrollRow('consoleRow', 300)">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-
-                    </div>
-
-                    <!-- GAMES -->
-                    <h3 class="section-title">Games</h3>
-
-                    <div class="scroll-wrapper">
-
-                        <button class="scroll-btn left"
-                            onclick="scrollRow('gameRow', -300)">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-
-                        <div class="product-row" id="gameRow">
-
-                            <div class="product-card">
-                                <img src="../assets/images/eldenring.jpg" alt="Elden Ring">
-                                <p>Elden Ring</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/zelda.jpg" alt="Zelda">
-                                <p>Zelda TOTK</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/mario.jpg" alt="Mario">
-                                <p>Mario Wonder</p>
-                            </div>
-
-                            <div class="product-card">
-                                <img src="../assets/images/halo.jpg" alt="Halo">
-                                <p>Halo Infinite</p>
-                            </div>
-
-                        </div>
-
-                        <button class="scroll-btn right"
-                            onclick="scrollRow('gameRow', 300)">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-
-                    </div>
-
+              <div class="product-row" id="consoleRow">
+                <div class="product-card">
+                  <img src="../assets/images/playstation_1.jpg" alt="PS5" />
+                  <p>PlayStation 5</p>
                 </div>
 
+                <div class="product-card">
+                  <img src="../assets/images/xbox_1.jpg" alt="Xbox" />
+                  <p>Xbox Series X</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/switch_1.jpg" alt="Switch" />
+                  <p>Nintendo Switch 2</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/steam_1.jpg" alt="Steam Deck" />
+                  <p>Steam Deck</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/NES_1.jpg" alt="Steam Deck" />
+                  <p>Nintendo ES</p>
+                </div>
+              </div>
+
+              <button
+                class="scroll-btn right"
+                onclick="scrollRow('consoleRow', 300)"
+              >
+                <i class="bi bi-chevron-right"></i>
+              </button>
             </div>
 
-        </div>
+            <!-- GAMES -->
+            <h3 class="section-title">Games</h3>
 
+            <div class="scroll-wrapper">
+              <button
+                class="scroll-btn left"
+                onclick="scrollRow('gameRow', -300)"
+              >
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <div class="product-row" id="gameRow">
+                <div class="product-card">
+                  <img src="../assets/images/eldenring.jpg" alt="Elden Ring" />
+                  <p>Elden Ring</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/zelda.jpg" alt="Zelda" />
+                  <p>Zelda TOTK</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/mario.jpg" alt="Mario" />
+                  <p>Mario Wonder</p>
+                </div>
+
+                <div class="product-card">
+                  <img src="../assets/images/halo.jpg" alt="Halo" />
+                  <p>Halo Infinite</p>
+                </div>
+              </div>
+
+              <button
+                class="scroll-btn right"
+                onclick="scrollRow('gameRow', 300)"
+              >
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- Footer -->
     <footer>
-        <div class="container">
-
-            <div class="row justify-content-center">
-
-                <div class="col-md-3 mb-4">
-                    <h5>About</h5>
-                    <ul>
-                        <li>
-                            <a href="../about.html">About GameLend</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="col-md-3 mb-4">
-                    <h5>Support</h5>
-                    <ul>
-                        <li>
-                            <a href="#">FAQ</a>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>
-
-            <div class="copyright text-center">
-                <p>© 2026 GameLend</p>
-            </div>
-
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -292,16 +344,15 @@
 
     <!-- Scroll Script -->
     <script>
-        function scrollRow(id, amount) {
-            const row = document.getElementById(id);
+      function scrollRow(id, amount) {
+        const row = document.getElementById(id);
 
-            row.scrollBy({
-                left: amount,
-                behavior: "smooth"
-            });
-        }
+        row.scrollBy({
+          left: amount,
+          behavior: "smooth",
+        });
+      }
     </script>
-
-</body>
-
+  </body>
 </html>
+
