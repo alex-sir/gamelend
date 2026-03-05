@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>My Rentals - GameLend</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global styles -->
+    <link rel="stylesheet" href="../styles/app.css" />
+
+    <!-- Borrower styles -->
+    <link rel="stylesheet" href="styles/borrower.css" />
+  </head>
+
+  <body>
+    <!-- PRIMARY NAVBAR -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="borrower-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="catalog-section py-4">
+      <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+          <div>
+            <h1 class="h3 mb-1">My rentals</h1>
+            <p class="text-secondary mb-0 small">
+              Track your active, pending, and completed rentals.
+            </p>
+          </div>
+          <div></div>
+        </div>
+
+        <!-- TABS -->
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="active-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#active"
+              type="button"
+              role="tab"
+            >
+              Active
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="pending-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#pending"
+              type="button"
+              role="tab"
+            >
+              Pending
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="completed-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#completed"
+              type="button"
+              role="tab"
+            >
+              Completed
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- ACTIVE RENTALS -->
+          <div
+            class="tab-pane fade show active"
+            id="active"
+            role="tabpanel"
+            aria-labelledby="active-tab"
+          >
+            <div class="card bg-dark mb-3">
+              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                <img
+                  src="../assets/images/donkey-kong-bananza.jpg"
+                  alt="Donkey Kong Bananza"
+                  class="rounded"
+                  style="width: 72px; height: 72px; object-fit: cover"
+                />
+                <div class="flex-grow-1">
+                  <p class="mb-1 bold">Donkey Kong Bananza (Switch)</p>
+                  <p class="mb-1 small text-secondary">
+                    Lender:
+                    <span class="bold text-white">Casey R.</span> • Pickup in
+                    Pullman
+                  </p>
+                  <p class="mb-0 small text-secondary">
+                    Rental:
+                    <span class="bold text-white">Mar 5 – Mar 9, 2026</span> •
+                    Due back in <span class="text-warning">2 days</span>
+                  </p>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-success mb-2">Active</span>
+                  <div class="d-flex flex-column gap-1">
+                    <a
+                      href="borrower-rental-details.html"
+                      class="btn btn-sm btn-alternate"
+                    >
+                      View details
+                    </a>
+                    <a
+                      href="borrower-extend-rental.html"
+                      class="btn btn-sm btn-main"
+                    >
+                      Extend rental
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PENDING REQUESTS -->
+          <div
+            class="tab-pane fade"
+            id="pending"
+            role="tabpanel"
+            aria-labelledby="pending-tab"
+          >
+            <div class="card bg-dark mb-3">
+              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                <img
+                  src="../assets/images/ps5.jpg"
+                  alt="PlayStation 5"
+                  class="rounded"
+                  style="width: 72px; height: 72px; object-fit: cover"
+                />
+                <div class="flex-grow-1">
+                  <p class="mb-1 bold">PlayStation 5 Digital Edition</p>
+                  <p class="mb-1 small text-secondary">
+                    Lender:
+                    <span class="bold text-white">Alex P.</span>
+                  </p>
+                  <p class="mb-0 small text-secondary">
+                    Requested dates:
+                    <span class="bold text-white">Mar 10 – Mar 12, 2026</span>
+                  </p>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-warning text-dark mb-2">Pending</span>
+                  <div class="d-flex flex-column gap-1">
+                    <a
+                      href="borrower-rental-details.html"
+                      class="btn btn-sm btn-alternate"
+                    >
+                      View details
+                    </a>
+                    <button class="btn btn-sm btn-outline-danger">
+                      Cancel request
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETED RENTALS -->
+          <div
+            class="tab-pane fade"
+            id="completed"
+            role="tabpanel"
+            aria-labelledby="completed-tab"
+          >
+            <div class="card bg-dark mb-3">
+              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                <img
+                  src="../assets/images/eldenring.jpg"
+                  alt="Elden Ring"
+                  class="rounded"
+                  style="width: 72px; height: 72px; object-fit: cover"
+                />
+                <div class="flex-grow-1">
+                  <p class="mb-1 bold">Elden Ring (PS5)</p>
+                  <p class="mb-1 small text-secondary">
+                    Lender:
+                    <span class="bold text-white">Jordan M.</span>
+                  </p>
+                  <p class="mb-0 small text-secondary">
+                    Completed:
+                    <span class="bold text-white">Feb 20 – Feb 23, 2026</span>
+                  </p>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-secondary mb-2">Completed</span>
+                  <button class="btn btn-sm btn-main">
+                    <i class="bi bi-star me-1"></i>Leave review
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-secondary small">
+              Older rentals will appear here so borrowers can track their
+              history.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Extend Rental - GameLend</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global styles -->
+    <link rel="stylesheet" href="../styles/app.css" />
+
+    <!-- Borrower styles -->
+    <link rel="stylesheet" href="styles/borrower.css" />
+  </head>
+
+  <body>
+    <!-- PRIMARY NAVBAR -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Search -->
+        <div class="mx-lg-4 mt-2 mb-0 search-bar d-none d-lg-block"></div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="borrower-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="catalog-section py-4">
+      <div class="container">
+        <div class="row mb-3">
+          <div class="col-12">
+            <a
+              href="borrower-rental-details.html"
+              class="text-decoration-none small text-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Back to rental details
+            </a>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- SUMMARY -->
+          <div class="col-lg-4 order-lg-2">
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Current rental</h5>
+                <div class="d-flex mb-3">
+                  <img
+                    src="../assets/images/donkey-kong-bananza.jpg"
+                    alt="Donkey Kong Bananza"
+                    class="rounded me-3"
+                    style="width: 72px; height: 72px; object-fit: cover"
+                  />
+                  <div>
+                    <p class="mb-1 bold">Donkey Kong Bananza (Switch)</p>
+                    <p class="mb-0 small text-secondary">
+                      Due back:
+                      <span class="bold text-white">Mar 9, 2026</span>
+                    </p>
+                  </div>
+                </div>
+
+                <ul class="list-unstyled small text-secondary mb-3">
+                  <li>
+                    <span class="bold text-white">Price per day:</span> $8.00
+                  </li>
+                  <li>
+                    <span class="bold text-white">Current length:</span> 4 days
+                  </li>
+                  <li>
+                    <span class="bold text-white">Lender:</span> Casey R.
+                  </li>
+                </ul>
+
+                <hr />
+
+                <div class="small">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Additional days</span>
+                    <span class="bold" id="extraDays">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Additional rental cost</span>
+                    <span class="bold" id="extraCost">$0.00</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Updated total rental</span>
+                    <span class="bold" id="updatedTotal">$32.00</span>
+                  </div>
+                  <p class="small text-secondary mb-0 mt-1">
+                    Deposit remains the same unless lender updates terms.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EXTENSION FORM -->
+          <div class="col-lg-8 order-lg-1">
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h1 class="h4 mb-3">Request rental extension</h1>
+                <p class="text-secondary small mb-4">
+                  Choose a new return date and send an extension request to the
+                  lender. This UI is static and ready to be wired to your
+                  backend or API.
+                </p>
+
+                <form id="extendForm" action="borrower-rental-details.html">
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Current return date</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        value="2026-03-09"
+                        disabled
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="newReturnDate" class="form-label"
+                        >New return date</label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="newReturnDate"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="reason" class="form-label"
+                      >Reason (optional)</label
+                    >
+                    <textarea
+                      id="reason"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Let the lender know why you’d like to extend (trip extended, more time to finish the game, etc.)."
+                    ></textarea>
+                  </div>
+
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="confirmTerms"
+                      required
+                    />
+                    <label class="form-check-label small" for="confirmTerms">
+                      I understand this is a request only and the lender must
+                      approve before the extension is confirmed.
+                    </label>
+                  </div>
+
+                  <button type="submit" class="btn btn-main btn-lg">
+                    <i class="bi bi-arrow-repeat me-1"></i>Submit extension
+                    request
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const baseEndDate = new Date("2026-03-09");
+      const pricePerDay = 8;
+
+      function recalcExtension() {
+        const input = document.getElementById("newReturnDate").value;
+        const extraDaysEl = document.getElementById("extraDays");
+        const extraCostEl = document.getElementById("extraCost");
+        const updatedTotalEl = document.getElementById("updatedTotal");
+
+        if (!input) {
+          extraDaysEl.textContent = "0";
+          extraCostEl.textContent = "$0.00";
+          updatedTotalEl.textContent = "$32.00";
+          return;
+        }
+
+        const newEndDate = new Date(input);
+        const msPerDay = 1000 * 60 * 60 * 24;
+        let diff = Math.round((newEndDate - baseEndDate) / msPerDay);
+
+        if (isNaN(diff) || diff < 1) {
+          diff = 0;
+        }
+
+        const extraCost = diff * pricePerDay;
+        const updatedTotal = 32 + extraCost;
+
+        extraDaysEl.textContent = diff.toString();
+        extraCostEl.textContent = `$${extraCost.toFixed(2)}`;
+        updatedTotalEl.textContent = `$${updatedTotal.toFixed(2)}`;
+      }
+
+      document
+        .getElementById("newReturnDate")
+        .addEventListener("change", recalcExtension);
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Rental Details - GameLend</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global styles -->
+    <link rel="stylesheet" href="../styles/app.css" />
+
+    <!-- Borrower styles -->
+    <link rel="stylesheet" href="styles/borrower.css" />
+  </head>
+
+  <body>
+    <!-- PRIMARY NAVBAR -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Search -->
+        <div class="mx-lg-4 mt-2 mb-0 search-bar d-none d-lg-block"></div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="borrower-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="catalog-section py-4">
+      <div class="container">
+        <div class="row mb-3">
+          <div class="col-12">
+            <a
+              href="borrower-my-rentals.html"
+              class="text-decoration-none small text-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Back to My Rentals
+            </a>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- ITEM & STATUS -->
+          <div class="col-lg-8">
+            <div class="card bg-dark mb-3">
+              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                <img
+                  src="../assets/images/donkey-kong-bananza.jpg"
+                  alt="Donkey Kong Bananza"
+                  class="rounded"
+                  style="width: 80px; height: 80px; object-fit: cover"
+                />
+                <div class="flex-grow-1">
+                  <h1 class="h5 mb-1">Donkey Kong Bananza (Switch)</h1>
+                  <p class="mb-1 small text-secondary">
+                    Request ID:
+                    <span class="bold text-white">REQ-2026-00110</span>
+                  </p>
+                  <p class="mb-0 small text-secondary">
+                    Lender:
+                    <span class="bold text-white">Casey R.</span> • Pickup in
+                    Pullman
+                  </p>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-success mb-2">Active</span>
+                  <p class="small text-secondary mb-0">
+                    Due back
+                    <span class="bold text-white">Mar 9, 2026</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card bg-dark mb-3">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Rental details</h5>
+                <div class="row small">
+                  <div class="col-md-4 mb-2">
+                    <p class="mb-1 text-secondary">Start date</p>
+                    <p class="mb-0 bold">Mar 5, 2026</p>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <p class="mb-1 text-secondary">End date</p>
+                    <p class="mb-0 bold">Mar 9, 2026</p>
+                  </div>
+                  <div class="col-md-4 mb-2">
+                    <p class="mb-1 text-secondary">Duration</p>
+                    <p class="mb-0 bold">4 days</p>
+                  </div>
+                  <div class="col-md-4 mb-2 mt-3">
+                    <p class="mb-1 text-secondary">Price per day</p>
+                    <p class="mb-0 bold">$8.00</p>
+                  </div>
+                  <div class="col-md-4 mb-2 mt-3">
+                    <p class="mb-1 text-secondary">Deposit</p>
+                    <p class="mb-0 bold">$40.00</p>
+                  </div>
+                  <div class="col-md-4 mb-2 mt-3">
+                    <p class="mb-1 text-secondary">Pickup</p>
+                    <p class="mb-0 bold">Local pickup</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Cost breakdown</h5>
+                <div class="small">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Rental (4 × $8.00)</span>
+                    <span class="bold">$32.00</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Service fee</span>
+                    <span class="bold">$3.50</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Refundable deposit</span>
+                    <span class="bold">$40.00</span>
+                  </div>
+                  <hr class="my-2" />
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Total paid</span>
+                    <span class="bold">$75.50</span>
+                  </div>
+                  <p class="small text-secondary mb-0 mt-1">
+                    Deposit will be refunded after the lender confirms the
+                    return with no damage.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS & LENDER INFO -->
+          <div class="col-lg-4">
+            <div class="card bg-dark mb-3">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Actions</h5>
+                <div class="d-grid gap-2">
+                  <a
+                    href="borrower-extend-rental.html"
+                    class="btn btn-main btn-sm"
+                  >
+                    <i class="bi bi-arrow-repeat me-1"></i>Request extension
+                  </a>
+                  <button class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x-circle me-1"></i>Cancel request
+                  </button>
+                  <button class="btn btn-alternate btn-sm">
+                    <i class="bi bi-chat-dots me-1"></i>Message lender
+                  </button>
+                  <a
+                    href="borrower-report-listing.html"
+                    class="btn btn-outline-warning btn-sm"
+                  >
+                    <i class="bi bi-flag me-1"></i>Report issue
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Lender information</h5>
+                <p class="mb-1">
+                  <i class="bi bi-person-circle me-1"></i
+                  ><span class="bold">Casey R.</span>
+                </p>
+                <p class="small text-secondary mb-2">
+                  <i class="bi bi-star-fill text-warning me-1"></i>4.9 rating •
+                  42 completed rentals
+                </p>
+                <p class="small text-secondary mb-2">
+                  <i class="bi bi-geo-alt me-1"></i>Pickup near WSU campus,
+                  Pullman
+                </p>
+                <p class="small text-secondary mb-0">
+                  Exact address and contact details are shared after the rental
+                  is approved.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+

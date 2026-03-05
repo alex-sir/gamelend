@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Rental Request - GameLend</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global styles -->
+    <link rel="stylesheet" href="../styles/app.css" />
+
+    <!-- Borrower styles -->
+    <link rel="stylesheet" href="styles/borrower.css" />
+  </head>
+
+  <body>
+    <!-- PRIMARY NAVBAR -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="borrower-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="catalog-section py-4">
+      <div class="container">
+        <div class="row mb-3">
+          <div class="col-12">
+            <a
+              href="borrower-item-details.html"
+              class="text-decoration-none small text-secondary"
+            >
+              <i class="bi bi-arrow-left me-1"></i>Back to item
+            </a>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- SUMMARY CARD -->
+          <div class="col-lg-4 order-lg-2">
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Rental summary</h5>
+                <div class="d-flex mb-3">
+                  <img
+                    src="../assets/images/ps5.jpg"
+                    alt="PlayStation 5"
+                    class="rounded me-3"
+                    style="width: 72px; height: 72px; object-fit: cover"
+                  />
+                  <div>
+                    <p class="mb-1 bold">PlayStation 5 Digital Edition</p>
+                    <p class="mb-0 small text-secondary">
+                      Lender: <span class="bold text-white">Alex P.</span>
+                    </p>
+                  </div>
+                </div>
+
+                <ul class="list-unstyled small text-secondary mb-3">
+                  <li>
+                    <span class="bold text-white">Price per day:</span> $18.00
+                  </li>
+                  <li>
+                    <span class="bold text-white">Deposit:</span> $80.00
+                  </li>
+                  <li>
+                    <span class="bold text-white">Minimum rental:</span> 2 days
+                  </li>
+                </ul>
+
+                <hr />
+
+                <div class="d-flex justify-content-between mb-1 small">
+                  <span>Rental subtotal</span>
+                  <span id="rentalSubtotal">$36.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 small">
+                  <span>Service fee</span>
+                  <span id="serviceFee">$4.50</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 small">
+                  <span>Refundable deposit</span>
+                  <span id="depositAmount">$80.00</span>
+                </div>
+                <hr class="my-2" />
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="bold">Total due today</span>
+                  <span class="h5 mb-0" id="totalDue">$120.50</span>
+                </div>
+                <p class="small text-secondary mt-1 mb-0">
+                  Deposit is refunded after safe, on‑time return.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- REQUEST FORM -->
+          <div class="col-lg-8 order-lg-1">
+            <div class="card bg-dark">
+              <div class="card-body">
+                <h1 class="h4 mb-3">Request rental</h1>
+                <p class="text-secondary small mb-4">
+                  Choose your dates and review the cost breakdown. This is a
+                  static example form you can hook into your backend later.
+                </p>
+
+                <form
+                  action="borrower-rental-confirmation.html"
+                  method="get"
+                  id="rentalRequestForm"
+                >
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label for="startDate" class="form-label"
+                        >Start date</label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="startDate"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="endDate" class="form-label">End date</label>
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="endDate"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="notes" class="form-label"
+                      >Message to lender (optional)</label
+                    >
+                    <textarea
+                      id="notes"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Share how you plan to use the item, preferred pickup times, etc."
+                    ></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Pickup option</label>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="pickupOption"
+                        id="pickupLocal"
+                        checked
+                      />
+                      <label class="form-check-label" for="pickupLocal">
+                        Local pickup
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="pickupOption"
+                        id="pickupMeet"
+                      />
+                      <label class="form-check-label" for="pickupMeet">
+                        Meet halfway (if lender agrees)
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      value=""
+                      id="termsCheck"
+                      required
+                    />
+                    <label class="form-check-label small" for="termsCheck">
+                      I agree to return the item in the same condition and
+                      follow the GameLend rental terms.
+                    </label>
+                  </div>
+
+                  <button type="submit" class="btn btn-main btn-lg">
+                    <i class="bi bi-send me-1"></i>Submit request
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Simple front-end price calculation demo
+      const pricePerDay = 18;
+      const serviceFeeRate = 0.125; // 12.5% of rental subtotal
+
+      function recalcTotals() {
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const subtotalEl = document.getElementById("rentalSubtotal");
+        const serviceFeeEl = document.getElementById("serviceFee");
+        const totalDueEl = document.getElementById("totalDue");
+        const depositEl = document.getElementById("depositAmount");
+
+        if (!start || !end) {
+          subtotalEl.textContent = "$36.00";
+          serviceFeeEl.textContent = "$4.50";
+          depositEl.textContent = "$80.00";
+          totalDueEl.textContent = "$120.50";
+          return;
+        }
+
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const msPerDay = 1000 * 60 * 60 * 24;
+        let days = Math.round((endDate - startDate) / msPerDay);
+
+        if (isNaN(days) || days < 2) {
+          days = 2; // enforce minimum rental length
+        }
+
+        const subtotal = days * pricePerDay;
+        const serviceFee = subtotal * serviceFeeRate;
+        const deposit = 80;
+        const totalDue = subtotal + serviceFee + deposit;
+
+        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+        serviceFeeEl.textContent = `$${serviceFee.toFixed(2)}`;
+        depositEl.textContent = `$${deposit.toFixed(2)}`;
+        totalDueEl.textContent = `$${totalDue.toFixed(2)}`;
+      }
+
+      document
+        .getElementById("startDate")
+        .addEventListener("change", recalcTotals);
+      document
+        .getElementById("endDate")
+        .addEventListener("change", recalcTotals);
+    </script>
+  </body>
+</html>
+

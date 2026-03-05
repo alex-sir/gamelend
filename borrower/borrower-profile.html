@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Borrower Profile - GameLend</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global styles -->
+    <link rel="stylesheet" href="../styles/app.css" />
+
+    <!-- Borrower styles -->
+    <link rel="stylesheet" href="styles/borrower.css" />
+  </head>
+
+  <body>
+    <!-- PRIMARY NAVBAR -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Borrower</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Search -->
+        <div class="mx-lg-4 mt-2 mb-0 search-bar d-none d-lg-block"></div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="borrower-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="catalog-section py-4">
+      <div class="container">
+        <div class="row">
+          <!-- SIDE NAV -->
+          <aside class="col-lg-3 mb-4">
+            <div class="card bg-dark">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <div
+                    class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                    style="
+                      width: 48px;
+                      height: 48px;
+                      background-color: rgba(250, 157, 40, 0.2);
+                    "
+                  >
+                    <i class="bi bi-person text-warning fs-4"></i>
+                  </div>
+                  <div>
+                    <p class="mb-0 bold">Alex Example</p>
+                    <p class="mb-0 small text-secondary">Borrower account</p>
+                  </div>
+                </div>
+
+                <hr />
+
+                <nav class="nav flex-column small">
+                  <a class="nav-link active text-white" href="#">
+                    <i class="bi bi-person me-2"></i>Profile
+                  </a>
+                  <a class="nav-link text-secondary" href="#security">
+                    <i class="bi bi-shield-lock me-2"></i>Security
+                  </a>
+                  <a class="nav-link text-secondary" href="#payments">
+                    <i class="bi bi-credit-card me-2"></i>Payment methods
+                  </a>
+                  <a class="nav-link text-secondary" href="#notifications">
+                    <i class="bi bi-bell me-2"></i>Notifications
+                  </a>
+                </nav>
+              </div>
+            </div>
+          </aside>
+
+          <!-- MAIN FORM -->
+          <section class="col-lg-9">
+            <div class="card bg-dark mb-3" id="profile">
+              <div class="card-body">
+                <h1 class="h4 mb-3">Profile</h1>
+                <p class="small text-secondary mb-4">
+                  Keep your basic information up to date so lenders can
+                  recognize you.
+                </p>
+
+                <form>
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label for="fullName" class="form-label">Full name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="fullName"
+                        value="Alex Example"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="displayName" class="form-label"
+                        >Display name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="displayName"
+                        value="Alex E."
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                      <label for="email" class="form-label">Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        value="alex@example.com"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="phone" class="form-label"
+                        >Phone (optional)</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phone"
+                        placeholder="(555) 123‑4567"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="location" class="form-label">Default area</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="location"
+                      placeholder="City, State"
+                    />
+                    <p class="small text-secondary mb-0 mt-1">
+                      Used to personalize search results and show nearby
+                      listings.
+                    </p>
+                  </div>
+
+                  <button type="submit" class="btn btn-main">
+                    Save profile
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card bg-dark mb-3" id="security">
+              <div class="card-body">
+                <h2 class="h5 mb-3">Security</h2>
+                <p class="small text-secondary mb-4">
+                  Change your password and manage login security.
+                </p>
+
+                <form>
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                      <label for="currentPassword" class="form-label"
+                        >Current password</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="currentPassword"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="newPassword" class="form-label"
+                        >New password</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="newPassword"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label for="confirmPassword" class="form-label"
+                        >Confirm new password</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="confirmPassword"
+                      />
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-main btn-sm">
+                    Update password
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card bg-dark mb-3" id="payments">
+              <div class="card-body">
+                <h2 class="h5 mb-3">Payment methods</h2>
+                <p class="small text-secondary mb-3">
+                  Store a card or link a payment provider for faster checkout.
+                  This is a static placeholder UI.
+                </p>
+
+                <div class="border rounded-3 p-3 mb-3 bg-black bg-opacity-25">
+                  <p class="mb-1 bold">Visa ending in 4242</p>
+                  <p class="small text-secondary mb-0">
+                    Expires 04/28 • Default for rentals
+                  </p>
+                </div>
+
+                <button class="btn btn-main btn-sm me-2">
+                  <i class="bi bi-credit-card me-1"></i>Add card
+                </button>
+                <button class="btn btn-alternate btn-sm">
+                  <i class="bi bi-wallet2 me-1"></i>Link payment app
+                </button>
+              </div>
+            </div>
+
+            <div class="card bg-dark" id="notifications">
+              <div class="card-body">
+                <h2 class="h5 mb-3">Notifications</h2>
+                <p class="small text-secondary mb-3">
+                  Choose how you want to hear about requests, approvals, and
+                  reminders.
+                </p>
+
+                <form>
+                  <div class="form-check form-switch mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="notifRequests"
+                      checked
+                    />
+                    <label
+                      class="form-check-label small"
+                      for="notifRequests"
+                    >
+                      Email me when a rental request is updated.
+                    </label>
+                  </div>
+                  <div class="form-check form-switch mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="notifReminders"
+                      checked
+                    />
+                    <label
+                      class="form-check-label small"
+                      for="notifReminders"
+                    >
+                      Send return reminders before a rental is due.
+                    </label>
+                  </div>
+                  <div class="form-check form-switch mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="notifPromos"
+                    />
+                    <label
+                      class="form-check-label small"
+                      for="notifPromos"
+                    >
+                      Share product updates and occasional tips.
+                    </label>
+                  </div>
+
+                  <button type="submit" class="btn btn-main btn-sm mt-2">
+                    Save notification settings
+                  </button>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+

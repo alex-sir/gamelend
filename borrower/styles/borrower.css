@@ -74,3 +74,24 @@
 .scroll-btn.right {
     right: 0;
 }
+
+/* Borrower detail / section cards (match lender/admin grey boxes) */
+.section-card {
+    background-color: var(--color-gray);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-card h2,
+.section-card h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.item-price {
+    color: var(--color-orange);
+    font-size: 1.6rem;
+    font-weight: 700;
+}
