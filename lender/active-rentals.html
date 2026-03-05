@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Rentals - GameLend</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="styles/lender.css" />
+    <link rel="stylesheet" href="styles/active-rentals.css" />
+  </head>
+  <body class="lender-page d-flex flex-column min-vh-100">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Lender</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search rentals..."
+              aria-label="Search"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+      <div class="container">
+        <!-- Header with Back Button -->
+        <div class="lender-header mb-4">
+          <a href="lender-dashboard.html" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
+          <h1>Active Rentals</h1>
+          <p>Manage your current rentals</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stat-value">2</div>
+              <div class="stat-label">Active Rentals</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stat-value">$135</div>
+              <div class="stat-label">Active Rental Value</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stats-card">
+              <div class="stat-value">0</div>
+              <div class="stat-label">Overdue Returns</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <ul
+          id="filter-tabs"
+          class="nav nav-tabs mb-4"
+          id="rentalTabs"
+          role="tablist"
+        >
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="active-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#active"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-clock-history me-2"></i>Active
+              <span class="badge bg-secondary ms-2">2</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="upcoming-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#upcoming"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-calendar-check me-2"></i>Upcoming
+              <span class="badge bg-secondary ms-2">1</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="completed-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#completed"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-check-circle me-2"></i>Completed
+              <span class="badge bg-secondary ms-2">5</span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="rentalTabsContent">
+          <!-- Active Rentals -->
+          <div class="tab-pane fade show active" id="active" role="tabpanel">
+            <!-- Rental 1 -->
+            <div class="section-card">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="d-flex align-items-start mb-3">
+                    <img
+                      class="rental-img"
+                      src="../assets/images/donkey-kong-bananza.jpg"
+                      alt="Donkey Kong"
+                    />
+                    <div class="flex-grow-1">
+                      <h3 class="h5 mb-1">Donkey Kong Bananza</h3>
+                      <div class="mb-2">
+                        <span class="badge-status badge-active"
+                          >In Progress</span
+                        >
+                      </div>
+                      <div class="listing-meta">
+                        <i class="bi bi-person me-1"></i>Alex P.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Rental Period:</strong></p>
+                      <p class="text-muted">Mar 2 - Mar 7, 2026 (5 days)</p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Return Date:</strong></p>
+                      <p>
+                        <strong style="color: var(--color-orange)"
+                          >Mar 7, 2026</strong
+                        >
+                        (3 days remaining)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-marker completed"></div>
+                      <div>
+                        <strong>Rental Confirmed</strong>
+                        <p class="text-muted mb-0">Feb 28, 2026 at 2:30 PM</p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker completed"></div>
+                      <div>
+                        <strong>Item Picked Up</strong>
+                        <p class="text-muted mb-0">Mar 2, 2026 at 10:00 AM</p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker"></div>
+                      <div>
+                        <strong>Return Scheduled</strong>
+                        <p class="text-muted mb-0">Mar 7, 2026 by 6:00 PM</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div
+                    class="section-card"
+                    style="background-color: var(--color-black)"
+                  >
+                    <h4 class="h6 mb-3">Rental Details</h4>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Daily Rate</span>
+                      <strong>$8.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Duration</span>
+                      <strong>5 days</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Delivery</span>
+                      <strong>Pickup</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-3">
+                      <span><strong>Total</strong></span>
+                      <strong
+                        style="color: var(--color-orange); font-size: 1.25rem"
+                        >$40.00</strong
+                      >
+                    </div>
+
+                    <div class="d-grid gap-2">
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="contactBorrower()"
+                      >
+                        <i class="bi bi-chat-dots me-1"></i>Contact Borrower
+                      </button>
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="reportIssue()"
+                      >
+                        <i class="bi bi-exclamation-triangle me-1"></i>Report
+                        Issue
+                      </button>
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="confirmReturn()"
+                      >
+                        <i class="bi bi-check-circle me-1"></i>Confirm Return
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rental 2 -->
+            <div class="section-card">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="d-flex align-items-start mb-3">
+                    <img
+                      class="rental-img"
+                      src="../assets/images/ps5.jpg"
+                      alt="PlayStation 5"
+                    />
+                    <div class="flex-grow-1">
+                      <h3 class="h5 mb-1">PlayStation 5</h3>
+                      <div class="mb-2">
+                        <span class="badge-status badge-active"
+                          >In Progress</span
+                        >
+                      </div>
+                      <div class="listing-meta">
+                        <i class="bi bi-person me-1"></i>Emma K.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Rental Period:</strong></p>
+                      <p class="text-muted">Mar 1 - Mar 9, 2026 (8 days)</p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Return Date:</strong></p>
+                      <p>
+                        <strong style="color: var(--color-orange)"
+                          >Mar 9, 2026</strong
+                        >
+                        (5 days remaining)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="timeline">
+                    <div class="timeline-item">
+                      <div class="timeline-marker completed"></div>
+                      <div>
+                        <strong>Rental Confirmed</strong>
+                        <p class="text-muted mb-0">Feb 27, 2026 at 4:15 PM</p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker completed"></div>
+                      <div>
+                        <strong>Item Delivered</strong>
+                        <p class="text-muted mb-0">Mar 1, 2026 at 3:00 PM</p>
+                      </div>
+                    </div>
+                    <div class="timeline-item">
+                      <div class="timeline-marker"></div>
+                      <div>
+                        <strong>Return Scheduled</strong>
+                        <p class="text-muted mb-0">Mar 9, 2026 by 5:00 PM</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div
+                    class="section-card"
+                    style="background-color: var(--color-black)"
+                  >
+                    <h4 class="h6 mb-3">Rental Details</h4>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Daily Rate</span>
+                      <strong>$12.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Duration</span>
+                      <strong>8 days</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Delivery</span>
+                      <strong>Delivered ($10)</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-3">
+                      <span><strong>Total</strong></span>
+                      <strong
+                        style="color: var(--color-orange); font-size: 1.25rem"
+                        >$106.00</strong
+                      >
+                    </div>
+
+                    <div class="d-grid gap-2">
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="contactBorrower()"
+                      >
+                        <i class="bi bi-chat-dots me-1"></i>Contact Borrower
+                      </button>
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="reportIssue()"
+                      >
+                        <i class="bi bi-exclamation-triangle me-1"></i>Report
+                        Issue
+                      </button>
+                      <button
+                        class="btn btn-main btn-sm"
+                        onclick="confirmReturn()"
+                      >
+                        <i class="bi bi-check-circle me-1"></i>Confirm Return
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Rentals -->
+          <div class="tab-pane fade" id="upcoming" role="tabpanel">
+            <div class="section-card">
+              <div class="listing-item">
+                <img
+                  src="../assets/images/xbox-wireless-controller.jpg"
+                  alt="Xbox Controller"
+                />
+                <div class="listing-details">
+                  <div class="listing-title">Xbox Wireless Controller</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-person me-1"></i>Sarah M. •
+                    <span class="ms-2"
+                      >Starts: <strong>Mar 10, 2026</strong></span
+                    >
+                  </div>
+                </div>
+                <div class="text-end">
+                  <span class="badge-status badge-pending">Upcoming</span>
+                  <div class="mt-2">
+                    <strong style="color: var(--color-orange)">$25.00</strong>
+                    <p class="text-muted mb-0">5 days</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Rentals -->
+          <div class="tab-pane fade" id="completed" role="tabpanel">
+            <div class="section-card">
+              <div class="listing-item">
+                <img src="../assets/images/xbox_1.jpg" alt="Xbox Series X" />
+                <div class="listing-details">
+                  <div class="listing-title">Xbox Series X</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-person me-1"></i>David L. •
+                    <span class="ms-2"
+                      >Completed: <strong>Mar 3, 2026</strong></span
+                    >
+                  </div>
+                </div>
+                <div class="text-end">
+                  <strong style="color: var(--color-orange)">$32.00</strong>
+                  <p class="text-muted mb-0">4 days</p>
+                </div>
+              </div>
+
+              <div class="listing-item">
+                <img src="../assets/images/ps5.jpg" alt="PS5" />
+                <div class="listing-details">
+                  <div class="listing-title">PlayStation 5 Digital Edition</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-person me-1"></i>Jessica W. •
+                    <span class="ms-2"
+                      >Completed: <strong>Feb 28, 2026</strong></span
+                    >
+                  </div>
+                </div>
+                <div class="text-end">
+                  <strong style="color: var(--color-orange)">$45.00</strong>
+                  <p class="text-muted mb-0">3 days</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function contactBorrower() {
+        alert("Opening message thread with borrower...");
+      }
+
+      function reportIssue() {
+        if (confirm("Report an issue with this rental?")) {
+          alert("Issue report form would open here.");
+        }
+      }
+
+      function confirmReturn() {
+        if (
+          confirm("Confirm that the item has been returned in good condition?")
+        ) {
+          alert("Return confirmed! Rental completed successfully.");
+        }
+      }
+    </script>
+  </body>
+</html>

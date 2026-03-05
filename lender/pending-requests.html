@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pending Requests - GameLend</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="styles/lender.css" />
+  </head>
+  <body class="lender-page d-flex flex-column min-vh-100">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Lender</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search requests..."
+              aria-label="Search"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <!-- Dashboard dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+      <div class="container">
+        <!-- Header with Back Button -->
+        <div class="lender-header mb-4">
+          <a href="lender-dashboard.html" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
+          <h1>Pending Requests</h1>
+          <p>Review and respond to rental requests</p>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="stats-card">
+              <div class="stat-value">3</div>
+              <div class="stat-label">Pending Requests</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="stats-card">
+              <div class="stat-value">48 hrs</div>
+              <div class="stat-label">Response Time Remaining</div>
+            </div>
+          </div>
+        </div>
+
+        <!--List of pending requests -->
+        <div class="section-card">
+          <div class="request-item">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                  <img
+                    src="../assets/images/ps5.jpg"
+                    alt="PlayStation 5"
+                    style="
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 8px;
+                      margin-right: 1rem;
+                    "
+                  />
+                  <div>
+                    <div class="listing-title">
+                      PlayStation 5 Digital Edition
+                    </div>
+                    <div class="listing-meta">
+                      <i class="bi bi-person me-1"></i>Sarah Martinez
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Rental Period:</strong></p>
+                    <p class="text-muted">
+                      Mar 10, 2026 - Mar 15, 2026 (5 days)
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Total Cost:</strong></p>
+                    <p>
+                      <span class="item-price">$75.00</span> ($15/day × 5 days)
+                    </p>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <p class="mb-1"><strong>Message from Borrower:</strong></p>
+                  <p class="text-muted">
+                    "Hi! I'm interested in renting your PS5 for a gaming weekend
+                    with friends. I have a perfect rental history and will take
+                    excellent care of it. Looking forward to hearing from you!"
+                  </p>
+                </div>
+
+                <div class="mb-2">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>Received 5 hours ago •
+                    Expires in 67 hours
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+              <button class="btn btn-main btn-action">
+                <i class="bi bi-check-circle me-1"></i>Accept Request
+              </button>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-x-circle me-1"></i>Reject Request
+              </button>
+              <a
+                href="request-detail.html?id=1"
+                class="btn btn-alternate btn-action"
+              >
+                <i class="bi bi-eye me-1"></i>View Full Details
+              </a>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-chat-dots me-1"></i>Send Message
+              </button>
+            </div>
+          </div>
+
+          <div class="request-item">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                  <img
+                    src="../assets/images/xbox-wireless-controller.jpg"
+                    alt="Xbox Controller"
+                    style="
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 8px;
+                      margin-right: 1rem;
+                    "
+                  />
+                  <div>
+                    <div class="listing-title">Xbox Wireless Controller</div>
+                    <div class="listing-meta">
+                      <i class="bi bi-person me-1"></i>Mike Thompson
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Rental Period:</strong></p>
+                    <p class="text-muted">
+                      Mar 8, 2026 - Mar 12, 2026 (4 days)
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Total Cost:</strong></p>
+                    <p>
+                      <span class="item-price">$20.00</span> ($5/day × 4 days)
+                    </p>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <p class="mb-1"><strong>Message from Borrower:</strong></p>
+                  <p class="text-muted">
+                    "Need a second controller for co-op gaming. Will handle with
+                    care!"
+                  </p>
+                </div>
+
+                <div class="mb-2">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>Received 8 hours ago •
+                    Expires in 64 hours
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+              <button class="btn btn-main btn-action">
+                <i class="bi bi-check-circle me-1"></i>Accept Request
+              </button>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-x-circle me-1"></i>Reject Request
+              </button>
+              <a
+                href="request-detail.html?id=2"
+                class="btn btn-alternate btn-action"
+              >
+                <i class="bi bi-eye me-1"></i>View Full Details
+              </a>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-chat-dots me-1"></i>Send Message
+              </button>
+            </div>
+          </div>
+
+          <div class="request-item">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-3">
+                  <img
+                    src="../assets/images/donkey-kong-bananza.jpg"
+                    alt="Donkey Kong"
+                    style="
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 8px;
+                      margin-right: 1rem;
+                    "
+                  />
+                  <div>
+                    <div class="listing-title">Donkey Kong Bananza</div>
+                    <div class="listing-meta">
+                      <i class="bi bi-person me-1"></i>Jessica Lee
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Rental Period:</strong></p>
+                    <p class="text-muted">
+                      Mar 11, 2026 - Mar 14, 2026 (3 days)
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Total Cost:</strong></p>
+                    <p>
+                      <span class="item-price">$24.00</span> ($8/day × 3 days)
+                    </p>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <p class="mb-1"><strong>Message from Borrower:</strong></p>
+                  <p class="text-muted">
+                    "Trying before buying! Heard great things about this game."
+                  </p>
+                </div>
+
+                <div class="mb-2">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>Received 1 day ago • Expires
+                    in 47 hours
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-actions">
+              <button class="btn btn-main btn-action">
+                <i class="bi bi-check-circle me-1"></i>Accept Request
+              </button>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-x-circle me-1"></i>Reject Request
+              </button>
+              <a
+                href="request-detail.html?id=3"
+                class="btn btn-alternate btn-action"
+              >
+                <i class="bi bi-eye me-1"></i>View Full Details
+              </a>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-chat-dots me-1"></i>Send Message
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
