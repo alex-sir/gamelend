@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lender Dashboard - GameLend</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="../styles/lender.css" />
+  </head>
+  <body class="lender-page d-flex flex-column min-vh-100">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Lender</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search your listings..."
+              aria-label="Search"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+      <div class="container">
+        <!-- Header -->
+        <div class="lender-header mb-4">
+          <h1>Welcome back, User!</h1>
+          <p>Manage your lending activity and track your earnings</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3 col-6">
+            <div class="stats-card">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Active Listings</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stats-card">
+              <div class="stat-value">4</div>
+              <div class="stat-label">Pending Requests</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stats-card">
+              <div class="stat-value">2</div>
+              <div class="stat-label">Active Rentals</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="stats-card">
+              <div class="stat-value">$342</div>
+              <div class="stat-label">This Month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <a href="create-listing.html" class="btn btn-main btn-lg">
+              <i class="bi bi-plus-circle me-2"></i>Create New Listing
+            </a>
+          </div>
+        </div>
+
+        <!-- Pending Requests Section -->
+        <div class="section-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="bi bi-inbox me-2"></i>Pending Requests</h2>
+            <a
+              href="pending-requests.html"
+              class="text-decoration-none view-all"
+            >
+              View All <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+
+          <!-- Request Items -->
+          <div class="request-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-2">
+                  <img src="../assets/images/ps5.jpg" alt="PlayStation 5" />
+                  <div>
+                    <div class="listing-title">PlayStation 5</div>
+                    <div class="listing-meta">
+                      <i class="bi bi-person me-1"></i>Sarah M.
+                      <span class="ms-3"
+                        ><i class="bi bi-calendar me-1"></i>Mar 10-15,
+                        2026</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="text-end mt-2">
+                  <span class="item-price">$75.00</span>
+                  <span class="text-muted ms-2">5 days</span>
+                </div>
+              </div>
+            </div>
+            <div class="quick-actions mt-3">
+              <a
+                href="request-detail.html?id=1"
+                class="btn btn-main btn-action"
+              >
+                <i class="bi bi-check-circle me-1"></i>Accept
+              </a>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-x-circle me-1"></i>Reject
+              </button>
+              <a
+                href="request-detail.html?id=1"
+                class="btn btn-alternate btn-action"
+              >
+                <i class="bi bi-eye me-1"></i>View Details
+              </a>
+            </div>
+          </div>
+
+          <div class="request-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center mb-2">
+                  <img
+                    src="../assets/images/xbox-wireless-controller.jpg"
+                    alt="Xbox Controller"
+                  />
+                  <div>
+                    <div class="listing-title">Xbox Wireless Controller</div>
+                    <div class="listing-meta">
+                      <i class="bi bi-person me-1"></i>Mike T.
+                      <span class="ms-3"
+                        ><i class="bi bi-calendar me-1"></i>Mar 8-12, 2026</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="text-end mt-2">
+                  <span class="item-price">$20.00</span>
+                  <span class="text-muted ms-2">4 days</span>
+                </div>
+              </div>
+            </div>
+            <div class="quick-actions mt-3">
+              <a
+                href="request-detail.html?id=2"
+                class="btn btn-main btn-action"
+              >
+                <i class="bi bi-check-circle me-1"></i>Accept
+              </a>
+              <button class="btn btn-alternate btn-action">
+                <i class="bi bi-x-circle me-1"></i>Reject
+              </button>
+              <a
+                href="request-detail.html?id=2"
+                class="btn btn-alternate btn-action"
+              >
+                <i class="bi bi-eye me-1"></i>View Details
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Rentals Section -->
+        <div class="section-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="bi bi-clock-history me-2"></i>Active Rentals</h2>
+            <a href="active-rentals.html" class="text-decoration-none view-all">
+              View All <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="listing-item">
+            <img
+              src="../assets/images/donkey-kong-bananza.jpg"
+              alt="Donkey Kong"
+            />
+            <div class="listing-details">
+              <div class="listing-title">Donkey Kong Bananza</div>
+              <div class="listing-meta">
+                <i class="bi bi-person me-1"></i>Alex P. •
+                <span class="ms-2"
+                  >Return by: <span class="bold">Mar 7, 2026</span></span
+                >
+              </div>
+            </div>
+            <div class="text-end">
+              <span class="badge-status badge-active">In Progress</span>
+              <div class="mt-2">
+                <a
+                  href="rental-detail.html?id=1"
+                  class="btn btn-alternate btn-sm"
+                  >View</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="listing-item">
+            <img src="../assets/images/ps5.jpg" alt="Racing Wheel" />
+            <div class="listing-details">
+              <div class="listing-title">Logitech G29 Racing Wheel</div>
+              <div class="listing-meta">
+                <i class="bi bi-person me-1"></i>Emma K. •
+                <span class="ms-2"
+                  >Return by: <span class="bold">Mar 9, 2026</span></span
+                >
+              </div>
+            </div>
+            <div class="text-end">
+              <span class="badge-status badge-active">In Progress</span>
+              <div class="mt-2">
+                <a
+                  href="rental-detail.html?id=2"
+                  class="btn btn-alternate btn-sm"
+                  >View</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="section-card">
+          <h2><i class="bi bi-activity me-2"></i>Recent Activity</h2>
+
+          <div class="list-group list-group-flush">
+            <div class="list-group-item recent-activity-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-check-circle text-success me-2"></i>
+                  <span class="bold">Rental completed:</span> Halo Infinite
+                </div>
+                <small class="text-muted">2 hours ago</small>
+              </div>
+            </div>
+            <div class="list-group-item recent-activity-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <i class="bi bi-inbox text-warning me-2"></i>
+                  <span class="bold">New request:</span> Xbox Wireless
+                  Controller
+                </div>
+                <small class="text-muted">5 hours ago</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

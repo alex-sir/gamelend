@@ -66,22 +66,71 @@
           </form>
         </div>
 
-        <!-- Content that gets collapsed when the navigation bar is small -->
+        <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
+            <h5 class="offcanvas-title">Lender Menu</h5>
             <button
               type="button"
               class="btn-close btn-close-white"
               data-bs-dismiss="offcanvas"
-              aria-label="Close"
             ></button>
           </div>
-          <!-- Log In/Sign Up buttons -->
           <div class="offcanvas-body">
-            <div class="d-flex">
-              <a href="auth/login.html" class="btn btn-main">Log In</a>
-              <a href="auth/register.html" class="btn btn-alternate">Sign Up</a>
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-house me-1"></i>Home
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
