@@ -3,24 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - GameLend</title>
+    <title>GameLend · Moderation Categories</title>
 
-    <!-- Favicon -->
     <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
 
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
-    <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,18 +23,18 @@
       rel="stylesheet"
     />
 
-    <!-- Re‑use your main styles -->
     <link rel="stylesheet" href="../styles/app.css" />
     <link rel="stylesheet" href="styles/admin.css" />
   </head>
 
   <body class="admin-page d-flex flex-column min-vh-100">
-    <!-- Re‑use main navbar, link brand back to main site -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="admin-dashboard.html">
           <i class="bi bi-controller me-2"></i>GameLend
-          <span class="ms-1 role">Admin</span>
+          <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">
+            Admin
+          </span>
         </a>
 
         <button
@@ -51,13 +46,12 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Search bar -->
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
           <form class="d-flex">
             <input
               class="form-control"
               type="search"
-              placeholder="Search users, listings, or rentals"
+              placeholder="Search categories"
               aria-label="Search"
             />
             <button class="btn btn-primary search-submit" type="submit">
@@ -138,145 +132,116 @@
       </div>
     </nav>
 
-    <!-- Main admin content -->
     <main class="py-4">
       <div class="container">
-        <!-- Header -->
+        <!-- Header with back button -->
         <div class="admin-header mb-3">
-          <div class="d-flex justify-content-between align-items-center">
+          <a href="admin-dashboard.html" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
+
+          <div class="d-flex justify-content-between align-items-start">
             <div>
-              <h1>Admin Home</h1>
-              <p>Overview of GameLend activity and quick admin actions.</p>
+              <h1>Moderate Categories</h1>
+              <p>
+                Define and manage the categories used to classify reports,
+                listings, and moderation actions.
+              </p>
             </div>
-            <!--
-            <div class="text-end d-none d-md-block">
-              <span class="badge bg-secondary">
-                Today: Mar 1, 2026
-              </span>
-            </div>
-            -->
           </div>
         </div>
 
-        <!-- Analytics section -->
+        <!-- Category list / management -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2>Analytics</h2>
-            <a href="analytics.html" class="section-footer-link">
-              View full analytics <i class="bi bi-arrow-right"></i>
-            </a>
+            <h2>Category list</h2>
+            <button class="btn btn-main btn-sm" type="button">
+              <i class="bi bi-plus-circle me-1"></i>Add category
+            </button>
           </div>
 
-          <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <div class="metric-card">
-                <div class="metric-label">Active Listings</div>
-                <div class="metric-value">127</div>
-                <div class="metric-trend">
-                  <i class="bi bi-arrow-up-right text-success me-1"></i>
-                  +12% vs last week
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="metric-card">
-                <div class="metric-label">Completed Rentals (30 days)</div>
-                <div class="metric-value">89</div>
-                <div class="metric-trend">
-                  <i class="bi bi-arrow-up-right text-success me-1"></i>
-                  +8% vs last month
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="metric-card">
-                <div class="metric-label">Platform Revenue (30 days)</div>
-                <div class="metric-value">$1,230</div>
-                <div class="metric-trend">
-                  <i class="bi bi-arrow-down-right text-danger me-1"></i>
-                  −3% vs last month
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="analytics-chart-placeholder">
-            Traffic over time chart placeholder (rentals per day)
+          <div class="table-responsive">
+            <table
+              class="table table-dark table-striped table-sm align-middle mb-0"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Applies to</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Listings</th>
+                  <th scope="col">Last updated</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Consoles</td>
+                  <td>Listings</td>
+                  <td><span class="badge bg-success">Active</span></td>
+                  <td>42</td>
+                  <td>Mar 3, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Accessories</td>
+                  <td>Listings</td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Review</span>
+                  </td>
+                  <td>18</td>
+                  <td>Mar 1, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gaming PC</td>
+                  <td>Listings</td>
+                  <td><span class="badge bg-secondary">Hidden</span></td>
+                  <td>7</td>
+                  <td>Feb 20, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
-        <!-- Moderation section -->
-<section class="admin-section mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h2>Moderation</h2>
-    <a href="moderation-dashboard.html" class="section-footer-link">
-      Open moderation hub <i class="bi bi-arrow-right"></i>
-    </a>
-  </div>
-
-  <div class="row g-3">
-    <div class="col-md-4">
-      <h6 class="mb-2">Users</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-users.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span><i class="bi bi-people me-2"></i> Manage Users</span>
-          <span class="badge bg-warning text-dark">3 reports</span>
-        </a>
-      </ul>
-    </div>
-
-    <div class="col-md-4">
-      <h6 class="mb-2">Listings</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-listings.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span>
-            <i class="bi bi-controller me-2"></i> Moderate Listings
-          </span>
-          <span class="badge bg-warning text-dark">5 flagged</span>
-        </a>
-      </ul>
-    </div>
-
-    <div class="col-md-4">
-      <h6 class="mb-2">Categories</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-categories.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span>
-            <i class="bi bi-tags me-2"></i> Manage Categories
-          </span>
-        </a>
-      </ul>
-    </div>
-  </div>
-</section>
-
-
-        <!-- Configuration section -->
+        <!-- Optional: usage notes -->
         <section class="admin-section mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2>Configuration</h2>
-            <a href="admin-settings.html" class="section-footer-link">
-              Open full settings <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-
-          <p class="mb-0 text-muted">
-            Manage core GameLend admin settings from the configuration panel.
+          <h2 class="mb-2">How categories are used</h2>
+          <p class="mb-1">
+            Categories help structure listings and reports so moderators can
+            quickly filter and prioritize work.
+          </p>
+          <p class="mb-0">
+            Updating a category here will affect any future reports and listings
+            that use it, but existing records keep their current labels.
           </p>
         </section>
       </div>
     </main>
 
-    <!-- Footer -->
     <footer>
       <div class="container">
         <div class="row justify-content-center mx-auto">
