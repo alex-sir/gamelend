@@ -2,7 +2,7 @@
 
 GameLend is a peer-to-peer web application for renting and lending physical video games, consoles, and gaming accessories. It connects gamers who have idle items with borrowers who want short-term access instead of buying new hardware or titles.
 
-![Home page screenshot](assets/images/gamelend.png)
+![Home page screenshot](public/images/gamelend.png)
 
 ## Features
 
@@ -17,8 +17,74 @@ GameLend is a peer-to-peer web application for renting and lending physical vide
 
 - HTML, CSS, JavaScript (frontend)
 - Bootstrap 5 and Bootstrap Icons for layout and styling
-- Node.js with Express.js (backend, planned)
-- MySQL (relational database, planned)
+- Node.js with Express.js (backend)
+- MariaDB (relational database)
+
+## Development
+
+### MariaDB Local Test Database
+
+To develop and test the GameLend application locally, you can set up a local MariaDB database. We use an SQL script to standardize the creation of the database and the required user permissions.
+
+The following instructions assume a Linux system is being used.
+
+#### 1. Prerequisites
+
+Ensure MariaDB is installed and the background service is running on your system.
+
+#### 2. The Setup Script
+
+In the `scripts/` directory, you will find the `setup_database.sql` file.
+
+Security Note: Do not commit real passwords to the repository. The script uses a standardized dummy password (**gamelend_dev**) intended strictly for local development.
+
+#### 3. Executing the Script
+
+To provision your local database, run the script through the MariaDB CLI. You will be prompted to enter your local root MariaDB password.
+
+```bash
+sudo mariadb -u root -p < config/setup_database.sql
+```
+
+#### 4. Update Your Environment Variables
+
+Create or update your `.env` file at the root of the project to match the local database credentials:
+
+```bash
+DB_NAME=gamelend_db
+DB_USER=gamelend_user
+DB_PASSWORD=gamelend_dev
+DB_HOST=localhost
+PORT=3000
+```
+
+#### 5. Verification
+
+Because we use Sequelize, you do not need to manually create the tables (Users, Listings, etc.).
+
+Start the application:
+
+```bash
+node app.js
+```
+
+If the database was set up correctly, you will see the following output in your terminal:
+
+```bash
+MariaDB Database synced successfully.
+GameLend server running on http://localhost:3000
+```
+
+You can verify the tables were built by logging into the database:
+
+```bash
+mariadb -u gamelend_user -p
+```
+
+```sql
+USE gamelend_db;
+SHOW TABLES;
+```
 
 ## Team
 
