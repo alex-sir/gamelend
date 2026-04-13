@@ -82,8 +82,14 @@ mariadb -u gamelend_user -p
 ```
 
 ```sql
-USE gamelend_db;
+USE gamelend;
 SHOW TABLES;
+```
+
+View all rows in the `Users` table:
+
+```sql
+SELECT * FROM Users;
 ```
 
 ## Team
