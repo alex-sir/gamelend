@@ -6,7 +6,7 @@ const getLenderId = (req) => req.session.userId || 1;
 const LenderController = {
   // --- Dashboard & Basic Views ---
   getDashboard: async (req, res) => {
-    res.render("lender/lender-dashboard");
+    res.render("lender/dashboard");
   },
 
   getMyListings: async (req, res) => {

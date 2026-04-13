@@ -17,7 +17,6 @@ app.set("views", path.join(__dirname, "views"));
 // --- Middleware ---
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// Corrected __line to __dirname
 app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride("_method")); // Allows ?_method=PUT in forms
 
@@ -37,6 +36,11 @@ app.use("/lender", lenderRoutes);
 // Public Landing Page (Placeholder)
 app.get("/", (req, res) => {
   res.render("index");
+});
+
+// Public About Page
+app.get("/about", (req, res) => {
+  res.render("about");
 });
 
 // --- Database Sync and Server Start ---
