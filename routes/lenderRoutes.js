@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
-const { requireRole } = require("../middleware/authMiddleware");
+const { requireRole } = require("../middleware/auth");
 const LenderController = require("../controllers/LenderController");
 
 // --- Multer Configuration for Image Uploads (UC-L02) ---

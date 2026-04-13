@@ -2,6 +2,8 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const methodOverride = require("method-override");
+const authRoutes = require("./routes/authRoutes");
+const { requireAuth } = require("./middleware/auth");
 require("dotenv").config();
 
 const { sequelize } = require("./models");
@@ -27,7 +29,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: true, // Set to true if using HTTPS
+      secure: false, // Set to true if using HTTPS
     },
   }),
 );
@@ -40,8 +42,11 @@ app.use((req, res, next) => {
 });
 
 // --- Routes ---
+// Mount the auth routes FIRST (so they are not protected by requireAuth)
+app.use("/auth", authRoutes);
+
 // Mount the lender routes
-app.use("/lender", lenderRoutes);
+app.use("/lender", requireAuth, lenderRoutes);
 
 // Public Landing Page (Placeholder)
 app.get("/", (req, res) => {

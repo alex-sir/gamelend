@@ -43,7 +43,7 @@ Security Note: Do not commit real passwords to the repository. The script uses a
 To provision your local database, run the script through the MariaDB CLI. You will be prompted to enter your local root MariaDB password.
 
 ```bash
-sudo mariadb -u root -p < config/setup_database.sql
+sudo mariadb -u root -p < scripts/setup_database.sql
 ```
 
 #### 4. Update Your Environment Variables
@@ -51,7 +51,7 @@ sudo mariadb -u root -p < config/setup_database.sql
 Create or update your `.env` file at the root of the project to match the local database credentials:
 
 ```bash
-DB_NAME=gamelend_db
+DB_NAME=gamelend
 DB_USER=gamelend_user
 DB_PASSWORD=gamelend_dev
 DB_HOST=localhost
