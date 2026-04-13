@@ -20,8 +20,12 @@ const Listing = sequelize.define(
         len: [5, 100], // Title must be between 5 and 100 characters
       },
     },
-    category: {
-      type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
+    // category: {
+    //   type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
+    //   allowNull: false,
+    // }
+    categoryId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     description: {
