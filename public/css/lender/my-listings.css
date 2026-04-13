@@ -1,0 +1,9 @@
+#listingTabs {
+  border-bottom: 2px solid var(--color-gray);
+}
+
+#pending-alert {
+  background-color: rgba(250, 157, 40, 0.2);
+  border: 1px solid var(--color-orange);
+  color: var(--color-light-gray);
+}

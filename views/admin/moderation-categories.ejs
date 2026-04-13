@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GameLend · Moderation Categories</title>
+
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="styles/admin.css" />
+  </head>
+
+  <body class="admin-page d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="admin-dashboard.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">
+            Admin
+          </span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search categories"
+              aria-label="Search"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right-side navbar buttons -->
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Admin Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Admin Dashboard
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../lender/lender-dashboard.html"
+                      >Lender Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Account dropdown -->
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="py-4">
+      <div class="container">
+        <!-- Header with back button -->
+        <div class="admin-header mb-3">
+          <a href="admin-dashboard.html" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
+
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h1>Moderate Categories</h1>
+              <p>
+                Define and manage the categories used to classify reports,
+                listings, and moderation actions.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category list / management -->
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>Category list</h2>
+            <button class="btn btn-main btn-sm" type="button">
+              <i class="bi bi-plus-circle me-1"></i>Add category
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table
+              class="table table-dark table-striped table-sm align-middle mb-0"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Applies to</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Listings</th>
+                  <th scope="col">Last updated</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Consoles</td>
+                  <td>Listings</td>
+                  <td><span class="badge bg-success">Active</span></td>
+                  <td>42</td>
+                  <td>Mar 3, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Accessories</td>
+                  <td>Listings</td>
+                  <td>
+                    <span class="badge bg-warning text-dark">Review</span>
+                  </td>
+                  <td>18</td>
+                  <td>Mar 1, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gaming PC</td>
+                  <td>Listings</td>
+                  <td><span class="badge bg-secondary">Hidden</span></td>
+                  <td>7</td>
+                  <td>Feb 20, 2026</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-light" type="button">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" type="button">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Optional: usage notes -->
+        <section class="admin-section mb-4">
+          <h2 class="mb-2">How categories are used</h2>
+          <p class="mb-1">
+            Categories help structure listings and reports so moderators can
+            quickly filter and prioritize work.
+          </p>
+          <p class="mb-0">
+            Updating a category here will affect any future reports and listings
+            that use it, but existing records keep their current labels.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

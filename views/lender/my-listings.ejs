@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Listings - GameLend</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../styles/app.css" />
+    <link rel="stylesheet" href="styles/lender.css" />
+    <link rel="stylesheet" href="styles/my-listings.css" />
+  </head>
+  <body class="lender-page d-flex flex-column min-vh-100">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Lender</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="mx-lg-4 mt-2 mb-0 search-bar">
+          <form class="d-flex">
+            <input
+              class="form-control"
+              type="search"
+              placeholder="Search your listings..."
+              aria-label="Search"
+            />
+            <button class="btn btn-primary search-submit" type="submit">
+              <i class="bi bi-search fs-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="offcanvas"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../borrower/borrower-dashboard.html"
+                      >Borrower Dashboard</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="../admin/admin-dashboard.html"
+                      >Admin Dashboard</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../index.html">Home</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="dropdown">
+                <button
+                  class="btn btn-alternate dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <i class="bi bi-person-circle me-1"></i>Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="lender-profile.html"
+                      >Profile Settings</a
+                    >
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="../auth/logout.html"
+                      >Log Out</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+      <div class="container">
+        <!-- Header with Back Button -->
+        <div class="lender-header mb-4">
+          <a href="lender-dashboard.html" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1>My Listings</h1>
+              <p>Manage your equipment listings</p>
+            </div>
+            <a href="create-listing.html" class="btn btn-main">
+              <i class="bi bi-plus-circle me-2"></i>Create New Listing
+            </a>
+          </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-4" id="listing-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="active-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#active"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-check-circle me-2"></i>Active
+              <span class="badge bg-secondary ms-2">12</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="pending-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#pending"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-clock me-2"></i>Pending Approval
+              <span class="badge bg-warning text-dark ms-2">2</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="draft-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#draft"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-file-earmark me-2"></i>Drafts
+              <span class="badge bg-secondary ms-2">3</span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="listingTabsContent">
+          <!-- Active Listings -->
+          <div class="tab-pane fade show active" id="active" role="tabpanel">
+            <div class="section-card">
+              <div class="listing-item">
+                <img src="../assets/images/ps5.jpg" alt="PlayStation 5" />
+                <div class="listing-details">
+                  <div class="listing-title">PlayStation 5 Digital Edition</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-eye me-1"></i>243 views •
+                    <i class="bi bi-cash ms-2 me-1"></i>$15/day
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge-status badge-active">Active</span>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-alternate btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                    >
+                      <i class="bi bi-three-dots-vertical"></i> Actions
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+                    >
+                      <li>
+                        <a class="dropdown-item" href="listing-detail.html?id=1"
+                          ><i class="bi bi-eye me-2"></i>View</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="edit-listing.html?id=1"
+                          ><i class="bi bi-pencil me-2"></i>Edit</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="upload-images.html?id=1"
+                          ><i class="bi bi-images me-2"></i>Manage Images</a
+                        >
+                      </li>
+                      <li><hr class="dropdown-divider" /></li>
+                      <li>
+                        <a class="dropdown-item text-danger" href="#"
+                          ><i class="bi bi-trash me-2"></i>Delete</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="listing-item">
+                <img
+                  src="../assets/images/xbox-wireless-controller.jpg"
+                  alt="Xbox Controller"
+                />
+                <div class="listing-details">
+                  <div class="listing-title">
+                    Xbox Wireless Controller - Carbon Black
+                  </div>
+                  <div class="listing-meta">
+                    <i class="bi bi-eye me-1"></i>127 views •
+                    <i class="bi bi-cash ms-2 me-1"></i>$5/day
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge-status badge-active">Active</span>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-alternate btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                    >
+                      <i class="bi bi-three-dots-vertical"></i> Actions
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+                    >
+                      <li>
+                        <a class="dropdown-item" href="listing-detail.html?id=2"
+                          ><i class="bi bi-eye me-2"></i>View</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="edit-listing.html?id=2"
+                          ><i class="bi bi-pencil me-2"></i>Edit</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="upload-images.html?id=2"
+                          ><i class="bi bi-images me-2"></i>Manage Images</a
+                        >
+                      </li>
+                      <li><hr class="dropdown-divider" /></li>
+                      <li>
+                        <a class="dropdown-item text-danger" href="#"
+                          ><i class="bi bi-trash me-2"></i>Delete</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="listing-item">
+                <img
+                  src="../assets/images/donkey-kong-bananza.jpg"
+                  alt="Donkey Kong"
+                />
+                <div class="listing-details">
+                  <div class="listing-title">
+                    Donkey Kong Bananza - Nintendo Switch 2
+                  </div>
+                  <div class="listing-meta">
+                    <i class="bi bi-eye me-1"></i>189 views •
+                    <i class="bi bi-cash ms-2 me-1"></i>$8/day
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge-status badge-active">Active</span>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-alternate btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                    >
+                      <i class="bi bi-three-dots-vertical"></i> Actions
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+                    >
+                      <li>
+                        <a class="dropdown-item" href="listing-detail.html?id=3"
+                          ><i class="bi bi-eye me-2"></i>View</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="edit-listing.html?id=3"
+                          ><i class="bi bi-pencil me-2"></i>Edit</a
+                        >
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="upload-images.html?id=3"
+                          ><i class="bi bi-images me-2"></i>Manage Images</a
+                        >
+                      </li>
+                      <li><hr class="dropdown-divider" /></li>
+                      <li>
+                        <a class="dropdown-item text-danger" href="#"
+                          ><i class="bi bi-trash me-2"></i>Delete</a
+                        >
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Approval -->
+          <div class="tab-pane fade" id="pending" role="tabpanel">
+            <div class="section-card">
+              <div id="pending-alert" class="alert">
+                <i class="bi bi-info-circle me-2"></i>Listings are typically
+                approved within 24-48 hours.
+              </div>
+
+              <div class="listing-item">
+                <img src="../assets/images/steam_1.jpg" alt="Steam Deck" />
+                <div class="listing-details">
+                  <div class="listing-title">Steam Deck</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-clock me-1"></i>Submitted 12 hours ago
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge-status badge-pending"
+                      >Pending Approval</span
+                    >
+                  </div>
+                </div>
+                <div class="text-end">
+                  <a
+                    href="edit-listing.html?id=4"
+                    class="btn btn-alternate btn-sm"
+                  >
+                    <i class="bi bi-pencil me-1"></i>Edit
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drafts -->
+          <div class="tab-pane fade" id="draft" role="tabpanel">
+            <div class="section-card">
+              <div class="listing-item">
+                <img src="../assets/images/switch_1.jpg" alt="Draft listing" />
+                <div class="listing-details">
+                  <div class="listing-title">Nintendo Switch 2</div>
+                  <div class="listing-meta">
+                    <i class="bi bi-clock me-1"></i>Last edited 3 days ago
+                  </div>
+                  <div class="mt-2">
+                    <span class="badge-status badge-draft">Draft</span>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <a href="edit-listing.html?id=5" class="btn btn-main btn-sm">
+                    <i class="bi bi-pencil me-1"></i>Continue Editing
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-center mx-auto">
+          <div class="col-md-3 mb-4">
+            <h5>About</h5>
+            <ul>
+              <li><a href="about.html">About GameLend</a></li>
+              <li><a href="about.html#team">Our Team</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Support</h5>
+            <ul>
+              <li><a href="about.html#faq">FAQ</a></li>
+              <li><a href="about.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3 mb-4">
+            <h5>Connect</h5>
+            <ul>
+              <li>
+                <a href="https://github.com/alex-sir/gamelend"
+                  ><i class="bi bi-github me-2"></i>GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
+            reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
