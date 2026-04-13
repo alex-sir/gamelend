@@ -1,6 +1,6 @@
 const sequelize = require("../config/database");
 
-// Import all models
+// Import all models normally
 const User = require("./User");
 const Listing = require("./Listing");
 const Image = require("./Image");

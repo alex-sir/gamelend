@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
+const { requireRole } = require("../middleware/authMiddleware");
 const LenderController = require("../controllers/LenderController");
 
 // --- Multer Configuration for Image Uploads (UC-L02) ---
@@ -22,8 +23,8 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
 
-// Note: In a full app, an authentication middleware would verify the user role here.
-// e.g., router.use(requireLenderAuth);
+// Protect all lender routes from unauthorized access
+router.use(requireRole("lender"));
 
 // --- Lender Dashboard & Listings ---
 router.get("/dashboard", LenderController.getDashboard);

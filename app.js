@@ -23,11 +23,21 @@ app.use(methodOverride("_method")); // Allows ?_method=PUT in forms
 // Session management
 app.use(
   session({
-    secret: "gamelend-secret-key",
+    secret: process.env.SESSION_SECRET || "gamelend-secret-key",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      secure: true, // Set to true if using HTTPS
+    },
   }),
 );
+
+// app.js - Global variables for EJS templates
+app.use((req, res, next) => {
+  // This maps the session data to a variable accessible in EJS files
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
 
 // --- Routes ---
 // Mount the lender routes
@@ -47,7 +57,7 @@ app.get("/about", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 sequelize
-  .sync({ alter: true }) // Use { force: true } only for resetting the DB completely
+  .sync({ alter: true })
   .then(() => {
     console.log("MariaDB Database synced successfully.");
     app.listen(PORT, () => {
