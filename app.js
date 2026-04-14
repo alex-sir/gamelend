@@ -8,6 +8,8 @@ require("dotenv").config();
 
 const { sequelize } = require("./models");
 const lenderRoutes = require("./routes/lenderRoutes");
+// 1. Import the admin routes here
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -47,6 +49,9 @@ app.use("/auth", authRoutes);
 
 // Mount the lender routes
 app.use("/lender", requireAuth, lenderRoutes);
+
+// 2. Mount the admin routes here (The adminRoutes file handles its own role protection!)
+app.use("/admin", adminRoutes);
 
 // Public Landing Page (Placeholder)
 app.get("/", (req, res) => {
