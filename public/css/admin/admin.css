@@ -144,3 +144,12 @@ main {
   border-color: var(--color-blue-hover);
 }
 
+.table-responsive .table td, 
+.table-responsive .table th {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table-responsive .text-end {
+  min-width: 100px;
+}

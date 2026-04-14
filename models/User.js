@@ -1,9 +1,7 @@
-// models/User.js
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
-const sequelize = require("../config/database"); // 1. Import connection directly
+const sequelize = require("../config/database");
 
-// 2. Define the model directly rather than wrapping it in a function
 const User = sequelize.define(
   "User",
   {
@@ -22,6 +20,10 @@ const User = sequelize.define(
     role: {
       type: DataTypes.ENUM("borrower", "lender", "admin"),
       defaultValue: "borrower",
+    },
+    isSuspended: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   {
@@ -42,5 +44,4 @@ const User = sequelize.define(
   },
 );
 
-// 3. Export the initialized model object
 module.exports = User;

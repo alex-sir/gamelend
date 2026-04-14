@@ -23,5 +23,6 @@ router.post('/categories', AdminController.createCategory);
 // Users Moderation (UC-A05)
 router.get('/users', AdminController.viewUsers);
 router.post('/users/:id/suspend', AdminController.suspendUser);
-
+router.post('/users/:id/unsuspend', AdminController.unsuspendUser); 
+router.post('/users/:id/role', AdminController.changeRole); 
 module.exports = router;

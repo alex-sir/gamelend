@@ -131,16 +131,75 @@ const AdminController = {
     }
   },
 
-  suspendUser: async (req, res) => {
+//   suspendUser: async (req, res) => {
+//     try {
+//       const userId = req.params.id;
+//       // Updates the user status to "Suspended" (true)
+//       await User.update({ isSuspended: true }, { where: { id: userId } });
+      
+//       res.redirect('/admin/users');
+//     } catch (error) {
+//       console.error("Suspend Error:", error);
+//       res.status(500).send("Failed to suspend user.");
+//     }
+//   }
+// };
+
+suspendUser: async (req, res) => {
     try {
       const userId = req.params.id;
-      // Updates the user status to "Suspended" (true)
-      await User.update({ isSuspended: true }, { where: { id: userId } });
+      console.log(`\n---> SUSPEND REQUEST RECEIVED FOR USER ID: ${userId}`);
+
+      // Attempt to update the database
+      const result = await User.update(
+        { isSuspended: true }, 
+        { where: { id: userId } }
+      );
+      
+      console.log(`---> DATABASE UPDATE RESULT:`, result);
+
+      res.redirect('/admin/users');
+    } catch (error) {
+      console.error("---> SUSPEND ERROR:", error);
+      res.status(500).send("Failed to suspend user.");
+    }
+  },
+
+
+
+// --- Restore (Unsuspend) User Account ---
+  unsuspendUser: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      
+      // Flip isSuspended back to false
+      await User.update(
+        { isSuspended: false }, 
+        { where: { id: userId } }
+      );
       
       res.redirect('/admin/users');
     } catch (error) {
-      console.error("Suspend Error:", error);
-      res.status(500).send("Failed to suspend user.");
+      console.error("---> UNSUSPEND ERROR:", error);
+      res.status(500).send("Failed to restore user.");
+    }
+  },
+  // --- Change User Role ---
+  changeRole: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { newRole } = req.body; // We will grab this from the dropdown menu
+
+      // Update the user's role in the database
+      await User.update(
+        { role: newRole }, 
+        { where: { id: userId } }
+      );
+      
+      res.redirect('/admin/users');
+    } catch (error) {
+      console.error("---> CHANGE ROLE ERROR:", error);
+      res.status(500).send("Failed to change user role.");
     }
   }
 };
