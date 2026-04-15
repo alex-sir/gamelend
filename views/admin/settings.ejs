@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GameLend · Configuration Settings</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/assets/icons/controller.png" type="image/png" />
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -23,18 +23,23 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="../styles/app.css" />
-    <link rel="stylesheet" href="styles/admin.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin/admin.css" />
   </head>
 
   <body class="admin-page d-flex flex-column min-vh-100">
+    <% 
+      let sMap = {};
+      if (locals.settings && Array.isArray(settings)) {
+        settings.forEach(s => { sMap[s.settingKey] = s.settingValue; });
+      }
+    %>
+
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../admin/admin-dashboard.html">
+        <a class="navbar-brand" href="/admin/dashboard">
           <i class="bi bi-controller me-2"></i>GameLend
-          <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">
-            Admin
-          </span>
+          <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">Admin</span>
         </a>
 
         <button
@@ -47,10 +52,11 @@
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
+          <form class="d-flex" action="/admin/search" method="GET">
             <input
               class="form-control"
               type="search"
+              name="query"
               placeholder="Search settings"
               aria-label="Search settings"
             />
@@ -60,7 +66,6 @@
           </form>
         </div>
 
-        <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Admin Menu</h5>
@@ -83,46 +88,34 @@
 
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li>
-                    <a
-                      class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
-                      >Borrower Dashboard</a
-                    >
+                    <a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a>
                   </li>
                   <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
+                    <a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
+                    <a class="dropdown-item" href="/">Home</a>
                   </li>
                 </ul>
               </div>
 
-              <!-- Account dropdown -->
               <div class="dropdown">
                 <button
                   class="btn btn-alternate dropdown-toggle"
                   type="button"
                   data-bs-toggle="dropdown"
                 >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                  <i class="bi bi-person-circle me-1"></i>
+                  <%= locals.currentUser ? locals.currentUser.email.split('@')[0] : 'Account' %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li>
-                    <a class="dropdown-item" href="lender-profile.html"
-                      >Profile Settings</a
-                    >
+                    <a class="dropdown-item" href="/lender/profile">Profile Settings</a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
+                    <a class="dropdown-item" href="/auth/logout">Log Out</a>
                   </li>
                 </ul>
               </div>
@@ -134,93 +127,88 @@
 
     <main class="py-4">
       <div class="container">
-        <!-- Header -->
-      <div class="admin-header mb-3">
-        <a href="admin-dashboard.html" class="btn btn-alternate mb-3">
-          <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-        </a>
+        <div class="admin-header mb-3">
+          <a href="/admin/dashboard" class="btn btn-alternate mb-3">
+            <i class="bi bi-house me-2"></i>Main Dashboard
+          </a>
 
-        <h1>Configuration</h1>
-          <p>Manage core GameLend platform settings and defaults.</p>
-      </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1>Configuration</h1>
+              <p>Manage core GameLend platform settings and defaults.</p>
+            </div>
+          </div>
+        </div>
 
-
-        <!-- General settings -->
         <section class="admin-section mb-4">
           <h2 class="mb-3">Platform settings</h2>
 
-          <form>
+          <form action="/admin/settings" method="POST">
+            <input type="hidden" name="settingCategory" value="Platform" />
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label" for="platformName"
-                  >Platform name</label
-                >
+                <label class="form-label" for="platformName">Platform name</label>
                 <input
                   type="text"
                   class="form-control"
                   id="platformName"
-                  value="GameLend"
+                  name="platformName"
+                  value="<%= sMap['platformName'] || 'GameLend' %>"
                 />
               </div>
 
               <div class="col-md-6">
-                <label class="form-label" for="supportEmail"
-                  >Support email</label
-                >
+                <label class="form-label" for="supportEmail">Support email</label>
                 <input
                   type="email"
                   class="form-control"
                   id="supportEmail"
-                  value="support@gamelend.com"
+                  name="supportEmail"
+                  value="<%= sMap['supportEmail'] || 'support@gamelend.com' %>"
                 />
               </div>
 
               <div class="col-md-6">
-                <label class="form-label" for="defaultTimezone"
-                  >Default timezone</label
-                >
-                <select id="defaultTimezone" class="form-select">
-                  <option value="America/Los_Angeles" selected>
-                    America/Los_Angeles (PT)
-                  </option>
-                  <option value="America/Denver">America/Denver (MT)</option>
-                  <option value="America/Chicago">America/Chicago (CT)</option>
-                  <option value="America/New_York">
-                    America/New_York (ET)
-                  </option>
+                <label class="form-label" for="defaultTimezone">Default timezone</label>
+                <select id="defaultTimezone" name="defaultTimezone" class="form-select">
+                  <option value="America/Los_Angeles" <%= sMap['defaultTimezone'] === 'America/Los_Angeles' ? 'selected' : '' %>>America/Los_Angeles (PT)</option>
+                  <option value="America/Denver" <%= sMap['defaultTimezone'] === 'America/Denver' ? 'selected' : '' %>>America/Denver (MT)</option>
+                  <option value="America/Chicago" <%= sMap['defaultTimezone'] === 'America/Chicago' ? 'selected' : '' %>>America/Chicago (CT)</option>
+                  <option value="America/New_York" <%= sMap['defaultTimezone'] === 'America/New_York' ? 'selected' : '' %>>America/New_York (ET)</option>
                 </select>
               </div>
 
               <div class="col-md-6">
-                <label class="form-label" for="defaultCurrency"
-                  >Default currency</label
-                >
-                <select id="defaultCurrency" class="form-select">
-                  <option value="USD" selected>USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
+                <label class="form-label" for="defaultCurrency">Default currency</label>
+                <select id="defaultCurrency" name="defaultCurrency" class="form-select">
+                  <option value="USD" <%= (sMap['defaultCurrency'] || 'USD') === 'USD' ? 'selected' : '' %>>USD ($)</option>
+                  <option value="EUR" <%= sMap['defaultCurrency'] === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
+                  <option value="GBP" <%= sMap['defaultCurrency'] === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
                 </select>
               </div>
 
               <div class="col-12">
-                <div class="form-check form-switch">
+                <div class="form-check form-switch mt-2">
+                  <input type="hidden" name="maintenanceMode" value="false">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     id="maintenanceMode"
+                    name="maintenanceMode"
+                    value="true"
+                    <%= sMap['maintenanceMode'] === 'true' ? 'checked' : '' %>
                   />
-                  <label class="form-check-label" for="maintenanceMode">
+                  <label class="form-check-label fw-bold" for="maintenanceMode">
                     Enable maintenance mode
                   </label>
                 </div>
                 <small class="text-muted">
-                  When enabled, only admins can access the platform; regular
-                  users see a maintenance message.
+                  When enabled, only admins can access the platform; regular users see a maintenance message.
                 </small>
               </div>
 
-              <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary btn-settings">
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary btn-settings px-4 fw-semibold">
                   Save platform settings
                 </button>
               </div>
@@ -228,11 +216,11 @@
           </form>
         </section>
 
-        <!-- Rentals & payments -->
         <section class="admin-section mb-4">
           <h2 class="mb-3">Rentals & payments</h2>
 
-          <form>
+          <form action="/admin/settings" method="POST">
+            <input type="hidden" name="settingCategory" value="Payments" />
             <div class="row g-3">
               <div class="col-md-4">
                 <label class="form-label" for="maxActiveRentals">
@@ -242,9 +230,10 @@
                   type="number"
                   class="form-control"
                   id="maxActiveRentals"
+                  name="maxActiveRentals"
                   min="1"
                   max="20"
-                  value="5"
+                  value="<%= sMap['maxActiveRentals'] || '5' %>"
                 />
               </div>
 
@@ -256,9 +245,10 @@
                   type="number"
                   class="form-control"
                   id="defaultRentalDays"
+                  name="defaultRentalDays"
                   min="1"
                   max="60"
-                  value="7"
+                  value="<%= sMap['defaultRentalDays'] || '7' %>"
                 />
               </div>
 
@@ -270,9 +260,10 @@
                   type="number"
                   class="form-control"
                   id="lateFeePerDay"
+                  name="lateFeePerDay"
                   min="0"
                   step="0.50"
-                  value="2.50"
+                  value="<%= sMap['lateFeePerDay'] || '2.50' %>"
                 />
               </div>
 
@@ -284,10 +275,11 @@
                   type="number"
                   class="form-control"
                   id="platformFeePercent"
+                  name="platformFeePercent"
                   min="0"
                   max="100"
                   step="0.5"
-                  value="10"
+                  value="<%= sMap['platformFeePercent'] || '10' %>"
                 />
               </div>
 
@@ -295,15 +287,15 @@
                 <label class="form-label" for="payoutSchedule">
                   Payout schedule
                 </label>
-                <select id="payoutSchedule" class="form-select">
-                  <option value="daily">Daily</option>
-                  <option value="weekly" selected>Weekly</option>
-                  <option value="monthly">Monthly</option>
+                <select id="payoutSchedule" name="payoutSchedule" class="form-select">
+                  <option value="daily" <%= sMap['payoutSchedule'] === 'daily' ? 'selected' : '' %>>Daily</option>
+                  <option value="weekly" <%= (sMap['payoutSchedule'] || 'weekly') === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                  <option value="monthly" <%= sMap['payoutSchedule'] === 'monthly' ? 'selected' : '' %>>Monthly</option>
                 </select>
               </div>
 
-              <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary btn-settings">
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary btn-settings px-4 fw-semibold">
                   Save rental & payment settings
                 </button>
               </div>
@@ -311,11 +303,11 @@
           </form>
         </section>
 
-        <!-- Moderation defaults -->
         <section class="admin-section mb-4">
           <h2 class="mb-3">Moderation defaults</h2>
 
-          <form>
+          <form action="/admin/settings" method="POST">
+            <input type="hidden" name="settingCategory" value="Moderation" />
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label" for="autoFlagThreshold">
@@ -325,13 +317,13 @@
                   type="number"
                   class="form-control"
                   id="autoFlagThreshold"
+                  name="autoFlagThreshold"
                   min="1"
                   max="20"
-                  value="3"
+                  value="<%= sMap['autoFlagThreshold'] || '3' %>"
                 />
-                <small class="text-muted">
-                  Number of reports before a listing is automatically flagged
-                  for review.
+                <small class="text-muted d-block mt-1">
+                  Number of reports before a listing is automatically flagged for review.
                 </small>
               </div>
 
@@ -343,44 +335,50 @@
                   type="number"
                   class="form-control"
                   id="autoSuspendThreshold"
+                  name="autoSuspendThreshold"
                   min="1"
                   max="10"
-                  value="2"
+                  value="<%= sMap['autoSuspendThreshold'] || '2' %>"
                 />
-                <small class="text-muted">
-                  Number of high‑severity reports before a user is
-                  auto‑suspended pending review.
+                <small class="text-muted d-block mt-1">
+                  Number of high‑severity reports before a user is auto‑suspended pending review.
                 </small>
               </div>
 
-              <div class="col-12">
-                <div class="form-check form-switch mb-2">
+              <div class="col-12 mt-3">
+                <div class="form-check form-switch mb-3">
+                  <input type="hidden" name="notifyModeratorsEmail" value="false">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     id="notifyModeratorsEmail"
-                    checked
+                    name="notifyModeratorsEmail"
+                    value="true"
+                    <%= (sMap['notifyModeratorsEmail'] || 'true') === 'true' ? 'checked' : '' %>
                   />
-                  <label class="form-check-label" for="notifyModeratorsEmail">
+                  <label class="form-check-label fw-bold" for="notifyModeratorsEmail">
                     Email moderators when new high‑severity report is created
                   </label>
                 </div>
 
-                <div class="form-check form-switch">
+                <div class="form-check form-switch mb-2">
+                  <input type="hidden" name="userReportReceipts" value="false">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     id="userReportReceipts"
-                    checked
+                    name="userReportReceipts"
+                    value="true"
+                    <%= (sMap['userReportReceipts'] || 'true') === 'true' ? 'checked' : '' %>
                   />
-                  <label class="form-check-label" for="userReportReceipts">
+                  <label class="form-check-label fw-bold" for="userReportReceipts">
                     Send confirmation email to users when they submit a report
                   </label>
                 </div>
               </div>
 
-              <div class="col-12 mt-3">
-                <button type="submit" class="btn btn-primary btn-settings">
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary btn-settings px-4 fw-semibold">
                   Save moderation settings
                 </button>
               </div>
@@ -390,39 +388,37 @@
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer>
+    <footer class="mt-auto">
       <div class="container">
-        <div class="row justify-content-center mx-auto">
-          <div class="col-md-3 mb-4">
-            <h5>About</h5>
-            <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+        <div class="row justify-content-center mx-auto pb-3">
+          <div class="col-md-3 mb-3">
+            <h5 class="text-light">About</h5>
+            <ul class="list-unstyled">
+              <li><a href="/" class="text-decoration-none text-muted">About GameLend</a></li>
+              <li><a href="/" class="text-decoration-none text-muted">Our Team</a></li>
             </ul>
           </div>
-          <div class="col-md-3 mb-4">
-            <h5>Support</h5>
-            <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+          <div class="col-md-3 mb-3">
+            <h5 class="text-light">Support</h5>
+            <ul class="list-unstyled">
+              <li><a href="/" class="text-decoration-none text-muted">FAQ</a></li>
+              <li><a href="/" class="text-decoration-none text-muted">Contact Us</a></li>
             </ul>
           </div>
-          <div class="col-md-3 mb-4">
-            <h5>Connect</h5>
-            <ul>
+          <div class="col-md-3 mb-3">
+            <h5 class="text-light">Connect</h5>
+            <ul class="list-unstyled">
               <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
+                <a href="https://github.com/alex-sir/gamelend" target="_blank" class="text-decoration-none text-muted">
+                  <i class="bi bi-github me-2"></i>GitHub
+                </a>
               </li>
             </ul>
           </div>
         </div>
-        <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
-            reserved.
+        <div class="copyright text-center pt-3 border-top border-secondary">
+          <p class="text-muted mb-0">
+            &copy; <%= new Date().getFullYear() %> GameLend. A WSU CPT_S 489 Course Project. All rights reserved.
           </p>
         </div>
       </div>

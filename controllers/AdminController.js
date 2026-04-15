@@ -7,10 +7,9 @@ const { Op } = require('sequelize');
  */
 const AdminController = {
   
-  // --- Main Dashboard (Updated to fix metrics error) ---
+  // --- Main Dashboard ---
   getDashboard: async (req, res) => {
     try {
-      // Fetch core metrics for the dashboard cards [cite: 152]
       const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
       const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
@@ -24,10 +23,53 @@ const AdminController = {
       });
     } catch (error) {
       console.error("Dashboard Loading Error:", error);
-      // Fallback to prevent EJS ReferenceError [cite: 152]
       res.render('admin/admin-dashboard', {
         metrics: { activeListings: 0, completedRentals: 0, totalRevenue: 0 }
       });
+    }
+  },
+
+  // --- Moderation Hub ---
+  viewModerationHub: async (req, res) => {
+    try {
+      // 1. Fetch Metrics for the top cards
+      const flaggedListingsCount = await Listing.count({ where: { status: 'Suspended' } });
+      const suspensionsCount = await User.count({ where: { isSuspended: true } });
+
+      // 2. Fetch Data for the preview tables (Limit to 5 rows each)
+      const flaggedListings = await Listing.findAll({ 
+        where: { status: 'Suspended' }, 
+        limit: 5,
+        include: [{ model: User, as: 'lender' }],
+        order: [['createdAt', 'DESC']]
+      });
+      
+      const categories = await Category.findAll({ 
+        limit: 5,
+        order: [['updatedAt', 'DESC']]
+      });
+
+      res.render('admin/moderation-dashboard', {
+        title: 'GameLend · Moderation Hub',
+        metrics: {
+          openReports: 0, 
+          highSeverityReports: 0,
+          flaggedListings: flaggedListingsCount,
+          awaitingReview: 0,
+          suspensions: suspensionsCount,
+          suspendedUsers: suspensionsCount,
+          suspendedListings: flaggedListingsCount,
+          avgResponseTime: '6h', 
+          responseTimeTrend: 'Stable'
+        },
+        userReports: [],
+        listingReports: [],
+        categories: categories,
+        recentActions: []
+      });
+    } catch (error) {
+      console.error("Moderation Hub Error:", error);
+      res.status(500).send("Unable to load moderation hub.");
     }
   },
 
@@ -140,25 +182,41 @@ const AdminController = {
   viewSettings: async (req, res) => {
     try {
       const settings = await PlatformSettings.findAll();
-      res.render('admin/admin-settings', { settings });
+      res.render('admin/settings', { settings });
     } catch (error) {
       console.error("View Settings Error:", error);
       res.status(500).send("Unable to load settings.");
     }
   },
 
-  updateSettings: async (req, res) => {
+updateSettings: async (req, res) => {
     try {
-      const adminId = req.session.user.id;
-      const { settingKey, settingValue, settingCategory } = req.body;
+      const adminId = (req.session && req.session.user) ? req.session.user.id : 1; 
+      const { settingCategory, ...settingsData } = req.body;
 
-      const [setting, created] = await PlatformSettings.findOrCreate({
-        where: { settingKey },
-        defaults: { settingValue, settingCategory, updatedBy: adminId }
-      });
+      // MAPPER: Ensures we stay strictly compliant with the UseCases document ENUM 
+      let dbCategory = 'Listings'; // Default fallback
+      if (settingCategory === 'Payments') dbCategory = 'Payments';
+      if (settingCategory === 'Rentals') dbCategory = 'Rentals';
+      // Treat "Platform" or "Moderation" from the UI as "Listings" for the DB
+      if (settingCategory === 'Platform' || settingCategory === 'Moderation') dbCategory = 'Listings';
 
-      if (!created) {
-        await setting.update({ settingValue, updatedBy: adminId });
+      for (const [key, rawValue] of Object.entries(settingsData)) {
+        const cleanValue = Array.isArray(rawValue) ? rawValue[rawValue.length - 1] : rawValue;
+        const stringValue = String(cleanValue);
+
+        const [setting, created] = await PlatformSettings.findOrCreate({
+          where: { settingKey: key },
+          defaults: { 
+            settingValue: stringValue, 
+            settingCategory: dbCategory, // Uses the doc-compliant category
+            updatedBy: adminId 
+          }
+        });
+
+        if (!created) {
+          await setting.update({ settingValue: stringValue, settingCategory: dbCategory, updatedBy: adminId });
+        }
       }
 
       res.redirect('/admin/settings');
