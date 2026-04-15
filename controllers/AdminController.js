@@ -1,6 +1,12 @@
 const { User, Listing, Rental, PlatformSettings, Category } = require('../models');
+const { Op } = require('sequelize');
 
+/**
+ * AdminController
+ * Handles platform management including analytics, moderation, and settings.
+ */
 const AdminController = {
+  
   // --- Main Dashboard ---
   getDashboard: (req, res) => {
     res.render('admin/admin-dashboard');
@@ -32,24 +38,90 @@ const AdminController = {
   },
 
   // --- UC-A02: Remove / Moderate Listings ---
+  
+  // View Listings with Status Filtering
   viewListings: async (req, res) => {
     try {
-      // Include the User model so we can see who owns the listing
-      const listings = await Listing.findAll({ include: [{ model: User, as: 'lender' }] });
-      res.render('admin/moderation-listings', { listings });
+      const { status } = req.query;
+      const whereClause = {};
+
+      if (status) {
+        whereClause.status = status;
+      }
+
+      const listings = await Listing.findAll({ 
+        where: whereClause,
+        include: [{ model: User, as: 'lender' }],
+        order: [['createdAt', 'DESC']]
+      });
+      
+      res.render('admin/moderation-listings', { 
+        listings, 
+        currentStatus: status || '' 
+      });
     } catch (error) {
       console.error("View Listings Error:", error);
       res.status(500).send("Unable to load listings.");
     }
   },
 
+  // Handle Bulk Actions (Delete, Restore, and Suspend)
+  bulkActionListings: async (req, res) => {
+    try {
+      const { listingIds, bulkAction } = req.body;
+      
+      if (!listingIds) return res.redirect('/admin/listings');
+
+      const idsToUpdate = Array.isArray(listingIds) ? listingIds : [listingIds];
+
+      let targetStatus = '';
+      if (bulkAction === 'delete') targetStatus = 'Deleted';
+      else if (bulkAction === 'restore') targetStatus = 'Active';
+      else if (bulkAction === 'suspend') targetStatus = 'Suspended';
+
+      if (targetStatus) {
+        await Listing.update(
+          { status: targetStatus }, 
+          { 
+            where: { 
+              id: { [Op.in]: idsToUpdate },
+              status: { [Op.ne]: targetStatus } 
+            } 
+          }
+        );
+      }
+
+      res.redirect('/admin/listings');
+    } catch (error) {
+      console.error("Bulk Action Error:", error);
+      res.status(500).send("Failed to process bulk action.");
+    }
+  },
+
+  // Individual Actions
+  suspendListing: async (req, res) => {
+    try {
+      await Listing.update({ status: 'Suspended' }, { where: { id: req.params.id } });
+      res.redirect('/admin/listings');
+    } catch (error) {
+      console.error("Suspend Listing Error:", error);
+      res.status(500).send("Failed to suspend listing.");
+    }
+  },
+
+  unsuspendListing: async (req, res) => {
+    try {
+      await Listing.update({ status: 'Active' }, { where: { id: req.params.id } });
+      res.redirect('/admin/listings');
+    } catch (error) {
+      console.error("Unsuspend Listing Error:", error);
+      res.status(500).send("Failed to restore listing.");
+    }
+  },
+
   removeListing: async (req, res) => {
     try {
-      const listingId = req.params.id;
-      // Updates the specific listing's status to "Removed"
-      await Listing.update({ status: 'Removed' }, { where: { id: listingId } });
-      
-      // Redirect back to the moderation page
+      await Listing.update({ status: 'Deleted' }, { where: { id: req.params.id } });
       res.redirect('/admin/listings');
     } catch (error) {
       console.error("Remove Listing Error:", error);
@@ -73,7 +145,6 @@ const AdminController = {
       const adminId = req.session.user.id;
       const { settingKey, settingValue, settingCategory } = req.body;
 
-      // Validates and saves the settings into the system
       const [setting, created] = await PlatformSettings.findOrCreate({
         where: { settingKey },
         defaults: { settingValue, settingCategory, updatedBy: adminId }
@@ -104,23 +175,20 @@ const AdminController = {
   createCategory: async (req, res) => {
     try {
       const { name, description, parentId } = req.body;
-
-      // Creates the new category
       await Category.create({
         name,
         description,
-        parentId: parentId ? parentId : null,
+        parentId: parentId || null,
         status: 'Active'
       });
-
       res.redirect('/admin/categories');
     } catch (error) {
       console.error("Create Category Error:", error);
-      res.status(500).send("Failed to create category. Ensure the name is unique.");
+      res.status(500).send("Failed to create category.");
     }
   },
 
-  // --- UC-A05: Suspend User Account ---
+  // --- UC-A05: User Moderation ---
   viewUsers: async (req, res) => {
     try {
       const users = await User.findAll();
@@ -131,74 +199,33 @@ const AdminController = {
     }
   },
 
-//   suspendUser: async (req, res) => {
-//     try {
-//       const userId = req.params.id;
-//       // Updates the user status to "Suspended" (true)
-//       await User.update({ isSuspended: true }, { where: { id: userId } });
-      
-//       res.redirect('/admin/users');
-//     } catch (error) {
-//       console.error("Suspend Error:", error);
-//       res.status(500).send("Failed to suspend user.");
-//     }
-//   }
-// };
-
-suspendUser: async (req, res) => {
+  suspendUser: async (req, res) => {
     try {
       const userId = req.params.id;
-      console.log(`\n---> SUSPEND REQUEST RECEIVED FOR USER ID: ${userId}`);
-
-      // Attempt to update the database
-      const result = await User.update(
-        { isSuspended: true }, 
-        { where: { id: userId } }
-      );
-      
-      console.log(`---> DATABASE UPDATE RESULT:`, result);
-
+      await User.update({ isSuspended: true }, { where: { id: userId } });
       res.redirect('/admin/users');
     } catch (error) {
-      console.error("---> SUSPEND ERROR:", error);
+      console.error("Suspend User Error:", error);
       res.status(500).send("Failed to suspend user.");
     }
   },
 
-
-
-// --- Restore (Unsuspend) User Account ---
   unsuspendUser: async (req, res) => {
     try {
-      const userId = req.params.id;
-      
-      // Flip isSuspended back to false
-      await User.update(
-        { isSuspended: false }, 
-        { where: { id: userId } }
-      );
-      
+      await User.update({ isSuspended: false }, { where: { id: req.params.id } });
       res.redirect('/admin/users');
     } catch (error) {
-      console.error("---> UNSUSPEND ERROR:", error);
+      console.error("Unsuspend User Error:", error);
       res.status(500).send("Failed to restore user.");
     }
   },
-  // --- Change User Role ---
+
   changeRole: async (req, res) => {
     try {
-      const userId = req.params.id;
-      const { newRole } = req.body; // We will grab this from the dropdown menu
-
-      // Update the user's role in the database
-      await User.update(
-        { role: newRole }, 
-        { where: { id: userId } }
-      );
-      
+      await User.update({ role: req.body.newRole }, { where: { id: req.params.id } });
       res.redirect('/admin/users');
     } catch (error) {
-      console.error("---> CHANGE ROLE ERROR:", error);
+      console.error("Change Role Error:", error);
       res.status(500).send("Failed to change user role.");
     }
   }

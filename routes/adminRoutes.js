@@ -10,7 +10,9 @@ router.get('/analytics', AdminController.viewAnalytics);
 
 // Listings Moderation (UC-A02)
 router.get('/listings', AdminController.viewListings);
+router.post('/listings/bulk', AdminController.bulkActionListings); 
 router.post('/listings/:id/remove', AdminController.removeListing);
+router.post('/listings/:id/unsuspend', AdminController.unsuspendListing); 
 
 // Platform Settings (UC-A03)
 router.get('/settings', AdminController.viewSettings);
