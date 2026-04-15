@@ -7,9 +7,28 @@ const { Op } = require('sequelize');
  */
 const AdminController = {
   
-  // --- Main Dashboard ---
-  getDashboard: (req, res) => {
-    res.render('admin/admin-dashboard');
+  // --- Main Dashboard (Updated to fix metrics error) ---
+  getDashboard: async (req, res) => {
+    try {
+      // Fetch core metrics for the dashboard cards [cite: 152]
+      const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
+      const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
+      const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
+
+      res.render('admin/admin-dashboard', {
+        metrics: {
+          activeListings: activeListingsCount,
+          completedRentals: completedRentalsCount,
+          totalRevenue: totalRevenue || 0
+        }
+      });
+    } catch (error) {
+      console.error("Dashboard Loading Error:", error);
+      // Fallback to prevent EJS ReferenceError [cite: 152]
+      res.render('admin/admin-dashboard', {
+        metrics: { activeListings: 0, completedRentals: 0, totalRevenue: 0 }
+      });
+    }
   },
 
   // --- UC-A01: View Platform Analytics ---
@@ -18,7 +37,6 @@ const AdminController = {
       const activeRentersCount = await User.count({ where: { role: 'borrower', isSuspended: false } });
       const activeOwnersCount = await User.count({ where: { role: 'lender', isSuspended: false } });
       const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
-      
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
       const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
 
@@ -38,16 +56,11 @@ const AdminController = {
   },
 
   // --- UC-A02: Remove / Moderate Listings ---
-  
-  // View Listings with Status Filtering
   viewListings: async (req, res) => {
     try {
       const { status } = req.query;
       const whereClause = {};
-
-      if (status) {
-        whereClause.status = status;
-      }
+      if (status) whereClause.status = status;
 
       const listings = await Listing.findAll({ 
         where: whereClause,
@@ -55,26 +68,21 @@ const AdminController = {
         order: [['createdAt', 'DESC']]
       });
       
-      res.render('admin/moderation-listings', { 
-        listings, 
-        currentStatus: status || '' 
-      });
+      res.render('admin/moderation-listings', { listings, currentStatus: status || '' });
     } catch (error) {
       console.error("View Listings Error:", error);
       res.status(500).send("Unable to load listings.");
     }
   },
 
-  // Handle Bulk Actions (Delete, Restore, and Suspend)
   bulkActionListings: async (req, res) => {
     try {
       const { listingIds, bulkAction } = req.body;
-      
       if (!listingIds) return res.redirect('/admin/listings');
 
       const idsToUpdate = Array.isArray(listingIds) ? listingIds : [listingIds];
-
       let targetStatus = '';
+
       if (bulkAction === 'delete') targetStatus = 'Deleted';
       else if (bulkAction === 'restore') targetStatus = 'Active';
       else if (bulkAction === 'suspend') targetStatus = 'Suspended';
@@ -98,7 +106,6 @@ const AdminController = {
     }
   },
 
-  // Individual Actions
   suspendListing: async (req, res) => {
     try {
       await Listing.update({ status: 'Suspended' }, { where: { id: req.params.id } });
@@ -201,8 +208,7 @@ const AdminController = {
 
   suspendUser: async (req, res) => {
     try {
-      const userId = req.params.id;
-      await User.update({ isSuspended: true }, { where: { id: userId } });
+      await User.update({ isSuspended: true }, { where: { id: req.params.id } });
       res.redirect('/admin/users');
     } catch (error) {
       console.error("Suspend User Error:", error);
