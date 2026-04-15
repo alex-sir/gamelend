@@ -1,6 +1,8 @@
 <% 
-  // Fallback data to perfectly preserve the HTML visual state
-  const userName = typeof user !== 'undefined' ? user.username : 'User';
+  // Pull the actual user's first name from the active session, fallback to 'User' if missing
+  const userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.firstName) 
+    ? currentUser.firstName 
+    : 'User';
   
   const stats = typeof dashboardStats !== 'undefined' ? dashboardStats : {
     activeListings: 12,
@@ -125,7 +127,7 @@
                   type="button"
                   data-bs-toggle="dropdown"
                 >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                  <i class="bi bi-person-circle me-1"></i><%= userName %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li>
@@ -328,8 +330,7 @@
         </div>
         <div class="copyright">
           <p>
-            &copy; <%= new Date().getFullYear() %> GameLend. A WSU CPT_S 489 Course Project. All rights
-            reserved.
+            &copy; <%= new Date().getFullYear() %> GameLend. A WSU CPT_S 489 Course Project. All rights reserved.
           </p>
         </div>
       </div>

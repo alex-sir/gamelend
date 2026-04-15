@@ -4,6 +4,7 @@
   "description": "GameLend is a peer-to-peer web application for renting and lending physical video games, consoles, and gaming accessories. It connects gamers who have idle items with borrowers who want short-term access instead of buying new hardware or titles.",
   "main": "app.js",
   "scripts": {
+    "start": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -8,7 +8,7 @@ const { User } = require("../models");
 
 // Render the Login Page
 router.get("/login", (req, res) => {
-  res.render("auth/login", { error: null }); // Updated path
+  res.render("auth/login", { error: null });
 });
 
 // Handle Login Form Submission
@@ -19,12 +19,15 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      // Set session data
+      // Set session data including the new name fields
       req.session.user = {
         id: user.id,
         email: user.email,
         role: user.role,
-        username: user.email.split("@")[0],
+        firstName: user.firstName,
+        lastName: user.lastName,
+        // Fallback to email split for any older test accounts that didn't have a name
+        username: user.firstName || user.email.split("@")[0],
       };
 
       // Redirect to their specific dashboard based on role
@@ -33,11 +36,11 @@ router.post("/login", async (req, res) => {
 
       res.redirect(redirectUrl);
     } else {
-      res.render("auth/login", { error: "Invalid email or password." }); // Updated path
+      res.render("auth/login", { error: "Invalid email or password." });
     }
   } catch (error) {
     console.error(error);
-    res.render("auth/login", { error: "An error occurred during login." }); // Updated path
+    res.render("auth/login", { error: "An error occurred during login." });
   }
 });
 
@@ -45,25 +48,28 @@ router.post("/login", async (req, res) => {
 
 // Render the Register Page
 router.get("/register", (req, res) => {
-  res.render("auth/register", { error: null }); // Updated path
+  res.render("auth/register", { error: null });
 });
 
 // Handle Registration Form Submission
 router.post("/register", async (req, res) => {
-  const { email, password, role } = req.body;
+  // Extract the new firstName and lastName fields from the form submission
+  const { email, password, role, firstName, lastName } = req.body;
 
   try {
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.render("auth/register", { error: "Email is already in use." }); // Updated path
+      return res.render("auth/register", { error: "Email is already in use." });
     }
 
-    // Create the new user (password hashing is handled by the Sequelize hook in User.js)
+    // Create the new user with their full name
     const newUser = await User.create({
       email,
       password,
       role: role || "borrower",
+      firstName,
+      lastName,
     });
 
     // Log the user in immediately after registration
@@ -71,7 +77,9 @@ router.post("/register", async (req, res) => {
       id: newUser.id,
       email: newUser.email,
       role: newUser.role,
-      username: newUser.email.split("@")[0],
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      username: newUser.firstName, // Use their real first name for UI greetings
     };
 
     // Redirect to their respective dashboard
@@ -80,7 +88,7 @@ router.post("/register", async (req, res) => {
     console.error("Registration error:", error);
     res.render("auth/register", {
       error: "An error occurred during registration.",
-    }); // Updated path
+    });
   }
 });
 
