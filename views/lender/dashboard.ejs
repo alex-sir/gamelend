@@ -104,16 +104,19 @@
                   type="button"
                   data-bs-toggle="dropdown"
                 >
-                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="/admin/dashboard">Admin Dashboard</a>
-                  </li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li>
+                      <a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a>
+                    </li>
+                  <% } else { %>
+                    <li>
+                      <a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a>
+                    </li>
+                  <% } %>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
                     <a class="dropdown-item" href="/">Home</a>
