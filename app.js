@@ -3,6 +3,7 @@ const path = require("path");
 const session = require("express-session");
 const methodOverride = require("method-override");
 const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 const { requireAuth } = require("./middleware/auth");
 require("dotenv").config();
 
@@ -47,6 +48,9 @@ app.use("/auth", authRoutes);
 
 // Mount the lender routes
 app.use("/lender", requireAuth, lenderRoutes);
+
+// Mount the profile routes
+app.use("/profile", profileRoutes);
 
 // Public Landing Page (Placeholder)
 app.get("/", (req, res) => {
