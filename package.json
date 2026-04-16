@@ -1,0 +1,33 @@
+{
+  "name": "gamelend",
+  "version": "1.0.0",
+  "description": "GameLend is a peer-to-peer web application for renting and lending physical video games, consoles, and gaming accessories. It connects gamers who have idle items with borrowers who want short-term access instead of buying new hardware or titles.",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-sir/gamelend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/alex-sir/gamelend/issues"
+  },
+  "homepage": "https://github.com/alex-sir/gamelend#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mariadb": "^3.5.2",
+    "method-override": "^3.0.0",
+    "multer": "^2.1.1",
+    "sequelize": "^6.37.8"
+  }
+}

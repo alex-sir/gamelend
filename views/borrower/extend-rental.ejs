@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Rental Request - GameLend</title>
+    <title>Extend Rental - GameLend</title>
 
     <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
 
@@ -52,6 +52,9 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+
+        <!-- Search -->
+        <div class="mx-lg-4 mt-2 mb-0 search-bar d-none d-lg-block"></div>
 
         <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
@@ -130,148 +133,116 @@
         <div class="row mb-3">
           <div class="col-12">
             <a
-              href="borrower-item-details.html"
+              href="borrower-rental-details.html"
               class="text-decoration-none small text-secondary"
             >
-              <i class="bi bi-arrow-left me-1"></i>Back to item
+              <i class="bi bi-arrow-left me-1"></i>Back to rental details
             </a>
           </div>
         </div>
 
         <div class="row g-4">
-          <!-- SUMMARY CARD -->
+          <!-- SUMMARY -->
           <div class="col-lg-4 order-lg-2">
             <div class="card bg-dark">
               <div class="card-body">
-                <h5 class="card-title mb-3">Rental summary</h5>
+                <h5 class="card-title mb-3">Current rental</h5>
                 <div class="d-flex mb-3">
                   <img
-                    src="../assets/images/ps5.jpg"
-                    alt="PlayStation 5"
+                    src="../../public/images/donkey-kong-bananza.jpg"
+                    alt="Donkey Kong Bananza"
                     class="rounded me-3"
                     style="width: 72px; height: 72px; object-fit: cover"
                   />
                   <div>
-                    <p class="mb-1 bold">PlayStation 5 Digital Edition</p>
+                    <p class="mb-1 bold">Donkey Kong Bananza (Switch)</p>
                     <p class="mb-0 small text-secondary">
-                      Lender: <span class="bold text-white">Alex P.</span>
+                      Due back:
+                      <span class="bold text-white">Mar 9, 2026</span>
                     </p>
                   </div>
                 </div>
 
                 <ul class="list-unstyled small text-secondary mb-3">
                   <li>
-                    <span class="bold text-white">Price per day:</span> $18.00
+                    <span class="bold text-white">Price per day:</span> $8.00
                   </li>
                   <li>
-                    <span class="bold text-white">Deposit:</span> $80.00
+                    <span class="bold text-white">Current length:</span> 4 days
                   </li>
                   <li>
-                    <span class="bold text-white">Minimum rental:</span> 2 days
+                    <span class="bold text-white">Lender:</span> Casey R.
                   </li>
                 </ul>
 
                 <hr />
 
-                <div class="d-flex justify-content-between mb-1 small">
-                  <span>Rental subtotal</span>
-                  <span id="rentalSubtotal">$36.00</span>
+                <div class="small">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Additional days</span>
+                    <span class="bold" id="extraDays">0</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Additional rental cost</span>
+                    <span class="bold" id="extraCost">$0.00</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Updated total rental</span>
+                    <span class="bold" id="updatedTotal">$32.00</span>
+                  </div>
+                  <p class="small text-secondary mb-0 mt-1">
+                    Deposit remains the same unless lender updates terms.
+                  </p>
                 </div>
-                <div class="d-flex justify-content-between mb-1 small">
-                  <span>Service fee</span>
-                  <span id="serviceFee">$4.50</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1 small">
-                  <span>Refundable deposit</span>
-                  <span id="depositAmount">$80.00</span>
-                </div>
-                <hr class="my-2" />
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="bold">Total due today</span>
-                  <span class="h5 mb-0" id="totalDue">$120.50</span>
-                </div>
-                <p class="small text-secondary mt-1 mb-0">
-                  Deposit is refunded after safe, on‑time return.
-                </p>
               </div>
             </div>
           </div>
 
-          <!-- REQUEST FORM -->
+          <!-- EXTENSION FORM -->
           <div class="col-lg-8 order-lg-1">
             <div class="card bg-dark">
               <div class="card-body">
-                <h1 class="h4 mb-3">Request rental</h1>
+                <h1 class="h4 mb-3">Request rental extension</h1>
                 <p class="text-secondary small mb-4">
-                  Choose your dates and review the cost breakdown. This is a
-                  static example form you can hook into your backend later.
+                  Choose a new return date and send an extension request to the
+                  lender. This UI is static and ready to be wired to your
+                  backend or API.
                 </p>
 
-                <form
-                  action="borrower-rental-confirmation.html"
-                  method="get"
-                  id="rentalRequestForm"
-                >
+                <form id="extendForm" action="borrower-rental-details.html">
                   <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                      <label for="startDate" class="form-label"
-                        >Start date</label
+                      <label class="form-label">Current return date</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        value="2026-03-09"
+                        disabled
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="newReturnDate" class="form-label"
+                        >New return date</label
                       >
                       <input
                         type="date"
                         class="form-control"
-                        id="startDate"
-                        required
-                      />
-                    </div>
-                    <div class="col-md-6">
-                      <label for="endDate" class="form-label">End date</label>
-                      <input
-                        type="date"
-                        class="form-control"
-                        id="endDate"
+                        id="newReturnDate"
                         required
                       />
                     </div>
                   </div>
 
                   <div class="mb-3">
-                    <label for="notes" class="form-label"
-                      >Message to lender (optional)</label
+                    <label for="reason" class="form-label"
+                      >Reason (optional)</label
                     >
                     <textarea
-                      id="notes"
+                      id="reason"
                       class="form-control"
                       rows="3"
-                      placeholder="Share how you plan to use the item, preferred pickup times, etc."
+                      placeholder="Let the lender know why you’d like to extend (trip extended, more time to finish the game, etc.)."
                     ></textarea>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">Pickup option</label>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="pickupOption"
-                        id="pickupLocal"
-                        checked
-                      />
-                      <label class="form-check-label" for="pickupLocal">
-                        Local pickup
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="pickupOption"
-                        id="pickupMeet"
-                      />
-                      <label class="form-check-label" for="pickupMeet">
-                        Meet halfway (if lender agrees)
-                      </label>
-                    </div>
                   </div>
 
                   <div class="form-check mb-3">
@@ -279,17 +250,18 @@
                       class="form-check-input"
                       type="checkbox"
                       value=""
-                      id="termsCheck"
+                      id="confirmTerms"
                       required
                     />
-                    <label class="form-check-label small" for="termsCheck">
-                      I agree to return the item in the same condition and
-                      follow the GameLend rental terms.
+                    <label class="form-check-label small" for="confirmTerms">
+                      I understand this is a request only and the lender must
+                      approve before the extension is confirmed.
                     </label>
                   </div>
 
                   <button type="submit" class="btn btn-main btn-lg">
-                    <i class="bi bi-send me-1"></i>Submit request
+                    <i class="bi bi-arrow-repeat me-1"></i>Submit extension
+                    request
                   </button>
                 </form>
               </div>
@@ -341,52 +313,41 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // Simple front-end price calculation demo
-      const pricePerDay = 18;
-      const serviceFeeRate = 0.125; // 12.5% of rental subtotal
+      const baseEndDate = new Date("2026-03-09");
+      const pricePerDay = 8;
 
-      function recalcTotals() {
-        const start = document.getElementById("startDate").value;
-        const end = document.getElementById("endDate").value;
-        const subtotalEl = document.getElementById("rentalSubtotal");
-        const serviceFeeEl = document.getElementById("serviceFee");
-        const totalDueEl = document.getElementById("totalDue");
-        const depositEl = document.getElementById("depositAmount");
+      function recalcExtension() {
+        const input = document.getElementById("newReturnDate").value;
+        const extraDaysEl = document.getElementById("extraDays");
+        const extraCostEl = document.getElementById("extraCost");
+        const updatedTotalEl = document.getElementById("updatedTotal");
 
-        if (!start || !end) {
-          subtotalEl.textContent = "$36.00";
-          serviceFeeEl.textContent = "$4.50";
-          depositEl.textContent = "$80.00";
-          totalDueEl.textContent = "$120.50";
+        if (!input) {
+          extraDaysEl.textContent = "0";
+          extraCostEl.textContent = "$0.00";
+          updatedTotalEl.textContent = "$32.00";
           return;
         }
 
-        const startDate = new Date(start);
-        const endDate = new Date(end);
+        const newEndDate = new Date(input);
         const msPerDay = 1000 * 60 * 60 * 24;
-        let days = Math.round((endDate - startDate) / msPerDay);
+        let diff = Math.round((newEndDate - baseEndDate) / msPerDay);
 
-        if (isNaN(days) || days < 2) {
-          days = 2; // enforce minimum rental length
+        if (isNaN(diff) || diff < 1) {
+          diff = 0;
         }
 
-        const subtotal = days * pricePerDay;
-        const serviceFee = subtotal * serviceFeeRate;
-        const deposit = 80;
-        const totalDue = subtotal + serviceFee + deposit;
+        const extraCost = diff * pricePerDay;
+        const updatedTotal = 32 + extraCost;
 
-        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-        serviceFeeEl.textContent = `$${serviceFee.toFixed(2)}`;
-        depositEl.textContent = `$${deposit.toFixed(2)}`;
-        totalDueEl.textContent = `$${totalDue.toFixed(2)}`;
+        extraDaysEl.textContent = diff.toString();
+        extraCostEl.textContent = `$${extraCost.toFixed(2)}`;
+        updatedTotalEl.textContent = `$${updatedTotal.toFixed(2)}`;
       }
 
       document
-        .getElementById("startDate")
-        .addEventListener("change", recalcTotals);
-      document
-        .getElementById("endDate")
-        .addEventListener("change", recalcTotals);
+        .getElementById("newReturnDate")
+        .addEventListener("change", recalcExtension);
     </script>
   </body>
 </html>

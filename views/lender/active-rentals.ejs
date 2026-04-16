@@ -28,15 +28,15 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="../styles/app.css" />
-    <link rel="stylesheet" href="styles/lender.css" />
-    <link rel="stylesheet" href="styles/active-rentals.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/lender.css" />
+    <link rel="stylesheet" href="/css/active-rentals.css" />
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Lender</span>
         </a>
@@ -87,20 +87,20 @@
                   <li>
                     <a
                       class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
+                      href="borrower/dashboard"
                       >Borrower Dashboard</a
                     >
                   </li>
                   <li>
                     <a
                       class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
+                      href="admin/dashboard"
                       >Admin Dashboard</a
                     >
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
+                    <a class="dropdown-item" href="/">Home</a>
                   </li>
                 </ul>
               </div>
@@ -116,13 +116,13 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li>
-                    <a class="dropdown-item" href="lender-profile.html"
+                    <a class="dropdown-item" href="/auth/logout"
                       >Profile Settings</a
                     >
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
+                    <a class="dropdown-item" href="/auth/logout"
                       >Log Out</a
                     >
                   </li>
@@ -139,7 +139,7 @@
       <div class="container">
         <!-- Header with Back Button -->
         <div class="lender-header mb-4">
-          <a href="lender-dashboard.html" class="btn btn-alternate mb-3">
+          <a href="/lender/dashboard" class="btn btn-alternate mb-3">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
           </a>
           <h1>Active Rentals</h1>
@@ -531,15 +531,15 @@
           <div class="col-md-3 mb-4">
             <h5>About</h5>
             <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+              <li><a href="/about">About GameLend</a></li>
+              <li><a href="/about#team">Our Team</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Support</h5>
             <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+              <li><a href="/about#faq">FAQ</a></li>
+              <li><a href="/about#contact">Contact Us</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
