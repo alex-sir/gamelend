@@ -167,10 +167,7 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
-        include: [
-          // Ensure images are sorted so the primary one is always first in the array
-          { model: Image, as: "images" },
-        ],
+        include: [{ model: Image, as: "images" }],
         order: [
           [{ model: Image, as: "images" }, "isPrimary", "DESC"],
           [{ model: Image, as: "images" }, "createdAt", "ASC"],
@@ -252,7 +249,6 @@ const LenderController = {
 
         await image.destroy();
 
-        // If the user deleted the primary image, automatically assign a new one
         if (wasPrimary) {
           const nextImage = await Image.findOne({
             where: { listingId: listingId },
@@ -272,14 +268,12 @@ const LenderController = {
     }
   },
 
-  // --- NEW: Set Primary Image ---
   setPrimaryImage: async (req, res) => {
     try {
       const image = await Image.findByPk(req.params.imageId, {
         include: [{ model: Listing }],
       });
 
-      // Verify ownership
       if (
         image &&
         image.Listing &&
@@ -287,13 +281,11 @@ const LenderController = {
       ) {
         const listingId = image.listingId;
 
-        // 1. Remove primary status from all other images belonging to this listing
         await Image.update(
           { isPrimary: false },
           { where: { listingId: listingId } },
         );
 
-        // 2. Set the requested image as the new primary
         await image.update({ isPrimary: true });
 
         return res.redirect(`/lender/listings/${listingId}/images`);
@@ -311,6 +303,8 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
+        // ADDED THIS INCLUDE SO THE EJS FILE HAS ACCESS TO THE IMAGES
+        include: [{ model: Image, as: "images" }],
       });
       if (!listing) return res.status(404).send("Listing not found");
 
