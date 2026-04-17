@@ -1,3 +1,11 @@
+<% 
+  const userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.firstName) 
+    ? currentUser.firstName 
+    : 'Lender';
+    
+  const imageCount = listing.images ? listing.images.length : 0;
+%>
+
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
   <head>
@@ -5,59 +13,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload Images - GameLend</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.png" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <!-- Bootstrap Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="../styles/app.css" />
-    <link rel="stylesheet" href="styles/lender.css" />
-    <link rel="stylesheet" href="styles/upload-images.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/lender/lender.css" />
+    
+    <style>
+      .upload-zone {
+        border: 2px dashed var(--color-gray-hover);
+        border-radius: 10px;
+        padding: 3rem 1rem;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .upload-zone:hover, .upload-zone.drag-over {
+        border-color: var(--color-orange);
+        background-color: rgba(255, 107, 0, 0.1);
+      }
+      .upload-zone i {
+        font-size: 3rem;
+        color: var(--color-orange);
+        margin-bottom: 1rem;
+      }
+      .image-item {
+        position: relative;
+        margin-bottom: 1rem;
+      }
+      .image-preview {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background-color: var(--color-black);
+      }
+      .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .primary-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: var(--color-orange);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        z-index: 2;
+      }
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .image-preview:hover .image-overlay {
+        opacity: 1;
+      }
+    </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
-    <!-- Navigation Bar (same as create-listing.html) -->
+    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Lender</span>
         </a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#navbarNav"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search your listings..."
-              aria-label="Search"
-            />
+          <form class="d-flex" action="/search" method="GET">
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
@@ -67,64 +112,33 @@
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Lender Menu</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="offcanvas"
-            ></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
-                      >Borrower Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li><a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a></li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle me-1"></i><%= userName %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="lender-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -133,236 +147,126 @@
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow-1 py-4">
       <div class="container">
-        <!-- Header -->
         <div class="lender-header mb-4">
-          <a href="listing-detail.html?id=123" class="btn btn-alternate mb-3">
+          <a href="/lender/listings/<%= listing.id %>" class="btn btn-alternate mb-3">
             <i class="bi bi-arrow-left me-2"></i>Back to Listing
           </a>
           <h1>Manage Images</h1>
-          <p>PlayStation 5 Digital Edition</p>
+          <p><%= listing.title %></p>
         </div>
 
         <div class="row">
           <div class="col-lg-8">
-            <!-- Upload Section -->
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+              <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div><%= error %></div>
+              </div>
+            <% } %>
+
             <div class="section-card">
               <h2 class="h5 mb-3">Upload New Images</h2>
 
-              <div class="upload-zone" id="uploadZone">
-                <i class="bi bi-cloud-arrow-up"></i>
-                <h3 class="h5">Drag & Drop Images Here</h3>
-                <p class="text-muted mb-3">or</p>
-                <button type="button" class="btn btn-main" id="selectFilesBtn">
-                  <i class="bi bi-folder2-open me-2"></i>Choose Files
-                </button>
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept="image/jpeg,image/png,image/webp"
-                  multiple
-                  style="display: none"
-                />
-                <p class="text-muted mt-3 mb-0">
-                  <small
-                    >Accepted formats: JPG, PNG, WEBP • Max 10MB per file • Up
-                    to 8 images</small
-                  >
-                </p>
-              </div>
+              <form action="/lender/listings/<%= listing.id %>/images" method="POST" enctype="multipart/form-data" id="uploadForm" data-current-count="<%= imageCount %>">
+                <div class="upload-zone" id="uploadZone">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <h3 class="h5">Drag & Drop Images Here</h3>
+                  <p class="text-muted mb-3">or</p>
+                  <button type="button" class="btn btn-main" id="selectFilesBtn">
+                    <i class="bi bi-folder2-open me-2"></i>Choose Files
+                  </button>
+                  
+                  <input type="file" id="fileInput" name="listingImages" accept="image/jpeg,image/png,image/webp" multiple style="display: none" />
+                  
+                  <p class="text-muted mt-3 mb-0">
+                    <small>Accepted formats: JPG, PNG, WEBP • Max 10MB per file • Up to 8 images total</small>
+                  </p>
+                </div>
 
-              <!-- Upload Progress -->
-              <div id="uploadProgress" style="display: none" class="mt-3">
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Uploading images...</span>
-                  <span id="progressText">0%</span>
+                <div id="uploadActionDiv" class="mt-4 p-3 bg-dark border border-secondary rounded d-none">
+                  <div class="text-center mb-3">
+                    <p id="selectedFilesText" class="text-info fw-bold mb-2"></p>
+                  </div>
+                  
+                  <div id="previewGallery" class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+                    </div>
+
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-main btn-lg">
+                      <i class="bi bi-upload me-2"></i>Upload Selected Images
+                    </button>
+                  </div>
                 </div>
-                <div class="progress">
-                  <div
-                    class="progress-bar progress-bar-striped progress-bar-animated"
-                    id="progressBar"
-                    style="width: 0%; background-color: var(--color-orange)"
-                  ></div>
-                </div>
-              </div>
+              </form>
             </div>
 
-            <!-- Current Images -->
             <div class="section-card">
-              <div
-                class="d-flex justify-content-between align-items-center mb-3"
-              >
+              <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="h5 mb-0">
                   <i class="bi bi-images me-2"></i>Current Images
-                  <span class="badge bg-secondary" id="imageCount">3 of 8</span>
+                  <span class="badge bg-secondary" id="imageCount"><%= imageCount %> of 8</span>
                 </h2>
               </div>
 
               <div class="row g-3" id="imageGallery">
-                <!-- Image 1 (Primary) -->
-                <div class="col-md-4 image-item" data-image-id="1">
-                  <div class="image-preview">
-                    <div class="primary-badge">Primary</div>
-                    <img src="../assets/images/ps5.jpg" alt="PS5 Image 1" />
-                    <div class="image-overlay">
-                      <button
-                        class="btn btn-sm btn-alternate"
-                        title="Set as Primary"
-                        disabled
-                      >
-                        <i class="bi bi-star-fill"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-up"
-                        title="Move Left"
-                      >
-                        <i class="bi bi-arrow-left"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-down"
-                        title="Move Right"
-                      >
-                        <i class="bi bi-arrow-right"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-danger delete-image"
-                        title="Delete"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
+                <% if (listing.images && listing.images.length > 0) { %>
+                  <% listing.images.forEach(function(image) { %>
+                    <div class="col-md-4 image-item">
+                      <div class="image-preview">
+                        <% if (image.isPrimary) { %>
+                          <div class="primary-badge">Primary</div>
+                        <% } %>
+                        <img src="<%= image.imageUrl %>" alt="Listing Image" />
+                        <div class="image-overlay">
+                          <form action="/lender/images/<%= image.id %>?_method=DELETE" method="POST" class="m-0 delete-image-form">
+                            <button type="submit" class="btn btn-danger delete-image" title="Delete Image">
+                              <i class="bi bi-trash"></i> Delete
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="col-12">
+                    <div class="alert alert-dark text-center text-muted border-secondary">
+                      No images uploaded yet. You must upload at least one image to activate this listing.
                     </div>
                   </div>
-                </div>
-
-                <!-- Image 2 -->
-                <div class="col-md-4 image-item" data-image-id="2">
-                  <div class="image-preview">
-                    <img src="../assets/images/ps5.jpg" alt="PS5 Image 2" />
-                    <div class="image-overlay">
-                      <button
-                        class="btn btn-sm btn-alternate set-primary"
-                        title="Set as Primary"
-                      >
-                        <i class="bi bi-star"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-up"
-                        title="Move Left"
-                      >
-                        <i class="bi bi-arrow-left"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-down"
-                        title="Move Right"
-                      >
-                        <i class="bi bi-arrow-right"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-danger delete-image"
-                        title="Delete"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Image 3 -->
-                <div class="col-md-4 image-item" data-image-id="3">
-                  <div class="image-preview">
-                    <img src="../assets/images/ps5.jpg" alt="PS5 Image 3" />
-                    <div class="image-overlay">
-                      <button
-                        class="btn btn-sm btn-alternate set-primary"
-                        title="Set as Primary"
-                      >
-                        <i class="bi bi-star"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-up"
-                        title="Move Left"
-                      >
-                        <i class="bi bi-arrow-left"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-alternate move-down"
-                        title="Move Right"
-                      >
-                        <i class="bi bi-arrow-right"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-danger delete-image"
-                        title="Delete"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <% } %>
               </div>
 
-              <div class="mt-4 d-flex justify-content-end gap-2">
-                <a href="listing-detail.html?id=123" class="btn btn-alternate">
-                  <i class="bi bi-x-circle me-2"></i>Cancel
+              <div class="mt-4 d-flex justify-content-end gap-2 border-top border-secondary pt-3">
+                <a href="/lender/listings/<%= listing.id %>" class="btn btn-main">
+                  <i class="bi bi-check-circle me-2"></i>Finish & Return to Listing
                 </a>
-                <button type="button" class="btn btn-main" id="saveChangesBtn">
-                  <i class="bi bi-check-circle me-2"></i>Save Changes
-                </button>
               </div>
             </div>
           </div>
 
-          <!-- Sidebar - Guidelines -->
           <div class="col-lg-4">
             <div class="section-card">
-              <h3 class="h5 mb-3">
-                <i class="bi bi-camera me-2"></i>Photo Guidelines
-              </h3>
+              <h3 class="h5 mb-3"><i class="bi bi-camera me-2"></i>Photo Guidelines</h3>
               <ul class="list-unstyled">
-                <li class="mb-2">
-                  <i class="bi bi-check-circle text-success me-2"></i>
-                  Use clear, well-lit photos
-                </li>
-                <li class="mb-2">
-                  <i class="bi bi-check-circle text-success me-2"></i>
-                  Show item from multiple angles
-                </li>
-                <li class="mb-2">
-                  <i class="bi bi-check-circle text-success me-2"></i>
-                  Include any accessories or cables
-                </li>
-                <li class="mb-2">
-                  <i class="bi bi-check-circle text-success me-2"></i>
-                  Show condition accurately
-                </li>
-                <li class="mb-2">
-                  <i class="bi bi-x-circle text-danger me-2"></i>
-                  No watermarks or text overlays
-                </li>
-                <li class="mb-2">
-                  <i class="bi bi-x-circle text-danger me-2"></i>
-                  No personal information visible
-                </li>
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Use clear, well-lit photos</li>
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Show item from multiple angles</li>
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Include any accessories or cables</li>
+                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Show condition accurately</li>
+                <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>No watermarks or text overlays</li>
+                <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i>No personal information visible</li>
               </ul>
             </div>
 
             <div class="section-card">
-              <h3 class="h5 mb-3">
-                <i class="bi bi-info-circle me-2"></i>Image Management
-              </h3>
+              <h3 class="h5 mb-3"><i class="bi bi-info-circle me-2"></i>Image Management</h3>
               <p class="text-muted mb-2">
-                <strong>Primary Image:</strong> The first image shown in search
-                results and listing preview.
-              </p>
-              <p class="text-muted mb-2">
-                <strong>Reordering:</strong> Use arrow buttons to change image
-                display order.
+                <strong>Primary Image:</strong> The first image you upload is automatically shown in search results and the listing preview.
               </p>
               <p class="text-muted mb-0">
-                <strong>Deleting:</strong> You must have at least one image to
-                publish your listing.
+                <strong>Deleting:</strong> You must have at least one image to publish your listing to the marketplace.
               </p>
             </div>
           </div>
@@ -370,135 +274,61 @@
       </div>
     </main>
 
-    <!-- Footer -->
+    <div class="modal fade" id="deleteImageModal" tabindex="-1" aria-labelledby="deleteImageModalLabel" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white" id="deleteImageModalLabel">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Confirm Deletion
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light">
+            Are you sure you want to delete this image? 
+            <br><br>
+            <small class="text-muted">This action cannot be undone. Remember, a listing must have at least one image to be active in the marketplace.</small>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmImageDeleteBtn">
+              <i class="bi bi-trash me-2"></i>Delete Image
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <div class="container">
         <div class="row justify-content-center mx-auto">
           <div class="col-md-3 mb-4">
             <h5>About</h5>
             <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+              <li><a href="/about">About GameLend</a></li>
+              <li><a href="/about#team">Our Team</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Support</h5>
             <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+              <li><a href="/about#faq">FAQ</a></li>
+              <li><a href="/about#contact">Contact Us</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Connect</h5>
             <ul>
-              <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
-              </li>
+              <li><a href="https://github.com/alex-sir/gamelend" target="_blank" rel="noopener noreferrer"><i class="bi bi-github me-2"></i>GitHub</a></li>
             </ul>
           </div>
         </div>
         <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
-            reserved.
-          </p>
+          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPTS 489 Course Project. All rights reserved.</p>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const uploadZone = document.getElementById("uploadZone");
-      const fileInput = document.getElementById("fileInput");
-      const selectFilesBtn = document.getElementById("selectFilesBtn");
-
-      // Drag and drop handlers
-      uploadZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        uploadZone.classList.add("drag-over");
-      });
-
-      uploadZone.addEventListener("dragleave", () => {
-        uploadZone.classList.remove("drag-over");
-      });
-
-      uploadZone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove("drag-over");
-        handleFiles(e.dataTransfer.files);
-      });
-
-      // File selection
-      selectFilesBtn.addEventListener("click", () => {
-        fileInput.click();
-      });
-
-      fileInput.addEventListener("change", (e) => {
-        handleFiles(e.target.files);
-      });
-
-      function handleFiles(files) {
-        if (files.length > 0) {
-          document.getElementById("uploadProgress").style.display = "block";
-          let progress = 0;
-          const interval = setInterval(() => {
-            progress += 10;
-            document.getElementById("progressBar").style.width = progress + "%";
-            document.getElementById("progressText").textContent =
-              progress + "%";
-
-            if (progress >= 100) {
-              clearInterval(interval);
-              setTimeout(() => {
-                document.getElementById("uploadProgress").style.display =
-                  "none";
-                alert("Images uploaded successfully!");
-                document.getElementById("progressBar").style.width = "0%";
-              }, 500);
-            }
-          }, 200);
-        }
-      }
-
-      // Delete image
-      document.querySelectorAll(".delete-image").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          if (confirm("Are you sure you want to delete this image?")) {
-            this.closest(".image-item").remove();
-            updateImageCount();
-          }
-        });
-      });
-
-      // Set primary
-      document.querySelectorAll(".set-primary").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          document
-            .querySelectorAll(".primary-badge")
-            .forEach((badge) => badge.remove());
-          const imagePreview = this.closest(".image-preview");
-          const badge = document.createElement("div");
-          badge.className = "primary-badge";
-          badge.textContent = "Primary";
-          imagePreview.insertBefore(badge, imagePreview.firstChild);
-          alert("Primary image updated!");
-        });
-      });
-
-      function updateImageCount() {
-        const count = document.querySelectorAll(".image-item").length;
-        document.getElementById("imageCount").textContent = count + " of 8";
-      }
-
-      // Save changes
-      document
-        .getElementById("saveChangesBtn")
-        .addEventListener("click", () => {
-          alert("Changes saved successfully!");
-          window.location.href = "listing-detail.html?id=123";
-        });
-    </script>
+    <script src="/js/upload-images.js"></script>
   </body>
 </html>

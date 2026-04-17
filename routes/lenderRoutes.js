@@ -2,13 +2,23 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs"); // Imported File System module
 const { requireRole } = require("../middleware/auth");
 const LenderController = require("../controllers/LenderController");
+
+// --- Ensure Upload Directory Exists ---
+// Creates an absolute path to the uploads folder
+const uploadDir = path.join(__dirname, "../public/images/uploads");
+
+// Check if the directory exists, and if not, create it recursively
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // --- Multer Configuration for Image Uploads (UC-L02) ---
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "public/images/uploads"); // Ensure this folder exists
+    cb(null, uploadDir); // Use the absolute path we guaranteed exists above
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -18,6 +28,7 @@ const storage = multer.diskStorage({
     );
   },
 });
+
 const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit

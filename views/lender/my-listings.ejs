@@ -1,3 +1,22 @@
+<% 
+  const userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.firstName) 
+    ? currentUser.firstName 
+    : 'Lender';
+    
+  // Categorize the listings from the database
+  const activeListings = [];
+  const suspendedListings = [];
+  const draftListings = [];
+  
+  if (typeof listings !== 'undefined' && listings.length > 0) {
+    listings.forEach(listing => {
+      if (listing.status === 'Active') activeListings.push(listing);
+      else if (listing.status === 'Suspended') suspendedListings.push(listing);
+      else if (listing.status === 'Draft') draftListings.push(listing);
+    });
+  }
+%>
+
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
   <head>
@@ -5,59 +24,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Listings - GameLend</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.png" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
 
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <!-- Bootstrap Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="../styles/app.css" />
-    <link rel="stylesheet" href="styles/lender.css" />
-    <link rel="stylesheet" href="styles/my-listings.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/lender/lender.css" />
+    <style>
+      .listing-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--color-gray-hover);
+        transition: background-color 0.2s;
+      }
+      .listing-item:last-child {
+        border-bottom: none;
+      }
+      .listing-item:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+      .listing-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 1.5rem;
+      }
+      .listing-details {
+        flex-grow: 1;
+      }
+      .listing-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+      }
+      .listing-meta {
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+      }
+      .badge-status {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 700;
+        border-radius: 4px;
+      }
+      .badge-active { background-color: rgba(25, 135, 84, 0.2); color: #20c997; }
+      .badge-draft { background-color: rgba(108, 117, 125, 0.2); color: #adb5bd; }
+      .badge-suspended { background-color: rgba(220, 53, 69, 0.2); color: #ff7b8a; }
+    </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Lender</span>
         </a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#navbarNav"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search your listings..."
-              aria-label="Search"
-            />
+          <form class="d-flex" action="/search" method="GET">
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
@@ -67,64 +99,33 @@
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Lender Menu</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="offcanvas"
-            ></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
-                      >Borrower Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li><a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a></li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle me-1"></i><%= userName %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="lender-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -133,12 +134,10 @@
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow-1 py-4">
       <div class="container">
-        <!-- Header with Back Button -->
         <div class="lender-header mb-4">
-          <a href="lender-dashboard.html" class="btn btn-alternate mb-3">
+          <a href="/lender/dashboard" class="btn btn-alternate mb-3">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
           </a>
           <div class="d-flex justify-content-between align-items-center">
@@ -146,319 +145,234 @@
               <h1>My Listings</h1>
               <p>Manage your equipment listings</p>
             </div>
-            <a href="create-listing.html" class="btn btn-main">
+            <a href="/lender/listings/new" class="btn btn-main">
               <i class="bi bi-plus-circle me-2"></i>Create New Listing
             </a>
           </div>
         </div>
 
-        <!-- Tabs Navigation -->
         <ul class="nav nav-tabs mb-4" id="listing-tabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link active"
-              id="active-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#active"
-              type="button"
-              role="tab"
-            >
+            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
               <i class="bi bi-check-circle me-2"></i>Active
-              <span class="badge bg-secondary ms-2">12</span>
+              <span class="badge bg-secondary ms-2"><%= activeListings.length %></span>
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="pending-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#pending"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-clock me-2"></i>Pending Approval
-              <span class="badge bg-warning text-dark ms-2">2</span>
+            <button class="nav-link" id="suspended-tab" data-bs-toggle="tab" data-bs-target="#suspended" type="button" role="tab">
+              <i class="bi bi-exclamation-triangle me-2"></i>Suspended
+              <span class="badge bg-warning text-dark ms-2"><%= suspendedListings.length %></span>
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="draft-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#draft"
-              type="button"
-              role="tab"
-            >
+            <button class="nav-link" id="draft-tab" data-bs-toggle="tab" data-bs-target="#draft" type="button" role="tab">
               <i class="bi bi-file-earmark me-2"></i>Drafts
-              <span class="badge bg-secondary ms-2">3</span>
+              <span class="badge bg-secondary ms-2"><%= draftListings.length %></span>
             </button>
           </li>
         </ul>
 
-        <!-- Tab Content -->
         <div class="tab-content" id="listingTabsContent">
-          <!-- Active Listings -->
+          
           <div class="tab-pane fade show active" id="active" role="tabpanel">
-            <div class="section-card">
-              <div class="listing-item">
-                <img src="../assets/images/ps5.jpg" alt="PlayStation 5" />
-                <div class="listing-details">
-                  <div class="listing-title">PlayStation 5 Digital Edition</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-eye me-1"></i>243 views •
-                    <i class="bi bi-cash ms-2 me-1"></i>$15/day
+            <div class="section-card p-0">
+              <% if (activeListings.length > 0) { %>
+                <% activeListings.forEach(function(listing) { %>
+                  <% 
+                    let primaryImage = '/images/gaming-collage.jpg'; 
+                    if (listing.images && listing.images.length > 0) {
+                      const primary = listing.images.find(img => img.isPrimary);
+                      primaryImage = primary ? primary.imageUrl : listing.images[0].imageUrl;
+                    }
+                  %>
+                  <div class="listing-item">
+                    <img src="<%= primaryImage %>" alt="<%= listing.title %>" />
+                    <div class="listing-details">
+                      <div class="listing-title"><%= listing.title %></div>
+                      <div class="listing-meta">
+                        <i class="bi bi-controller me-1"></i><%= listing.category %> •
+                        <i class="bi bi-cash ms-2 me-1"></i>$<%= parseFloat(listing.dailyRate).toFixed(2) %>/day
+                      </div>
+                      <div class="mt-2">
+                        <span class="badge-status badge-active">Active</span>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-alternate btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          <i class="bi bi-three-dots-vertical"></i> Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                          <li><a class="dropdown-item" href="/lender/listings/<%= listing.id %>"><i class="bi bi-eye me-2"></i>View</a></li>
+                          <li><a class="dropdown-item" href="/lender/listings/<%= listing.id %>/edit"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                          <li><a class="dropdown-item" href="/lender/listings/<%= listing.id %>/images"><i class="bi bi-images me-2"></i>Manage Images</a></li>
+                          <li><hr class="dropdown-divider" /></li>
+                          <li>
+                            <form action="/lender/listings/<%= listing.id %>?_method=DELETE" method="POST" style="display:inline;" class="delete-listing-form">
+                              <button type="submit" class="dropdown-item text-danger" data-listing-title="<%= listing.title %>">
+                                <i class="bi bi-trash me-2"></i>Delete
+                              </button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <div class="mt-2">
-                    <span class="badge-status badge-active">Active</span>
-                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="p-5 text-center text-muted">
+                  <i class="bi bi-box-seam display-4 d-block mb-3"></i>
+                  <p>You don't have any active listings yet.</p>
+                  <a href="/lender/listings/new" class="btn btn-alternate mt-2">Create your first listing</a>
                 </div>
-                <div class="text-end">
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-alternate btn-sm dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      <i class="bi bi-three-dots-vertical"></i> Actions
-                    </button>
-                    <ul
-                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
-                    >
-                      <li>
-                        <a class="dropdown-item" href="listing-detail.html?id=1"
-                          ><i class="bi bi-eye me-2"></i>View</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="edit-listing.html?id=1"
-                          ><i class="bi bi-pencil me-2"></i>Edit</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="upload-images.html?id=1"
-                          ><i class="bi bi-images me-2"></i>Manage Images</a
-                        >
-                      </li>
-                      <li><hr class="dropdown-divider" /></li>
-                      <li>
-                        <a class="dropdown-item text-danger" href="#"
-                          ><i class="bi bi-trash me-2"></i>Delete</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div class="listing-item">
-                <img
-                  src="../assets/images/xbox-wireless-controller.jpg"
-                  alt="Xbox Controller"
-                />
-                <div class="listing-details">
-                  <div class="listing-title">
-                    Xbox Wireless Controller - Carbon Black
-                  </div>
-                  <div class="listing-meta">
-                    <i class="bi bi-eye me-1"></i>127 views •
-                    <i class="bi bi-cash ms-2 me-1"></i>$5/day
-                  </div>
-                  <div class="mt-2">
-                    <span class="badge-status badge-active">Active</span>
-                  </div>
-                </div>
-                <div class="text-end">
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-alternate btn-sm dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      <i class="bi bi-three-dots-vertical"></i> Actions
-                    </button>
-                    <ul
-                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
-                    >
-                      <li>
-                        <a class="dropdown-item" href="listing-detail.html?id=2"
-                          ><i class="bi bi-eye me-2"></i>View</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="edit-listing.html?id=2"
-                          ><i class="bi bi-pencil me-2"></i>Edit</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="upload-images.html?id=2"
-                          ><i class="bi bi-images me-2"></i>Manage Images</a
-                        >
-                      </li>
-                      <li><hr class="dropdown-divider" /></li>
-                      <li>
-                        <a class="dropdown-item text-danger" href="#"
-                          ><i class="bi bi-trash me-2"></i>Delete</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div class="listing-item">
-                <img
-                  src="../assets/images/donkey-kong-bananza.jpg"
-                  alt="Donkey Kong"
-                />
-                <div class="listing-details">
-                  <div class="listing-title">
-                    Donkey Kong Bananza - Nintendo Switch 2
-                  </div>
-                  <div class="listing-meta">
-                    <i class="bi bi-eye me-1"></i>189 views •
-                    <i class="bi bi-cash ms-2 me-1"></i>$8/day
-                  </div>
-                  <div class="mt-2">
-                    <span class="badge-status badge-active">Active</span>
-                  </div>
-                </div>
-                <div class="text-end">
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-alternate btn-sm dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                    >
-                      <i class="bi bi-three-dots-vertical"></i> Actions
-                    </button>
-                    <ul
-                      class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
-                    >
-                      <li>
-                        <a class="dropdown-item" href="listing-detail.html?id=3"
-                          ><i class="bi bi-eye me-2"></i>View</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="edit-listing.html?id=3"
-                          ><i class="bi bi-pencil me-2"></i>Edit</a
-                        >
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="upload-images.html?id=3"
-                          ><i class="bi bi-images me-2"></i>Manage Images</a
-                        >
-                      </li>
-                      <li><hr class="dropdown-divider" /></li>
-                      <li>
-                        <a class="dropdown-item text-danger" href="#"
-                          ><i class="bi bi-trash me-2"></i>Delete</a
-                        >
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+              <% } %>
             </div>
           </div>
 
-          <!-- Pending Approval -->
-          <div class="tab-pane fade" id="pending" role="tabpanel">
-            <div class="section-card">
-              <div id="pending-alert" class="alert">
-                <i class="bi bi-info-circle me-2"></i>Listings are typically
-                approved within 24-48 hours.
+          <div class="tab-pane fade" id="suspended" role="tabpanel">
+            <div class="section-card p-0">
+              <div class="p-3 bg-dark border-bottom border-secondary">
+                <i class="bi bi-info-circle me-2 text-warning"></i>Suspended listings are not visible to borrowers and cannot receive requests.
               </div>
-
-              <div class="listing-item">
-                <img src="../assets/images/steam_1.jpg" alt="Steam Deck" />
-                <div class="listing-details">
-                  <div class="listing-title">Steam Deck</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-clock me-1"></i>Submitted 12 hours ago
+              
+              <% if (suspendedListings.length > 0) { %>
+                <% suspendedListings.forEach(function(listing) { %>
+                  <% 
+                    let primaryImage = '/images/gaming-collage.jpg'; 
+                    if (listing.images && listing.images.length > 0) {
+                      const primary = listing.images.find(img => img.isPrimary);
+                      primaryImage = primary ? primary.imageUrl : listing.images[0].imageUrl;
+                    }
+                  %>
+                  <div class="listing-item">
+                    <img src="<%= primaryImage %>" alt="<%= listing.title %>" />
+                    <div class="listing-details">
+                      <div class="listing-title"><%= listing.title %></div>
+                      <div class="listing-meta">
+                        <i class="bi bi-cash me-1"></i>$<%= parseFloat(listing.dailyRate).toFixed(2) %>/day
+                      </div>
+                      <div class="mt-2">
+                        <span class="badge-status badge-suspended">Suspended by Admin</span>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <a href="/lender/listings/<%= listing.id %>" class="btn btn-alternate btn-sm">
+                        <i class="bi bi-eye me-1"></i>View Details
+                      </a>
+                    </div>
                   </div>
-                  <div class="mt-2">
-                    <span class="badge-status badge-pending"
-                      >Pending Approval</span
-                    >
-                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="p-5 text-center text-muted">
+                  <p>You have no suspended listings.</p>
                 </div>
-                <div class="text-end">
-                  <a
-                    href="edit-listing.html?id=4"
-                    class="btn btn-alternate btn-sm"
-                  >
-                    <i class="bi bi-pencil me-1"></i>Edit
-                  </a>
-                </div>
-              </div>
+              <% } %>
             </div>
           </div>
 
-          <!-- Drafts -->
           <div class="tab-pane fade" id="draft" role="tabpanel">
-            <div class="section-card">
-              <div class="listing-item">
-                <img src="../assets/images/switch_1.jpg" alt="Draft listing" />
-                <div class="listing-details">
-                  <div class="listing-title">Nintendo Switch 2</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-clock me-1"></i>Last edited 3 days ago
+            <div class="section-card p-0">
+              <% if (draftListings.length > 0) { %>
+                <% draftListings.forEach(function(listing) { %>
+                  <% 
+                    let primaryImage = '/images/gaming-collage.jpg'; 
+                    if (listing.images && listing.images.length > 0) {
+                      const primary = listing.images.find(img => img.isPrimary);
+                      primaryImage = primary ? primary.imageUrl : listing.images[0].imageUrl;
+                    }
+                  %>
+                  <div class="listing-item">
+                    <img src="<%= primaryImage %>" alt="<%= listing.title %>" />
+                    <div class="listing-details">
+                      <div class="listing-title"><%= listing.title %></div>
+                      <div class="listing-meta">
+                        <i class="bi bi-clock me-1"></i>Last updated: <%= new Date(listing.updatedAt).toLocaleDateString() %>
+                      </div>
+                      <div class="mt-2">
+                        <span class="badge-status badge-draft">Draft</span>
+                      </div>
+                    </div>
+                    <div class="text-end d-flex gap-2 align-items-center">
+                      <form action="/lender/listings/<%= listing.id %>?_method=DELETE" method="POST" class="m-0 delete-listing-form">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Draft" data-listing-title="<%= listing.title %>">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                      <a href="/lender/listings/<%= listing.id %>/images" class="btn btn-main btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Continue Editing
+                      </a>
+                    </div>
                   </div>
-                  <div class="mt-2">
-                    <span class="badge-status badge-draft">Draft</span>
-                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="p-5 text-center text-muted">
+                  <p>You have no saved drafts.</p>
                 </div>
-                <div class="text-end">
-                  <a href="edit-listing.html?id=5" class="btn btn-main btn-sm">
-                    <i class="bi bi-pencil me-1"></i>Continue Editing
-                  </a>
-                </div>
-              </div>
+              <% } %>
             </div>
           </div>
+
         </div>
       </div>
     </main>
 
-    <!-- Footer -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white" id="deleteConfirmModalLabel">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Confirm Deletion
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light">
+            Are you sure you want to delete <strong id="deleteListingTitle" class="text-orange">this listing</strong>? 
+            <br><br>
+            <small class="text-muted">This action cannot be undone, and the listing will be permanently removed from your dashboard.</small>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+              <i class="bi bi-trash me-2"></i>Delete Listing
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <div class="container">
         <div class="row justify-content-center mx-auto">
           <div class="col-md-3 mb-4">
             <h5>About</h5>
             <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+              <li><a href="/about">About GameLend</a></li>
+              <li><a href="/about#team">Our Team</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Support</h5>
             <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+              <li><a href="/about#faq">FAQ</a></li>
+              <li><a href="/about#contact">Contact Us</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Connect</h5>
             <ul>
               <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
+                <a href="https://github.com/alex-sir/gamelend" target="_blank" rel="noopener noreferrer"><i class="bi bi-github me-2"></i>GitHub</a>
               </li>
             </ul>
           </div>
         </div>
         <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
-            reserved.
-          </p>
+          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPTS 489 Course Project. All rights reserved.</p>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/my-listings.js"></script>
   </body>
 </html>
