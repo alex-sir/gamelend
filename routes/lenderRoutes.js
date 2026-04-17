@@ -53,6 +53,7 @@ router.post(
   LenderController.uploadImages,
 );
 router.delete("/images/:imageId", LenderController.deleteImage);
+router.post("/images/:imageId/primary", LenderController.setPrimaryImage);
 
 // UC-L03: Edit Listing Details
 router.get("/listings/:id/edit", LenderController.renderEditForm);

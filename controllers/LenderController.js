@@ -167,7 +167,14 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
-        include: [{ model: Image, as: "images" }],
+        include: [
+          // Ensure images are sorted so the primary one is always first in the array
+          { model: Image, as: "images" },
+        ],
+        order: [
+          [{ model: Image, as: "images" }, "isPrimary", "DESC"],
+          [{ model: Image, as: "images" }, "createdAt", "ASC"],
+        ],
       });
       if (!listing) return res.status(404).send("Listing not found");
 
@@ -181,23 +188,47 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
+        include: [{ model: Image, as: "images" }],
       });
+
       if (!listing) return res.status(404).send("Listing not found");
 
-      if (req.files && req.files.length > 0) {
-        const imageRecords = req.files.map((file, index) => ({
-          listingId: listing.id,
-          imageUrl: `/images/uploads/${file.filename}`,
-          isPrimary: index === 0,
-        }));
+      let imageRecords = [];
+      const isFirstImage = !listing.images || listing.images.length === 0;
 
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          imageRecords.push({
+            listingId: listing.id,
+            imageUrl: `/images/uploads/${file.filename}`,
+            isPrimary: isFirstImage && imageRecords.length === 0,
+          });
+        });
+      }
+
+      if (req.body.imageUrls) {
+        const urls = Array.isArray(req.body.imageUrls)
+          ? req.body.imageUrls
+          : [req.body.imageUrls];
+        urls.forEach((url) => {
+          if (url.trim()) {
+            imageRecords.push({
+              listingId: listing.id,
+              imageUrl: url.trim(),
+              isPrimary: isFirstImage && imageRecords.length === 0,
+            });
+          }
+        });
+      }
+
+      if (imageRecords.length > 0) {
         await Image.bulkCreate(imageRecords);
 
         if (listing.status === "Draft") {
           await listing.update({ status: "Active" });
         }
       }
-      // Redirecting back to the image management page so they can see what they just uploaded
+
       res.redirect(`/lender/listings/${listing.id}/images`);
     } catch (error) {
       console.error(error);
@@ -205,33 +236,73 @@ const LenderController = {
     }
   },
 
-  // --- THE FIX IS APPLIED HERE ---
   deleteImage: async (req, res) => {
     try {
-      // Find the image and include the Listing to verify ownership
       const image = await Image.findByPk(req.params.imageId, {
         include: [{ model: Listing }],
       });
 
-      // Verify the image exists and the logged-in user owns the listing it belongs to
       if (
         image &&
         image.Listing &&
         image.Listing.lenderId === req.session.user.id
       ) {
-        const listingId = image.listingId; // Save the listing ID before deleting the record
+        const listingId = image.listingId;
+        const wasPrimary = image.isPrimary;
 
         await image.destroy();
 
-        // Explicitly redirect back to the image management page for that specific listing
+        // If the user deleted the primary image, automatically assign a new one
+        if (wasPrimary) {
+          const nextImage = await Image.findOne({
+            where: { listingId: listingId },
+          });
+          if (nextImage) {
+            await nextImage.update({ isPrimary: true });
+          }
+        }
+
         return res.redirect(`/lender/listings/${listingId}/images`);
       }
 
-      // Fallback if image wasn't found or unauthorized
       res.redirect("/lender/listings");
     } catch (error) {
       console.error("Error deleting image:", error);
       res.status(500).send("Error deleting image");
+    }
+  },
+
+  // --- NEW: Set Primary Image ---
+  setPrimaryImage: async (req, res) => {
+    try {
+      const image = await Image.findByPk(req.params.imageId, {
+        include: [{ model: Listing }],
+      });
+
+      // Verify ownership
+      if (
+        image &&
+        image.Listing &&
+        image.Listing.lenderId === req.session.user.id
+      ) {
+        const listingId = image.listingId;
+
+        // 1. Remove primary status from all other images belonging to this listing
+        await Image.update(
+          { isPrimary: false },
+          { where: { listingId: listingId } },
+        );
+
+        // 2. Set the requested image as the new primary
+        await image.update({ isPrimary: true });
+
+        return res.redirect(`/lender/listings/${listingId}/images`);
+      }
+
+      res.redirect("/lender/listings");
+    } catch (error) {
+      console.error("Error setting primary image:", error);
+      res.status(500).send("Error setting primary image");
     }
   },
 

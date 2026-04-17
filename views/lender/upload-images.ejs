@@ -171,6 +171,7 @@
               <h2 class="h5 mb-3">Upload New Images</h2>
 
               <form action="/lender/listings/<%= listing.id %>/images" method="POST" enctype="multipart/form-data" id="uploadForm" data-current-count="<%= imageCount %>">
+                
                 <div class="upload-zone" id="uploadZone">
                   <i class="bi bi-cloud-arrow-up"></i>
                   <h3 class="h5">Drag & Drop Images Here</h3>
@@ -184,6 +185,15 @@
                   <p class="text-muted mt-3 mb-0">
                     <small>Accepted formats: JPG, PNG, WEBP • Max 10MB per file • Up to 8 images total</small>
                   </p>
+                </div>
+
+                <div class="mt-4">
+                  <label for="imageUrl" class="form-label text-muted">Or Add Image via URL</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-link-45deg"></i></span>
+                    <input type="url" class="form-control bg-dark text-white border-secondary" id="imageUrl" placeholder="https://example.com/image.jpg">
+                    <button class="btn btn-alternate" type="button" id="addUrlBtn">Add URL</button>
+                  </div>
                 </div>
 
                 <div id="uploadActionDiv" class="mt-4 p-3 bg-dark border border-secondary rounded d-none">
@@ -220,10 +230,20 @@
                           <div class="primary-badge">Primary</div>
                         <% } %>
                         <img src="<%= image.imageUrl %>" alt="Listing Image" />
-                        <div class="image-overlay">
-                          <form action="/lender/images/<%= image.id %>?_method=DELETE" method="POST" class="m-0 delete-image-form">
-                            <button type="submit" class="btn btn-danger delete-image" title="Delete Image">
-                              <i class="bi bi-trash"></i> Delete
+                        
+                        <div class="image-overlay flex-column px-3">
+                          
+                          <% if (!image.isPrimary) { %>
+                            <form action="/lender/images/<%= image.id %>/primary" method="POST" class="m-0 w-100 set-primary-form">
+                              <button type="submit" class="btn btn-success btn-sm w-100" title="Set as Primary">
+                                <i class="bi bi-star-fill me-1"></i> Make Primary
+                              </button>
+                            </form>
+                          <% } %>
+
+                          <form action="/lender/images/<%= image.id %>?_method=DELETE" method="POST" class="m-0 w-100 delete-image-form">
+                            <button type="submit" class="btn btn-danger btn-sm w-100" title="Delete Image">
+                              <i class="bi bi-trash me-1"></i> Delete
                             </button>
                           </form>
                         </div>

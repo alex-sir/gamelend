@@ -8,6 +8,15 @@
   if (listing.status === 'Draft') badgeClass = 'badge-draft';
   if (listing.status === 'Suspended') badgeClass = 'badge-suspended';
   if (listing.status === 'Deleted') badgeClass = 'badge-suspended'; // Reusing red
+
+  // Sort images so the primary image is always at index 0
+  if (listing && listing.images && listing.images.length > 0) {
+    listing.images.sort((a, b) => {
+      if (a.isPrimary && !b.isPrimary) return -1;
+      if (!a.isPrimary && b.isPrimary) return 1;
+      return 0;
+    });
+  }
 %>
 
 <!doctype html>
