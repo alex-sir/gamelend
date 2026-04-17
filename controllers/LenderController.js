@@ -107,14 +107,31 @@ const LenderController = {
     }
   },
 
-  // --- UC-L01: Create Equipment Listing ---
+  // --- UC-L01: Create Equipment Listing (and Search) ---
   getMyListings: async (req, res) => {
     try {
+      const { q } = req.query; // Extract search term from the URL
+
+      // Default where clause: Only show this lender's listings
+      let whereClause = { lenderId: req.session.user.id };
+
+      // If a search query exists, add the LIKE conditions
+      if (q) {
+        whereClause[Op.or] = [
+          { title: { [Op.like]: `%${q}%` } },
+          { category: { [Op.like]: `%${q}%` } },
+          { description: { [Op.like]: `%${q}%` } },
+        ];
+      }
+
       const listings = await Listing.findAll({
-        where: { lenderId: req.session.user.id },
+        where: whereClause,
         include: [{ model: Image, as: "images" }],
+        order: [["createdAt", "DESC"]], // Show newest first
       });
-      res.render("lender/my-listings", { listings });
+
+      // Pass the searchQuery back to the view so we can display it in the UI
+      res.render("lender/my-listings", { listings, searchQuery: q });
     } catch (error) {
       console.error(error);
       res.status(500).send("Error loading listings");

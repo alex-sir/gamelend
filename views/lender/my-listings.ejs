@@ -15,6 +15,9 @@
       else if (listing.status === 'Draft') draftListings.push(listing);
     });
   }
+
+  // Ensure searchQuery is defined to prevent reference errors
+  const currentSearch = (typeof searchQuery !== 'undefined') ? searchQuery : '';
 %>
 
 <!doctype html>
@@ -76,6 +79,7 @@
     </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
+    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -88,8 +92,8 @@
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex" action="/search" method="GET">
-            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
+          <form class="d-flex" action="/lender/listings" method="GET">
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" value="<%= currentSearch %>" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
@@ -136,6 +140,7 @@
 
     <main class="flex-grow-1 py-4">
       <div class="container">
+        
         <div class="lender-header mb-4">
           <a href="/lender/dashboard" class="btn btn-alternate mb-3">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
@@ -150,6 +155,15 @@
             </a>
           </div>
         </div>
+
+        <% if (currentSearch) { %>
+          <div class="alert alert-info d-flex justify-content-between align-items-center mb-4 border-info">
+            <div>
+              <i class="bi bi-search me-2"></i>Showing search results for: <strong>"<%= currentSearch %>"</strong>
+            </div>
+            <a href="/lender/listings" class="btn btn-sm btn-outline-info">Clear Search</a>
+          </div>
+        <% } %>
 
         <ul class="nav nav-tabs mb-4" id="listing-tabs" role="tablist">
           <li class="nav-item" role="presentation">
@@ -222,8 +236,13 @@
               <% } else { %>
                 <div class="p-5 text-center text-muted">
                   <i class="bi bi-box-seam display-4 d-block mb-3"></i>
-                  <p>You don't have any active listings yet.</p>
-                  <a href="/lender/listings/new" class="btn btn-alternate mt-2">Create your first listing</a>
+                  <% if (currentSearch) { %>
+                    <p>No active listings found matching "<%= currentSearch %>".</p>
+                    <a href="/lender/listings" class="btn btn-alternate mt-2">Clear Search</a>
+                  <% } else { %>
+                    <p>You don't have any active listings yet.</p>
+                    <a href="/lender/listings/new" class="btn btn-alternate mt-2">Create your first listing</a>
+                  <% } %>
                 </div>
               <% } %>
             </div>
@@ -264,7 +283,11 @@
                 <% }); %>
               <% } else { %>
                 <div class="p-5 text-center text-muted">
-                  <p>You have no suspended listings.</p>
+                  <% if (currentSearch) { %>
+                    <p>No suspended listings found matching "<%= currentSearch %>".</p>
+                  <% } else { %>
+                    <p>You have no suspended listings.</p>
+                  <% } %>
                 </div>
               <% } %>
             </div>
@@ -306,7 +329,11 @@
                 <% }); %>
               <% } else { %>
                 <div class="p-5 text-center text-muted">
-                  <p>You have no saved drafts.</p>
+                  <% if (currentSearch) { %>
+                    <p>No drafts found matching "<%= currentSearch %>".</p>
+                  <% } else { %>
+                    <p>You have no saved drafts.</p>
+                  <% } %>
                 </div>
               <% } %>
             </div>

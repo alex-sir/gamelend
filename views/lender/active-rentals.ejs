@@ -1,3 +1,47 @@
+<% 
+  const userName = (typeof currentUser !== 'undefined' && currentUser && currentUser.firstName) 
+    ? currentUser.firstName 
+    : 'Lender';
+
+  // Categorize the rentals
+  const activeList = [];
+  const upcomingList = [];
+  const completedList = [];
+  
+  let activeValue = 0;
+  let overdueCount = 0;
+  const now = new Date();
+
+  if (typeof rentals !== 'undefined' && rentals.length > 0) {
+    rentals.forEach(rent => {
+      const startDate = new Date(rent.request.startDate);
+      const endDate = new Date(rent.request.endDate);
+      const total = parseFloat(rent.actualTotal) || 0;
+
+      if (rent.status === 'Completed') {
+        completedList.push(rent);
+      } else if (rent.status === 'Active') {
+        // If the start date is in the future, it's upcoming
+        if (startDate > now) {
+          upcomingList.push(rent);
+        } else {
+          // It has already started
+          activeList.push(rent);
+          activeValue += total;
+          
+          // Check if it was supposed to be returned by now
+          // (Adding 24 hours to the end date to give them until the end of the day)
+          const overdueThreshold = new Date(endDate);
+          overdueThreshold.setDate(overdueThreshold.getDate() + 1);
+          if (overdueThreshold < now) {
+            overdueCount++;
+          }
+        }
+      }
+    });
+  }
+%>
+
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
   <head>
@@ -5,127 +49,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Rentals - GameLend</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
-
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <!-- Bootstrap Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="icon" href="/icons/controller.png" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="/css/lender.css" />
-    <link rel="stylesheet" href="/css/active-rentals.css" />
+    <link rel="stylesheet" href="/css/lender/lender.css" />
+    
+    <style>
+      .rental-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 1.5rem;
+      }
+      .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-top: 1.5rem;
+      }
+      .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 7px;
+        width: 2px;
+        background-color: var(--color-gray-hover);
+      }
+      .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      .timeline-item:last-child {
+        margin-bottom: 0;
+      }
+      .timeline-marker {
+        position: absolute;
+        top: 5px;
+        left: -1.5rem;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: var(--color-black);
+        border: 2px solid var(--color-gray-hover);
+      }
+      .timeline-marker.completed {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      .timeline-marker.overdue {
+        background-color: #dc3545;
+        border-color: #dc3545;
+      }
+    </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Lender</span>
         </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#navbarNav"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
+        
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search rentals..."
-              aria-label="Search"
-            />
+          <form class="d-flex" action="/lender/listings" method="GET">
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
           </form>
         </div>
 
-        <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Lender Menu</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="offcanvas"
-            ></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
-              <!-- Dashboard dropdown -->
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Lender Dashboard
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="borrower/dashboard"
-                      >Borrower Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="admin/dashboard"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li><a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a></li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="/">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
-              <!-- Account dropdown -->
               <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle me-1"></i><%= userName %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="/auth/logout"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="/auth/logout"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -134,396 +164,338 @@
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow-1 py-4">
       <div class="container">
-        <!-- Header with Back Button -->
+        
         <div class="lender-header mb-4">
           <a href="/lender/dashboard" class="btn btn-alternate mb-3">
             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
           </a>
           <h1>Active Rentals</h1>
-          <p>Manage your current rentals</p>
+          <p>Manage your current and past rentals</p>
         </div>
 
-        <!-- Stats Overview -->
         <div class="row g-3 mb-4">
           <div class="col-md-4">
             <div class="stats-card">
-              <div class="stat-value">2</div>
+              <div class="stat-value"><%= activeList.length %></div>
               <div class="stat-label">Active Rentals</div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="stats-card">
-              <div class="stat-value">$135</div>
+              <div class="stat-value">$<%= activeValue.toFixed(2) %></div>
               <div class="stat-label">Active Rental Value</div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="stats-card">
-              <div class="stat-value">0</div>
+              <div class="stat-value <%= overdueCount > 0 ? 'text-danger' : '' %>"><%= overdueCount %></div>
               <div class="stat-label">Overdue Returns</div>
             </div>
           </div>
         </div>
 
-        <!-- Filter Tabs -->
-        <ul
-          id="filter-tabs"
-          class="nav nav-tabs mb-4"
-          id="rentalTabs"
-          role="tablist"
-        >
+        <ul id="filter-tabs" class="nav nav-tabs mb-4" id="rentalTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link active"
-              id="active-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#active"
-              type="button"
-              role="tab"
-            >
+            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
               <i class="bi bi-clock-history me-2"></i>Active
-              <span class="badge bg-secondary ms-2">2</span>
+              <span class="badge bg-secondary ms-2"><%= activeList.length %></span>
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="upcoming-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#upcoming"
-              type="button"
-              role="tab"
-            >
+            <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
               <i class="bi bi-calendar-check me-2"></i>Upcoming
-              <span class="badge bg-secondary ms-2">1</span>
+              <span class="badge bg-secondary ms-2"><%= upcomingList.length %></span>
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="completed-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#completed"
-              type="button"
-              role="tab"
-            >
+            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
               <i class="bi bi-check-circle me-2"></i>Completed
-              <span class="badge bg-secondary ms-2">5</span>
+              <span class="badge bg-secondary ms-2"><%= completedList.length %></span>
             </button>
           </li>
         </ul>
 
-        <!-- Tab Content -->
         <div class="tab-content" id="rentalTabsContent">
-          <!-- Active Rentals -->
+          
           <div class="tab-pane fade show active" id="active" role="tabpanel">
-            <!-- Rental 1 -->
-            <div class="section-card">
-              <div class="row">
-                <div class="col-md-8">
-                  <div class="d-flex align-items-start mb-3">
-                    <img
-                      class="rental-img"
-                      src="../assets/images/donkey-kong-bananza.jpg"
-                      alt="Donkey Kong"
-                    />
-                    <div class="flex-grow-1">
-                      <h3 class="h5 mb-1">Donkey Kong Bananza</h3>
-                      <div class="mb-2">
-                        <span class="badge-status badge-active"
-                          >In Progress</span
-                        >
+            <% if (activeList.length > 0) { %>
+              <% activeList.forEach(function(rent) { %>
+                <% 
+                  const start = new Date(rent.request.startDate);
+                  const end = new Date(rent.request.endDate);
+                  const reqDate = new Date(rent.request.createdAt);
+                  
+                  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const reqDateStr = reqDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                  
+                  const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) || 1;
+                  const daysRemaining = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                  const isOverdue = daysRemaining < 0;
+                  
+                  let imageUrl = '/images/gaming-collage.jpg';
+                  if (rent.request.listing.images && rent.request.listing.images.length > 0) {
+                    const primary = rent.request.listing.images.find(img => img.isPrimary);
+                    imageUrl = primary ? primary.imageUrl : rent.request.listing.images[0].imageUrl;
+                  }
+                  
+                  const borrowerName = rent.request.borrower.firstName || rent.request.borrower.email.split('@')[0];
+                %>
+                
+                <div class="section-card">
+                  <div class="row">
+                    <div class="col-md-8">
+                      <div class="d-flex align-items-start mb-3">
+                        <img class="rental-img" src="<%= imageUrl %>" alt="<%= rent.request.listing.title %>" />
+                        <div class="flex-grow-1">
+                          <h3 class="h5 mb-1"><%= rent.request.listing.title %></h3>
+                          <div class="mb-2">
+                            <span class="badge-status <%= isOverdue ? 'badge-suspended' : 'badge-active' %>">
+                              <%= isOverdue ? 'Overdue' : 'In Progress' %>
+                            </span>
+                          </div>
+                          <div class="listing-meta">
+                            <i class="bi bi-person me-1"></i><%= borrowerName %>
+                          </div>
+                        </div>
                       </div>
-                      <div class="listing-meta">
-                        <i class="bi bi-person me-1"></i>Alex P.
-                      </div>
-                    </div>
-                  </div>
 
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <p class="mb-1"><strong>Rental Period:</strong></p>
-                      <p class="text-muted">Mar 2 - Mar 7, 2026 (5 days)</p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1"><strong>Return Date:</strong></p>
-                      <p>
-                        <strong style="color: var(--color-orange)"
-                          >Mar 7, 2026</strong
-                        >
-                        (3 days remaining)
-                      </p>
-                    </div>
-                  </div>
+                      <div class="row mb-3">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Rental Period:</strong></p>
+                          <p class="text-muted"><%= startStr %> - <%= endStr %> (<%= duration %> days)</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Return Date:</strong></p>
+                          <p>
+                            <strong style="color: <%= isOverdue ? '#dc3545' : 'var(--color-orange)' %>"><%= endStr %></strong>
+                            <span class="<%= isOverdue ? 'text-danger fw-bold' : 'text-muted' %>">
+                              (<%= isOverdue ? Math.abs(daysRemaining) + ' days overdue' : daysRemaining + ' days remaining' %>)
+                            </span>
+                          </p>
+                        </div>
+                      </div>
 
-                  <div class="timeline">
-                    <div class="timeline-item">
-                      <div class="timeline-marker completed"></div>
-                      <div>
-                        <strong>Rental Confirmed</strong>
-                        <p class="text-muted mb-0">Feb 28, 2026 at 2:30 PM</p>
+                      <div class="timeline">
+                        <div class="timeline-item">
+                          <div class="timeline-marker completed"></div>
+                          <div>
+                            <strong>Rental Confirmed</strong>
+                            <p class="text-muted mb-0"><%= reqDateStr %></p>
+                          </div>
+                        </div>
+                        <div class="timeline-item">
+                          <div class="timeline-marker completed"></div>
+                          <div>
+                            <strong>Item Picked Up</strong>
+                            <p class="text-muted mb-0"><%= startStr %></p>
+                          </div>
+                        </div>
+                        <div class="timeline-item">
+                          <div class="timeline-marker <%= isOverdue ? 'overdue' : '' %>"></div>
+                          <div>
+                            <strong>Return Scheduled</strong>
+                            <p class="<%= isOverdue ? 'text-danger' : 'text-muted' %> mb-0">By <%= endStr %></p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="timeline-item">
-                      <div class="timeline-marker completed"></div>
-                      <div>
-                        <strong>Item Picked Up</strong>
-                        <p class="text-muted mb-0">Mar 2, 2026 at 10:00 AM</p>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <div class="timeline-marker"></div>
-                      <div>
-                        <strong>Return Scheduled</strong>
-                        <p class="text-muted mb-0">Mar 7, 2026 by 6:00 PM</p>
+
+                    <div class="col-md-4">
+                      <div class="section-card mt-3 mt-md-0" style="background-color: var(--color-black)">
+                        <h4 class="h6 mb-3">Rental Details</h4>
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Daily Rate</span>
+                          <strong>$<%= parseFloat(rent.request.listing.dailyRate).toFixed(2) %></strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Duration</span>
+                          <strong><%= duration %> days</strong>
+                        </div>
+                        <hr class="border-secondary" />
+                        <div class="d-flex justify-content-between mb-3">
+                          <span><strong>Total</strong></span>
+                          <strong style="color: var(--color-orange); font-size: 1.25rem">$<%= parseFloat(rent.actualTotal).toFixed(2) %></strong>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                          <button class="btn btn-main btn-sm btn-contact-borrower" data-borrower-name="<%= borrowerName %>">
+                            <i class="bi bi-chat-dots me-1"></i>Contact Borrower
+                          </button>
+                          <button class="btn btn-main btn-sm btn-report-issue" data-listing-title="<%= rent.request.listing.title %>">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Report Issue
+                          </button>
+                          <button class="btn btn-alternate btn-sm btn-confirm-return" data-listing-title="<%= rent.request.listing.title %>" data-rental-id="<%= rent.id %>">
+                            <i class="bi bi-check-circle me-1"></i>Confirm Return
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-md-4">
-                  <div
-                    class="section-card"
-                    style="background-color: var(--color-black)"
-                  >
-                    <h4 class="h6 mb-3">Rental Details</h4>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Daily Rate</span>
-                      <strong>$8.00</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Duration</span>
-                      <strong>5 days</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Delivery</span>
-                      <strong>Pickup</strong>
-                    </div>
-                    <hr />
-                    <div class="d-flex justify-content-between mb-3">
-                      <span><strong>Total</strong></span>
-                      <strong
-                        style="color: var(--color-orange); font-size: 1.25rem"
-                        >$40.00</strong
-                      >
-                    </div>
-
-                    <div class="d-grid gap-2">
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="contactBorrower()"
-                      >
-                        <i class="bi bi-chat-dots me-1"></i>Contact Borrower
-                      </button>
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="reportIssue()"
-                      >
-                        <i class="bi bi-exclamation-triangle me-1"></i>Report
-                        Issue
-                      </button>
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="confirmReturn()"
-                      >
-                        <i class="bi bi-check-circle me-1"></i>Confirm Return
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="p-5 text-center text-muted border border-secondary rounded">
+                <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                <p>You have no active rentals in progress.</p>
               </div>
-            </div>
-
-            <!-- Rental 2 -->
-            <div class="section-card">
-              <div class="row">
-                <div class="col-md-8">
-                  <div class="d-flex align-items-start mb-3">
-                    <img
-                      class="rental-img"
-                      src="../assets/images/ps5.jpg"
-                      alt="PlayStation 5"
-                    />
-                    <div class="flex-grow-1">
-                      <h3 class="h5 mb-1">PlayStation 5</h3>
-                      <div class="mb-2">
-                        <span class="badge-status badge-active"
-                          >In Progress</span
-                        >
-                      </div>
-                      <div class="listing-meta">
-                        <i class="bi bi-person me-1"></i>Emma K.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <p class="mb-1"><strong>Rental Period:</strong></p>
-                      <p class="text-muted">Mar 1 - Mar 9, 2026 (8 days)</p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1"><strong>Return Date:</strong></p>
-                      <p>
-                        <strong style="color: var(--color-orange)"
-                          >Mar 9, 2026</strong
-                        >
-                        (5 days remaining)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="timeline">
-                    <div class="timeline-item">
-                      <div class="timeline-marker completed"></div>
-                      <div>
-                        <strong>Rental Confirmed</strong>
-                        <p class="text-muted mb-0">Feb 27, 2026 at 4:15 PM</p>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <div class="timeline-marker completed"></div>
-                      <div>
-                        <strong>Item Delivered</strong>
-                        <p class="text-muted mb-0">Mar 1, 2026 at 3:00 PM</p>
-                      </div>
-                    </div>
-                    <div class="timeline-item">
-                      <div class="timeline-marker"></div>
-                      <div>
-                        <strong>Return Scheduled</strong>
-                        <p class="text-muted mb-0">Mar 9, 2026 by 5:00 PM</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div
-                    class="section-card"
-                    style="background-color: var(--color-black)"
-                  >
-                    <h4 class="h6 mb-3">Rental Details</h4>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Daily Rate</span>
-                      <strong>$12.00</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Duration</span>
-                      <strong>8 days</strong>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted">Delivery</span>
-                      <strong>Delivered ($10)</strong>
-                    </div>
-                    <hr />
-                    <div class="d-flex justify-content-between mb-3">
-                      <span><strong>Total</strong></span>
-                      <strong
-                        style="color: var(--color-orange); font-size: 1.25rem"
-                        >$106.00</strong
-                      >
-                    </div>
-
-                    <div class="d-grid gap-2">
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="contactBorrower()"
-                      >
-                        <i class="bi bi-chat-dots me-1"></i>Contact Borrower
-                      </button>
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="reportIssue()"
-                      >
-                        <i class="bi bi-exclamation-triangle me-1"></i>Report
-                        Issue
-                      </button>
-                      <button
-                        class="btn btn-main btn-sm"
-                        onclick="confirmReturn()"
-                      >
-                        <i class="bi bi-check-circle me-1"></i>Confirm Return
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <% } %>
           </div>
 
-          <!-- Upcoming Rentals -->
           <div class="tab-pane fade" id="upcoming" role="tabpanel">
-            <div class="section-card">
-              <div class="listing-item">
-                <img
-                  src="../assets/images/xbox-wireless-controller.jpg"
-                  alt="Xbox Controller"
-                />
-                <div class="listing-details">
-                  <div class="listing-title">Xbox Wireless Controller</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-person me-1"></i>Sarah M. •
-                    <span class="ms-2"
-                      >Starts: <strong>Mar 10, 2026</strong></span
-                    >
+            <div class="section-card p-0">
+              <% if (upcomingList.length > 0) { %>
+                <% upcomingList.forEach(function(rent) { %>
+                  <% 
+                    const startStr = new Date(rent.request.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const end = new Date(rent.request.endDate);
+                    const duration = Math.ceil((end - new Date(rent.request.startDate)) / (1000 * 60 * 60 * 24)) || 1;
+                    
+                    let imageUrl = '/images/gaming-collage.jpg';
+                    if (rent.request.listing.images && rent.request.listing.images.length > 0) {
+                      const primary = rent.request.listing.images.find(img => img.isPrimary);
+                      imageUrl = primary ? primary.imageUrl : rent.request.listing.images[0].imageUrl;
+                    }
+                    const borrowerName = rent.request.borrower.firstName || rent.request.borrower.email.split('@')[0];
+                  %>
+                  <div class="listing-item d-flex align-items-center p-3 border-bottom border-secondary">
+                    <img class="rental-img mb-0" src="<%= imageUrl %>" alt="<%= rent.request.listing.title %>" style="width: 70px; height: 70px;" />
+                    <div class="listing-details flex-grow-1">
+                      <div class="listing-title mb-1"><%= rent.request.listing.title %></div>
+                      <div class="listing-meta">
+                        <i class="bi bi-person me-1"></i><%= borrowerName %> •
+                        <span class="ms-2">Starts: <strong class="text-white"><%= startStr %></strong></span>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <span class="badge-status badge-pending">Upcoming</span>
+                      <div class="mt-2">
+                        <strong style="color: var(--color-orange)">$<%= parseFloat(rent.actualTotal).toFixed(2) %></strong>
+                        <p class="text-muted mb-0 small"><%= duration %> days</p>
+                      </div>
+                    </div>
                   </div>
+                <% }); %>
+              <% } else { %>
+                <div class="p-5 text-center text-muted">
+                  <p>No upcoming rentals confirmed.</p>
                 </div>
-                <div class="text-end">
-                  <span class="badge-status badge-pending">Upcoming</span>
-                  <div class="mt-2">
-                    <strong style="color: var(--color-orange)">$25.00</strong>
-                    <p class="text-muted mb-0">5 days</p>
-                  </div>
-                </div>
-              </div>
+              <% } %>
             </div>
           </div>
 
-          <!-- Completed Rentals -->
           <div class="tab-pane fade" id="completed" role="tabpanel">
-            <div class="section-card">
-              <div class="listing-item">
-                <img src="../assets/images/xbox_1.jpg" alt="Xbox Series X" />
-                <div class="listing-details">
-                  <div class="listing-title">Xbox Series X</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-person me-1"></i>David L. •
-                    <span class="ms-2"
-                      >Completed: <strong>Mar 3, 2026</strong></span
-                    >
+            <div class="section-card p-0">
+              <% if (completedList.length > 0) { %>
+                <% completedList.forEach(function(rent) { %>
+                  <% 
+                    const endStr = new Date(rent.request.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const duration = Math.ceil((new Date(rent.request.endDate) - new Date(rent.request.startDate)) / (1000 * 60 * 60 * 24)) || 1;
+                    
+                    let imageUrl = '/images/gaming-collage.jpg';
+                    if (rent.request.listing.images && rent.request.listing.images.length > 0) {
+                      const primary = rent.request.listing.images.find(img => img.isPrimary);
+                      imageUrl = primary ? primary.imageUrl : rent.request.listing.images[0].imageUrl;
+                    }
+                    const borrowerName = rent.request.borrower.firstName || rent.request.borrower.email.split('@')[0];
+                  %>
+                  <div class="listing-item d-flex align-items-center p-3 border-bottom border-secondary">
+                    <img class="rental-img mb-0" src="<%= imageUrl %>" alt="<%= rent.request.listing.title %>" style="width: 70px; height: 70px;" />
+                    <div class="listing-details flex-grow-1">
+                      <div class="listing-title mb-1"><%= rent.request.listing.title %></div>
+                      <div class="listing-meta">
+                        <i class="bi bi-person me-1"></i><%= borrowerName %> •
+                        <span class="ms-2">Completed: <strong class="text-white"><%= endStr %></strong></span>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <strong style="color: var(--color-orange)">$<%= parseFloat(rent.actualTotal).toFixed(2) %></strong>
+                      <p class="text-muted mb-0 small"><%= duration %> days</p>
+                    </div>
                   </div>
+                <% }); %>
+              <% } else { %>
+                <div class="p-5 text-center text-muted">
+                  <p>You have no completed rentals in your history.</p>
                 </div>
-                <div class="text-end">
-                  <strong style="color: var(--color-orange)">$32.00</strong>
-                  <p class="text-muted mb-0">4 days</p>
-                </div>
-              </div>
-
-              <div class="listing-item">
-                <img src="../assets/images/ps5.jpg" alt="PS5" />
-                <div class="listing-details">
-                  <div class="listing-title">PlayStation 5 Digital Edition</div>
-                  <div class="listing-meta">
-                    <i class="bi bi-person me-1"></i>Jessica W. •
-                    <span class="ms-2"
-                      >Completed: <strong>Feb 28, 2026</strong></span
-                    >
-                  </div>
-                </div>
-                <div class="text-end">
-                  <strong style="color: var(--color-orange)">$45.00</strong>
-                  <p class="text-muted mb-0">3 days</p>
-                </div>
-              </div>
+              <% } %>
             </div>
           </div>
+          
         </div>
       </div>
     </main>
+
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white"><i class="bi bi-chat-dots text-info me-2"></i>Contact <span id="contactBorrowerName">Borrower</span></h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-light">
+            <p>Send a message directly to the borrower.</p>
+            <textarea class="form-control bg-black text-white border-secondary" rows="4" placeholder="Type your message here..."></textarea>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-main" data-bs-dismiss="modal">Send Message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Report an Issue</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-light">
+            <p>Are you experiencing an issue with the rental of <strong id="reportListingTitle" class="text-orange"></strong>?</p>
+            <select class="form-select bg-black text-white border-secondary mb-3">
+              <option value="" disabled selected>Select an issue type...</option>
+              <option value="damage">Equipment returned damaged</option>
+              <option value="late">Equipment not returned on time</option>
+              <option value="communication">Unable to reach borrower</option>
+              <option value="other">Other</option>
+            </select>
+            <textarea class="form-control bg-black text-white border-secondary" rows="3" placeholder="Provide additional details for the admin team..."></textarea>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmReportBtn">
+              <i class="bi bi-flag me-2"></i>Submit Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white"><i class="bi bi-check-circle text-success me-2"></i>Confirm Item Return</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-light">
+            Are you confirming that <strong id="returnListingTitle" class="text-orange"></strong> has been returned to you by the borrower in acceptable condition?
+            <br><br>
+            <small class="text-muted">Confirming the return will complete the transaction and release your earnings from escrow. This action cannot be undone.</small>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-success" id="confirmReturnBtn">
+              <i class="bi bi-check-circle me-2"></i>Confirm Return
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer>
       <div class="container">
@@ -546,41 +518,18 @@
             <h5>Connect</h5>
             <ul>
               <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
+                <a href="https://github.com/alex-sir/gamelend" target="_blank" rel="noopener noreferrer"><i class="bi bi-github me-2"></i>GitHub</a>
               </li>
             </ul>
           </div>
         </div>
         <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPTS 489 Course Project. All rights
-            reserved.
-          </p>
+          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPTS 489 Course Project. All rights reserved.</p>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      function contactBorrower() {
-        alert("Opening message thread with borrower...");
-      }
-
-      function reportIssue() {
-        if (confirm("Report an issue with this rental?")) {
-          alert("Issue report form would open here.");
-        }
-      }
-
-      function confirmReturn() {
-        if (
-          confirm("Confirm that the item has been returned in good condition?")
-        ) {
-          alert("Return confirmed! Rental completed successfully.");
-        }
-      }
-    </script>
+    <script src="/js/active-rentals.js"></script>
   </body>
 </html>

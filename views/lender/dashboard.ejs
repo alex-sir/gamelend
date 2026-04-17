@@ -52,13 +52,8 @@
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search your listings..."
-              aria-label="Search"
-            />
+          <form class="d-flex" action="/lender/listings" method="GET">
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
@@ -74,6 +69,7 @@
               data-bs-dismiss="offcanvas"
             ></button>
           </div>
+
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
