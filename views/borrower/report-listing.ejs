@@ -6,7 +6,7 @@
 
     <title>Report Listing - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -78,24 +76,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -109,17 +93,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -132,10 +108,7 @@
       <div class="container">
         <div class="row mb-3">
           <div class="col-12">
-            <a
-              href="borrower-item-details.html"
-              class="text-decoration-none small text-secondary"
-            >
+            <a href="/borrower/listings/<%= listing.id %>" class="text-decoration-none small text-secondary">
               <i class="bi bi-arrow-left me-1"></i>Back to listing
             </a>
           </div>
@@ -168,19 +141,23 @@
                 <div class="border rounded-3 p-3 mb-3 bg-black bg-opacity-25">
                   <p class="small text-secondary mb-1">Listing</p>
                   <p class="mb-1">
-                    <span class="bold">PlayStation 5 Digital Edition</span>
+                    <span class="bold"><%= listing.title %></span>
                   </p>
                   <p class="small text-secondary mb-0">
-                    Lender: <span class="bold text-white">Alex P.</span>
+                    Lender: <span class="bold text-white"><%= listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender" %></span>
                   </p>
                 </div>
 
-                <form>
+                <% if (error) { %>
+                  <div class="alert alert-warning"><%= error %></div>
+                <% } %>
+
+                <form action="/borrower/listings/<%= listing.id %>/report" method="POST">
                   <div class="mb-3">
                     <label for="reasonSelect" class="form-label"
                       >Reason</label
                     >
-                    <select id="reasonSelect" class="form-select" required>
+                    <select id="reasonSelect" name="reason" class="form-select" required>
                       <option value="">Choose a reason</option>
                       <option value="fraud">
                         Suspicious or fraudulent listing
@@ -202,6 +179,7 @@
                     >
                     <textarea
                       id="reportDetails"
+                      name="details"
                       class="form-control"
                       rows="4"
                       placeholder="Explain what seems wrong with this listing. Include any details that would help moderators review it."
@@ -216,6 +194,7 @@
                     <input
                       type="url"
                       id="attachments"
+                      name="referenceUrl"
                       class="form-control"
                       placeholder="Paste a link to screenshots or evidence (if hosted elsewhere)"
                     />
@@ -237,7 +216,7 @@
                     <i class="bi bi-flag-fill me-1"></i>Submit report
                   </button>
                   <a
-                    href="borrower-item-details.html"
+                    href="/borrower/listings/<%= listing.id %>"
                     class="btn btn-alternate ms-2"
                   >
                     Cancel

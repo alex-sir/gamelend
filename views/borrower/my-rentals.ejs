@@ -6,7 +6,7 @@
 
     <title>My Rentals - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -75,24 +73,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -106,17 +90,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -185,46 +161,38 @@
             role="tabpanel"
             aria-labelledby="active-tab"
           >
-            <div class="card bg-dark mb-3">
-              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
-                <img
-                  src="../../public/images/donkey-kong-bananza.jpg"
-                  alt="Donkey Kong Bananza"
-                  class="rounded"
-                  style="width: 72px; height: 72px; object-fit: cover"
-                />
-                <div class="flex-grow-1">
-                  <p class="mb-1 bold">Donkey Kong Bananza (Switch)</p>
-                  <p class="mb-1 small text-secondary">
-                    Lender:
-                    <span class="bold text-white">Casey R.</span> • Pickup in
-                    Pullman
-                  </p>
-                  <p class="mb-0 small text-secondary">
-                    Rental:
-                    <span class="bold text-white">Mar 5 – Mar 9, 2026</span> •
-                    Due back in <span class="text-warning">2 days</span>
-                  </p>
-                </div>
-                <div class="text-end">
-                  <span class="badge bg-success mb-2">Active</span>
-                  <div class="d-flex flex-column gap-1">
-                    <a
-                      href="borrower-rental-details.html"
-                      class="btn btn-sm btn-alternate"
-                    >
-                      View details
-                    </a>
-                    <a
-                      href="borrower-extend-rental.html"
-                      class="btn btn-sm btn-main"
-                    >
-                      Extend rental
-                    </a>
+            <% if (!activeRentals || activeRentals.length === 0) { %>
+              <p class="text-secondary small">No active rentals.</p>
+            <% } %>
+            <% (activeRentals || []).forEach((rental) => { %>
+              <%
+                const listing = rental.request.listing;
+                const img = listing.images && listing.images.length > 0
+                  ? (listing.images.find((i) => i.isPrimary) || listing.images[0]).imageUrl
+                  : "/images/gaming-collage.svg";
+                const lenderName = listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender";
+              %>
+              <div class="card bg-dark mb-3">
+                <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                  <img src="<%= img %>" alt="<%= listing.title %>" class="rounded" style="width: 72px; height: 72px; object-fit: cover" />
+                  <div class="flex-grow-1">
+                    <p class="mb-1 bold"><%= listing.title %></p>
+                    <p class="mb-1 small text-secondary">Lender: <span class="bold text-white"><%= lenderName %></span></p>
+                    <p class="mb-0 small text-secondary">
+                      Rental:
+                      <span class="bold text-white"><%= new Date(rental.request.startDate).toLocaleDateString() %> – <%= new Date(rental.request.endDate).toLocaleDateString() %></span>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success mb-2">Active</span>
+                    <div class="d-flex flex-column gap-1">
+                      <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-alternate">View details</a>
+                      <a href="/borrower/rentals/<%= rental.id %>/extend" class="btn btn-sm btn-main">Extend rental</a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            <% }) %>
           </div>
 
           <!-- PENDING REQUESTS -->
@@ -234,41 +202,40 @@
             role="tabpanel"
             aria-labelledby="pending-tab"
           >
-            <div class="card bg-dark mb-3">
-              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
-                <img
-                  src="../../public/images/ps5.jpg"
-                  alt="PlayStation 5"
-                  class="rounded"
-                  style="width: 72px; height: 72px; object-fit: cover"
-                />
-                <div class="flex-grow-1">
-                  <p class="mb-1 bold">PlayStation 5 Digital Edition</p>
-                  <p class="mb-1 small text-secondary">
-                    Lender:
-                    <span class="bold text-white">Alex P.</span>
-                  </p>
-                  <p class="mb-0 small text-secondary">
-                    Requested dates:
-                    <span class="bold text-white">Mar 10 – Mar 12, 2026</span>
-                  </p>
-                </div>
-                <div class="text-end">
-                  <span class="badge bg-warning text-dark mb-2">Pending</span>
-                  <div class="d-flex flex-column gap-1">
-                    <a
-                      href="borrower-rental-details.html"
-                      class="btn btn-sm btn-alternate"
-                    >
-                      View details
-                    </a>
-                    <button class="btn btn-sm btn-outline-danger">
-                      Cancel request
-                    </button>
+            <% if (!pendingRequests || pendingRequests.length === 0) { %>
+              <p class="text-secondary small">No pending requests.</p>
+            <% } %>
+            <% (pendingRequests || []).forEach((req) => { %>
+              <%
+                const listing = req.listing;
+                const img = listing.images && listing.images.length > 0
+                  ? (listing.images.find((i) => i.isPrimary) || listing.images[0]).imageUrl
+                  : "/images/gaming-collage.svg";
+                const lenderName = listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender";
+              %>
+              <div class="card bg-dark mb-3">
+                <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                  <img src="<%= img %>" alt="<%= listing.title %>" class="rounded" style="width: 72px; height: 72px; object-fit: cover" />
+                  <div class="flex-grow-1">
+                    <p class="mb-1 bold"><%= listing.title %></p>
+                    <p class="mb-1 small text-secondary">Lender: <span class="bold text-white"><%= lenderName %></span></p>
+                    <p class="mb-0 small text-secondary">
+                      Requested dates:
+                      <span class="bold text-white"><%= new Date(req.startDate).toLocaleDateString() %> – <%= new Date(req.endDate).toLocaleDateString() %></span>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-warning text-dark mb-2">Pending</span>
+                    <div class="d-flex flex-column gap-1">
+                      <a href="/borrower/requests/<%= req.id %>" class="btn btn-sm btn-alternate">View details</a>
+                      <form action="/borrower/requests/<%= req.id %>/cancel" method="POST">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Cancel request</button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            <% }) %>
           </div>
 
           <!-- COMPLETED RENTALS -->
@@ -278,38 +245,31 @@
             role="tabpanel"
             aria-labelledby="completed-tab"
           >
-            <div class="card bg-dark mb-3">
-              <div class="card-body d-flex flex-wrap gap-3 align-items-center">
-                <img
-                  src="../../public/images/eldenring.jpg"
-                  alt="Elden Ring"
-                  class="rounded"
-                  style="width: 72px; height: 72px; object-fit: cover"
-                />
-                <div class="flex-grow-1">
-                  <p class="mb-1 bold">Elden Ring (PS5)</p>
-                  <p class="mb-1 small text-secondary">
-                    Lender:
-                    <span class="bold text-white">Jordan M.</span>
-                  </p>
-                  <p class="mb-0 small text-secondary">
-                    Completed:
-                    <span class="bold text-white">Feb 20 – Feb 23, 2026</span>
-                  </p>
-                </div>
-                <div class="text-end">
-                  <span class="badge bg-secondary mb-2">Completed</span>
-                  <button class="btn btn-sm btn-main">
-                    <i class="bi bi-star me-1"></i>Leave review
-                  </button>
+            <% if (!completedRentals || completedRentals.length === 0) { %>
+              <p class="text-secondary small">No completed rentals yet.</p>
+            <% } %>
+            <% (completedRentals || []).forEach((rental) => { %>
+              <%
+                const listing = rental.request.listing;
+                const lenderName = listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender";
+              %>
+              <div class="card bg-dark mb-3">
+                <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                  <div class="flex-grow-1">
+                    <p class="mb-1 bold"><%= listing.title %></p>
+                    <p class="mb-1 small text-secondary">Lender: <span class="bold text-white"><%= lenderName %></span></p>
+                    <p class="mb-0 small text-secondary">
+                      Completed:
+                      <span class="bold text-white"><%= new Date(rental.request.startDate).toLocaleDateString() %> – <%= new Date(rental.request.endDate).toLocaleDateString() %></span>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-secondary mb-2">Completed</span>
+                    <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-alternate">View details</a>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <p class="text-secondary small">
-              Older rentals will appear here so borrowers can track their
-              history.
-            </p>
+            <% }) %>
           </div>
         </div>
       </div>

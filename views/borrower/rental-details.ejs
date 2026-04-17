@@ -6,7 +6,7 @@
 
     <title>Rental Details - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -78,24 +76,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -109,17 +93,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -132,10 +108,7 @@
       <div class="container">
         <div class="row mb-3">
           <div class="col-12">
-            <a
-              href="borrower-my-rentals.html"
-              class="text-decoration-none small text-secondary"
-            >
+            <a href="/borrower/my-rentals" class="text-decoration-none small text-secondary">
               <i class="bi bi-arrow-left me-1"></i>Back to My Rentals
             </a>
           </div>
@@ -144,31 +117,43 @@
         <div class="row g-4">
           <!-- ITEM & STATUS -->
           <div class="col-lg-8">
+            <%
+              const listing = request.listing;
+              const lenderName = listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender";
+              const img = listing.images && listing.images.length > 0
+                ? (listing.images.find((i) => i.isPrimary) || listing.images[0]).imageUrl
+                : "/images/gaming-collage.svg";
+              const badgeClass =
+                request.status === "Pending" ? "bg-warning text-dark"
+                : request.status === "Accepted" ? "bg-success"
+                : request.status === "Rejected" ? "bg-danger"
+                : request.status === "Cancelled" ? "bg-secondary"
+                : "bg-secondary";
+            %>
+
             <div class="card bg-dark mb-3">
               <div class="card-body d-flex flex-wrap gap-3 align-items-center">
                 <img
-                  src="../../public/images/donkey-kong-bananza.jpg"
-                  alt="Donkey Kong Bananza"
+                  src="<%= img %>"
+                  alt="<%= listing.title %>"
                   class="rounded"
                   style="width: 80px; height: 80px; object-fit: cover"
                 />
                 <div class="flex-grow-1">
-                  <h1 class="h5 mb-1">Donkey Kong Bananza (Switch)</h1>
+                  <h1 class="h5 mb-1"><%= listing.title %></h1>
                   <p class="mb-1 small text-secondary">
                     Request ID:
-                    <span class="bold text-white">REQ-2026-00110</span>
+                    <span class="bold text-white">REQ-<%= request.id %></span>
                   </p>
                   <p class="mb-0 small text-secondary">
                     Lender:
-                    <span class="bold text-white">Casey R.</span> • Pickup in
-                    Pullman
+                    <span class="bold text-white"><%= lenderName %></span>
                   </p>
                 </div>
                 <div class="text-end">
-                  <span class="badge bg-success mb-2">Active</span>
+                  <span class="badge <%= badgeClass %> mb-2"><%= request.status %></span>
                   <p class="small text-secondary mb-0">
-                    Due back
-                    <span class="bold text-white">Mar 9, 2026</span>
+                    End date <span class="bold text-white"><%= new Date(request.endDate).toLocaleDateString() %></span>
                   </p>
                 </div>
               </div>
@@ -180,27 +165,27 @@
                 <div class="row small">
                   <div class="col-md-4 mb-2">
                     <p class="mb-1 text-secondary">Start date</p>
-                    <p class="mb-0 bold">Mar 5, 2026</p>
+                    <p class="mb-0 bold"><%= new Date(request.startDate).toLocaleDateString() %></p>
                   </div>
                   <div class="col-md-4 mb-2">
                     <p class="mb-1 text-secondary">End date</p>
-                    <p class="mb-0 bold">Mar 9, 2026</p>
+                    <p class="mb-0 bold"><%= new Date(request.endDate).toLocaleDateString() %></p>
                   </div>
                   <div class="col-md-4 mb-2">
                     <p class="mb-1 text-secondary">Duration</p>
-                    <p class="mb-0 bold">4 days</p>
+                    <p class="mb-0 bold"><%= cost.durationDays %> days</p>
                   </div>
                   <div class="col-md-4 mb-2 mt-3">
                     <p class="mb-1 text-secondary">Price per day</p>
-                    <p class="mb-0 bold">$8.00</p>
+                    <p class="mb-0 bold">$<%= Number(listing.dailyRate).toFixed(2) %></p>
                   </div>
                   <div class="col-md-4 mb-2 mt-3">
                     <p class="mb-1 text-secondary">Deposit</p>
-                    <p class="mb-0 bold">$40.00</p>
+                    <p class="mb-0 bold">$<%= cost.deposit.toFixed(2) %></p>
                   </div>
                   <div class="col-md-4 mb-2 mt-3">
                     <p class="mb-1 text-secondary">Pickup</p>
-                    <p class="mb-0 bold">Local pickup</p>
+                    <p class="mb-0 bold">TBD</p>
                   </div>
                 </div>
               </div>
@@ -211,21 +196,21 @@
                 <h5 class="card-title mb-3">Cost breakdown</h5>
                 <div class="small">
                   <div class="d-flex justify-content-between mb-1">
-                    <span>Rental (4 × $8.00)</span>
-                    <span class="bold">$32.00</span>
+                    <span>Rental (<%= cost.durationDays %> × $<%= Number(listing.dailyRate).toFixed(2) %>)</span>
+                    <span class="bold">$<%= cost.subtotal.toFixed(2) %></span>
                   </div>
                   <div class="d-flex justify-content-between mb-1">
                     <span>Service fee</span>
-                    <span class="bold">$3.50</span>
+                    <span class="bold">$<%= cost.serviceFee.toFixed(2) %></span>
                   </div>
                   <div class="d-flex justify-content-between mb-1">
                     <span>Refundable deposit</span>
-                    <span class="bold">$40.00</span>
+                    <span class="bold">$<%= cost.deposit.toFixed(2) %></span>
                   </div>
                   <hr class="my-2" />
                   <div class="d-flex justify-content-between mb-1">
-                    <span>Total paid</span>
-                    <span class="bold">$75.50</span>
+                    <span>Total</span>
+                    <span class="bold">$<%= cost.total.toFixed(2) %></span>
                   </div>
                   <p class="small text-secondary mb-0 mt-1">
                     Deposit will be refunded after the lender confirms the
@@ -242,22 +227,21 @@
               <div class="card-body">
                 <h5 class="card-title mb-3">Actions</h5>
                 <div class="d-grid gap-2">
-                  <a
-                    href="borrower-extend-rental.html"
-                    class="btn btn-main btn-sm"
-                  >
-                    <i class="bi bi-arrow-repeat me-1"></i>Request extension
-                  </a>
-                  <button class="btn btn-outline-danger btn-sm">
-                    <i class="bi bi-x-circle me-1"></i>Cancel request
-                  </button>
-                  <button class="btn btn-alternate btn-sm">
-                    <i class="bi bi-chat-dots me-1"></i>Message lender
-                  </button>
-                  <a
-                    href="borrower-report-listing.html"
-                    class="btn btn-outline-warning btn-sm"
-                  >
+                  <% if (rental) { %>
+                    <a href="/borrower/rentals/<%= rental.id %>/extend" class="btn btn-main btn-sm">
+                      <i class="bi bi-arrow-repeat me-1"></i>Request extension
+                    </a>
+                  <% } %>
+
+                  <% if (request.status === "Pending") { %>
+                    <form action="/borrower/requests/<%= request.id %>/cancel" method="POST">
+                      <button class="btn btn-outline-danger btn-sm w-100" type="submit">
+                        <i class="bi bi-x-circle me-1"></i>Cancel request
+                      </button>
+                    </form>
+                  <% } %>
+
+                  <a href="/borrower/listings/<%= listing.id %>/report" class="btn btn-outline-warning btn-sm">
                     <i class="bi bi-flag me-1"></i>Report issue
                   </a>
                 </div>
@@ -269,15 +253,7 @@
                 <h5 class="card-title mb-3">Lender information</h5>
                 <p class="mb-1">
                   <i class="bi bi-person-circle me-1"></i
-                  ><span class="bold">Casey R.</span>
-                </p>
-                <p class="small text-secondary mb-2">
-                  <i class="bi bi-star-fill text-warning me-1"></i>4.9 rating •
-                  42 completed rentals
-                </p>
-                <p class="small text-secondary mb-2">
-                  <i class="bi bi-geo-alt me-1"></i>Pickup near WSU campus,
-                  Pullman
+                  ><span class="bold"><%= lenderName %></span>
                 </p>
                 <p class="small text-secondary mb-0">
                   Exact address and contact details are shared after the rental

@@ -6,6 +6,7 @@ const Listing = require("./Listing");
 const Image = require("./Image");
 const RentalRequest = require("./RentalRequest");
 const Rental = require("./Rental");
+const Report = require("./Report");
 
 // --- Define Relationships (ER Diagram Mapping) ---
 
@@ -40,6 +41,18 @@ Rental.belongsTo(RentalRequest, { foreignKey: "requestId", as: "request" });
 User.hasMany(Rental, { foreignKey: "lenderId", as: "lendedRentals" });
 Rental.belongsTo(User, { foreignKey: "lenderId", as: "lender" });
 
+// Listing -> Report (One-to-Many)
+Listing.hasMany(Report, {
+  foreignKey: "listingId",
+  as: "reports",
+  onDelete: "CASCADE",
+});
+Report.belongsTo(Listing, { foreignKey: "listingId", as: "listing" });
+
+// User -> Report (Borrower files many reports)
+User.hasMany(Report, { foreignKey: "borrowerId", as: "reports" });
+Report.belongsTo(User, { foreignKey: "borrowerId", as: "borrower" });
+
 module.exports = {
   sequelize,
   User,
@@ -47,4 +60,5 @@ module.exports = {
   Image,
   RentalRequest,
   Rental,
+  Report,
 };

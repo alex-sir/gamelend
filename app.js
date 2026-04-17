@@ -9,6 +9,7 @@ require("dotenv").config();
 
 const { sequelize } = require("./models");
 const lenderRoutes = require("./routes/lenderRoutes");
+const borrowerRoutes = require("./routes/borrowerRoutes");
 
 const app = express();
 
@@ -48,6 +49,9 @@ app.use("/auth", authRoutes);
 
 // Mount the lender routes
 app.use("/lender", requireAuth, lenderRoutes);
+
+// Mount the borrower routes
+app.use("/borrower", requireAuth, borrowerRoutes);
 
 // Mount the profile routes
 app.use("/profile", profileRoutes);

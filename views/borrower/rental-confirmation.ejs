@@ -6,7 +6,7 @@
 
     <title>Rental Confirmation - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -75,24 +73,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -106,17 +90,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -154,36 +130,36 @@
                   <div class="row g-2 small">
                     <div class="col-md-6">
                       <p class="mb-1 text-secondary">Request ID</p>
-                      <p class="mb-0 bold">REQ-2026-00123</p>
+                      <p class="mb-0 bold">REQ-<%= request.id %></p>
                     </div>
                     <div class="col-md-6">
                       <p class="mb-1 text-secondary">Status</p>
                       <p class="mb-0">
-                        <span class="badge rounded-pill bg-warning text-dark">
-                          Pending lender approval
-                        </span>
+                        <span class="badge rounded-pill bg-warning text-dark">Pending lender approval</span>
                       </p>
                     </div>
                     <div class="col-md-6 mt-2">
                       <p class="mb-1 text-secondary">Item</p>
                       <p class="mb-0">
-                        <span class="bold">PlayStation 5 Digital Edition</span>
+                        <span class="bold"><%= request.listing.title %></span>
                       </p>
                     </div>
                     <div class="col-md-6 mt-2">
                       <p class="mb-1 text-secondary">Lender</p>
                       <p class="mb-0">
                         <i class="bi bi-person-circle me-1"></i
-                        ><span class="bold">Alex P.</span>
+                        ><span class="bold"><%= request.listing.lender?.firstName || request.listing.lender?.email?.split("@")[0] || "Lender" %></span>
                       </p>
                     </div>
                     <div class="col-md-6 mt-2">
                       <p class="mb-1 text-secondary">Rental dates</p>
-                      <p class="mb-0 bold">Mar 10, 2026 – Mar 12, 2026</p>
+                      <p class="mb-0 bold">
+                        <%= new Date(request.startDate).toLocaleDateString() %> – <%= new Date(request.endDate).toLocaleDateString() %>
+                      </p>
                     </div>
                     <div class="col-md-6 mt-2">
                       <p class="mb-1 text-secondary">Total cost</p>
-                      <p class="mb-0 bold">$120.50</p>
+                      <p class="mb-0 bold">$<%= cost.total.toFixed(2) %></p>
                     </div>
                   </div>
                 </div>
@@ -194,13 +170,10 @@
                 </p>
 
                 <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
-                  <a
-                    href="borrower-my-rentals.html"
-                    class="btn btn-main px-4"
-                  >
+                  <a href="/borrower/my-rentals" class="btn btn-main px-4">
                     <i class="bi bi-clock-history me-1"></i>Go to My Rentals
                   </a>
-                  <a href="borrower-dashboard.html" class="btn btn-alternate px-4">
+                  <a href="/borrower/dashboard" class="btn btn-alternate px-4">
                     <i class="bi bi-search me-1"></i>Browse more items
                   </a>
                 </div>

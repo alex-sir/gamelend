@@ -54,7 +54,7 @@ const LenderController = {
         image:
           req.listing.images && req.listing.images.length > 0
             ? req.listing.images[0].imageUrl
-            : "/images/gaming-collage.jpg",
+            : "/images/gaming-collage.svg",
         borrower: req.borrower.firstName || req.borrower.email.split("@")[0],
         dates: `${new Date(req.startDate).toLocaleDateString()} - ${new Date(req.endDate).toLocaleDateString()}`,
         price: `$${req.listing.dailyRate}`,
@@ -87,7 +87,7 @@ const LenderController = {
         image:
           rent.request.listing.images && rent.request.listing.images.length > 0
             ? rent.request.listing.images[0].imageUrl
-            : "/images/gaming-collage.jpg",
+            : "/images/gaming-collage.svg",
         borrower:
           rent.request.borrower.firstName ||
           rent.request.borrower.email.split("@")[0],

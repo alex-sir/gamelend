@@ -6,7 +6,7 @@
 
     <title>Extend Rental - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -78,24 +76,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -109,17 +93,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -132,10 +108,7 @@
       <div class="container">
         <div class="row mb-3">
           <div class="col-12">
-            <a
-              href="borrower-rental-details.html"
-              class="text-decoration-none small text-secondary"
-            >
+            <a href="/borrower/rentals/<%= rental.id %>" class="text-decoration-none small text-secondary">
               <i class="bi bi-arrow-left me-1"></i>Back to rental details
             </a>
           </div>
@@ -146,32 +119,34 @@
           <div class="col-lg-4 order-lg-2">
             <div class="card bg-dark">
               <div class="card-body">
+                <%
+                  const listing = rental.request.listing;
+                  const baseEndDate = new Date(rental.request.endDate);
+                  const pricePerDay = Number(listing.dailyRate);
+                %>
                 <h5 class="card-title mb-3">Current rental</h5>
                 <div class="d-flex mb-3">
                   <img
-                    src="../../public/images/donkey-kong-bananza.jpg"
-                    alt="Donkey Kong Bananza"
+                    src="<%= (listing.images && listing.images.length > 0 ? (listing.images.find((i) => i.isPrimary) || listing.images[0]).imageUrl : "/images/gaming-collage.svg") %>"
+                    alt="<%= listing.title %>"
                     class="rounded me-3"
                     style="width: 72px; height: 72px; object-fit: cover"
                   />
                   <div>
-                    <p class="mb-1 bold">Donkey Kong Bananza (Switch)</p>
+                    <p class="mb-1 bold"><%= listing.title %></p>
                     <p class="mb-0 small text-secondary">
                       Due back:
-                      <span class="bold text-white">Mar 9, 2026</span>
+                      <span class="bold text-white"><%= baseEndDate.toISOString().slice(0,10) %></span>
                     </p>
                   </div>
                 </div>
 
                 <ul class="list-unstyled small text-secondary mb-3">
                   <li>
-                    <span class="bold text-white">Price per day:</span> $8.00
+                    <span class="bold text-white">Price per day:</span> $<%= pricePerDay.toFixed(2) %>
                   </li>
                   <li>
-                    <span class="bold text-white">Current length:</span> 4 days
-                  </li>
-                  <li>
-                    <span class="bold text-white">Lender:</span> Casey R.
+                    <span class="bold text-white">Lender:</span> <%= listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender" %>
                   </li>
                 </ul>
 
@@ -209,14 +184,18 @@
                   backend or API.
                 </p>
 
-                <form id="extendForm" action="borrower-rental-details.html">
+                <% if (error) { %>
+                  <div class="alert alert-warning"><%= error %></div>
+                <% } %>
+
+                <form id="extendForm" action="/borrower/rentals/<%= rental.id %>/extend" method="POST">
                   <div class="row g-3 mb-3">
                     <div class="col-md-6">
                       <label class="form-label">Current return date</label>
                       <input
                         type="text"
                         class="form-control"
-                        value="2026-03-09"
+                        value="<%= baseEndDate.toISOString().slice(0,10) %>"
                         disabled
                       />
                     </div>
@@ -228,6 +207,7 @@
                         type="date"
                         class="form-control"
                         id="newReturnDate"
+                        name="newEndDate"
                         required
                       />
                     </div>
@@ -314,7 +294,7 @@
 
     <script>
       const baseEndDate = new Date("2026-03-09");
-      const pricePerDay = 8;
+      const pricePerDay = <%- pricePerDay %>;
 
       function recalcExtension() {
         const input = document.getElementById("newReturnDate").value;

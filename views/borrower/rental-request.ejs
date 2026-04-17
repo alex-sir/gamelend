@@ -6,7 +6,7 @@
 
     <title>Rental Request - GameLend</title>
 
-    <link rel="icon" href="../assets/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
     <!-- Bootstrap -->
     <link
@@ -29,17 +29,15 @@
     />
 
     <!-- Global styles -->
-    <link rel="stylesheet" href="../styles/app.css" />
-
-    <!-- Borrower styles -->
-    <link rel="stylesheet" href="styles/borrower.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
 
   <body>
     <!-- PRIMARY NAVBAR -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
         </a>
@@ -75,24 +73,10 @@
                   <i class="bi bi-person-circle me-1"></i>Borrower Dashboard
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../admin/admin-dashboard.html"
-                      >Admin Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/borrower/my-rentals">My Rentals</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
@@ -106,17 +90,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="borrower-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -129,10 +105,7 @@
       <div class="container">
         <div class="row mb-3">
           <div class="col-12">
-            <a
-              href="borrower-item-details.html"
-              class="text-decoration-none small text-secondary"
-            >
+            <a href="/borrower/listings/<%= listing.id %>" class="text-decoration-none small text-secondary">
               <i class="bi bi-arrow-left me-1"></i>Back to item
             </a>
           </div>
@@ -146,28 +119,23 @@
                 <h5 class="card-title mb-3">Rental summary</h5>
                 <div class="d-flex mb-3">
                   <img
-                    src="../../public/images/ps5.jpg"
-                    alt="PlayStation 5"
+                    src="<%= (listing.images && listing.images.length > 0 ? (listing.images.find((i) => i.isPrimary) || listing.images[0]).imageUrl : "/images/gaming-collage.svg") %>"
+                    alt="<%= listing.title %>"
                     class="rounded me-3"
                     style="width: 72px; height: 72px; object-fit: cover"
                   />
                   <div>
-                    <p class="mb-1 bold">PlayStation 5 Digital Edition</p>
+                    <p class="mb-1 bold"><%= listing.title %></p>
                     <p class="mb-0 small text-secondary">
-                      Lender: <span class="bold text-white">Alex P.</span>
+                      Lender:
+                      <span class="bold text-white"><%= listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender" %></span>
                     </p>
                   </div>
                 </div>
 
                 <ul class="list-unstyled small text-secondary mb-3">
                   <li>
-                    <span class="bold text-white">Price per day:</span> $18.00
-                  </li>
-                  <li>
-                    <span class="bold text-white">Deposit:</span> $80.00
-                  </li>
-                  <li>
-                    <span class="bold text-white">Minimum rental:</span> 2 days
+                    <span class="bold text-white">Price per day:</span> $<%= Number(listing.dailyRate).toFixed(2) %>
                   </li>
                 </ul>
 
@@ -175,20 +143,20 @@
 
                 <div class="d-flex justify-content-between mb-1 small">
                   <span>Rental subtotal</span>
-                  <span id="rentalSubtotal">$36.00</span>
+                  <span id="rentalSubtotal">$0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1 small">
                   <span>Service fee</span>
-                  <span id="serviceFee">$4.50</span>
+                  <span id="serviceFee">$0.00</span>
                 </div>
                 <div class="d-flex justify-content-between mb-1 small">
                   <span>Refundable deposit</span>
-                  <span id="depositAmount">$80.00</span>
+                  <span id="depositAmount">$0.00</span>
                 </div>
                 <hr class="my-2" />
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="bold">Total due today</span>
-                  <span class="h5 mb-0" id="totalDue">$120.50</span>
+                  <span class="h5 mb-0" id="totalDue">$0.00</span>
                 </div>
                 <p class="small text-secondary mt-1 mb-0">
                   Deposit is refunded after safe, on‑time return.
@@ -203,15 +171,14 @@
               <div class="card-body">
                 <h1 class="h4 mb-3">Request rental</h1>
                 <p class="text-secondary small mb-4">
-                  Choose your dates and review the cost breakdown. This is a
-                  static example form you can hook into your backend later.
+                  Choose your dates and submit a request to the lender.
                 </p>
 
-                <form
-                  action="borrower-rental-confirmation.html"
-                  method="get"
-                  id="rentalRequestForm"
-                >
+                <% if (error) { %>
+                  <div class="alert alert-warning"><%= error %></div>
+                <% } %>
+
+                <form action="/borrower/listings/<%= listing.id %>/request" method="POST" id="rentalRequestForm">
                   <div class="row g-3 mb-3">
                     <div class="col-md-6">
                       <label for="startDate" class="form-label"
@@ -221,6 +188,7 @@
                         type="date"
                         class="form-control"
                         id="startDate"
+                        name="startDate"
                         required
                       />
                     </div>
@@ -230,6 +198,7 @@
                         type="date"
                         class="form-control"
                         id="endDate"
+                        name="endDate"
                         required
                       />
                     </div>
@@ -342,7 +311,7 @@
 
     <script>
       // Simple front-end price calculation demo
-      const pricePerDay = 18;
+      const pricePerDay = <%- Number(listing.dailyRate) %>;
       const serviceFeeRate = 0.125; // 12.5% of rental subtotal
 
       function recalcTotals() {
@@ -353,26 +322,18 @@
         const totalDueEl = document.getElementById("totalDue");
         const depositEl = document.getElementById("depositAmount");
 
-        if (!start || !end) {
-          subtotalEl.textContent = "$36.00";
-          serviceFeeEl.textContent = "$4.50";
-          depositEl.textContent = "$80.00";
-          totalDueEl.textContent = "$120.50";
-          return;
-        }
+        if (!start || !end) return;
 
         const startDate = new Date(start);
         const endDate = new Date(end);
         const msPerDay = 1000 * 60 * 60 * 24;
         let days = Math.round((endDate - startDate) / msPerDay);
 
-        if (isNaN(days) || days < 2) {
-          days = 2; // enforce minimum rental length
-        }
+        if (isNaN(days) || days < 1) days = 1;
 
         const subtotal = days * pricePerDay;
         const serviceFee = subtotal * serviceFeeRate;
-        const deposit = 80;
+        const deposit = 0;
         const totalDue = subtotal + serviceFee + deposit;
 
         subtotalEl.textContent = `$${subtotal.toFixed(2)}`;

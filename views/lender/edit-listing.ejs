@@ -4,7 +4,7 @@
     : 'Lender';
 
   // Extract primary image for the sidebar display
-  let primaryImage = '/images/gaming-collage.jpg';
+  let primaryImage = '/images/gaming-collage.svg';
   if (listing && listing.images && listing.images.length > 0) {
     const primary = listing.images.find(img => img.isPrimary);
     primaryImage = primary ? primary.imageUrl : listing.images[0].imageUrl;
@@ -18,7 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Listing - <%= listing.title %></title>
 
-    <link rel="icon" href="/icons/controller.png" type="image/png" />
+    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
