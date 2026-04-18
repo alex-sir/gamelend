@@ -1,4 +1,5 @@
 // controllers/LenderController.js
+const { validationResult } = require("express-validator");
 const {
   Listing,
   Image,
@@ -152,6 +153,16 @@ const LenderController = {
   },
 
   createListing: async (req, res) => {
+    // 1. Check for Validation Errors first!
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // If errors exist, re-render the page, pass the first error message, and keep the user's typed data
+      return res.render("lender/create-listing", {
+        error: errors.array()[0].msg,
+        formData: req.body,
+      });
+    }
+
     const {
       title,
       category,
@@ -159,7 +170,6 @@ const LenderController = {
       quantity,
       description,
       dailyRate,
-      // Sub-type fields
       platform,
       genre,
       esrbRating,
@@ -181,14 +191,7 @@ const LenderController = {
     const lenderId = req.session.user.id;
 
     try {
-      if (description.length < 50) {
-        return res.render("lender/create-listing", {
-          error: "Description must be at least 50 characters.",
-          formData: req.body,
-        });
-      }
-
-      // 1. Create Core Listing
+      // 2. Create Core Listing
       const newListing = await Listing.create({
         lenderId,
         title,
@@ -200,7 +203,7 @@ const LenderController = {
         status: "Draft",
       });
 
-      // 2. Create Specific Sub-Type Record
+      // 3. Create Specific Sub-Type Record
       if (category === "Video Game") {
         await Listing_VideoGame.create({
           listingId: newListing.id,
@@ -235,7 +238,7 @@ const LenderController = {
     } catch (error) {
       console.error(error);
       res.render("lender/create-listing", {
-        error: "Error creating listing.",
+        error: "Database error creating listing.",
         formData: req.body,
       });
     }
@@ -398,13 +401,31 @@ const LenderController = {
   },
 
   updateListing: async (req, res) => {
+    // 1. Check for Validation Errors first!
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // If validation fails on the edit page, we have to re-fetch the listing from the DB to render the page correctly
+      const listing = await Listing.findOne({
+        where: { id: req.params.id, lenderId: req.session.user.id },
+        include: [
+          { model: Image, as: "images" },
+          { model: Listing_VideoGame, as: "videoGameDetails" },
+          { model: Listing_Console, as: "consoleDetails" },
+          { model: Listing_Accessory, as: "accessoryDetails" },
+        ],
+      });
+      return res.render("lender/edit-listing", {
+        listing,
+        error: errors.array()[0].msg,
+      });
+    }
+
     const {
       title,
       description,
       dailyRate,
       condition,
       quantity,
-      // Sub-type fields
       platform,
       genre,
       esrbRating,
@@ -440,9 +461,8 @@ const LenderController = {
         where: { status: "Active" },
       });
 
-      // Core listing update (restrict critical fields if active rentals exist)
       if (activeRentals > 0) {
-        await listing.update({ description }); // Condition and rate locked
+        await listing.update({ description });
       } else {
         await listing.update({
           title,
@@ -452,7 +472,6 @@ const LenderController = {
           quantity,
         });
 
-        // Update Sub-Type tables
         if (listing.category === "Video Game") {
           await Listing_VideoGame.update(
             { platform, genre, esrbRating, publisher, releaseYear },
@@ -486,6 +505,7 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${listing.id}`);
     } catch (error) {
+      console.error(error);
       res.status(500).send("Error updating listing");
     }
   },

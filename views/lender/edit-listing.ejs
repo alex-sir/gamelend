@@ -135,8 +135,12 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="category" class="form-label">Category</label>
-                  <input type="text" class="form-control text-muted bg-dark" id="category" value="<%= listing.category %>" disabled />
+                  <label for="categoryDisplay" class="form-label">Category</label>
+                  
+                  <input type="text" class="form-control text-muted bg-dark" id="categoryDisplay" value="<%= listing.category %>" disabled />
+                  
+                  <input type="hidden" name="category" value="<%= listing.category %>" />
+                  
                   <div class="form-text">The equipment category cannot be changed after a listing is created.</div>
                 </div>
 

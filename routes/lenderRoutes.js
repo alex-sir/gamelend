@@ -4,6 +4,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs"); // Imported File System module
 const { requireRole } = require("../middleware/auth");
+const { listingValidationRules } = require("../middleware/listingValidation");
 const LenderController = require("../controllers/LenderController");
 
 // --- Ensure Upload Directory Exists ---
@@ -43,7 +44,11 @@ router.get("/listings", LenderController.getMyListings);
 
 // UC-L01: Create Equipment Listing
 router.get("/listings/new", LenderController.renderCreateForm);
-router.post("/listings", LenderController.createListing);
+router.post(
+  "/listings",
+  listingValidationRules(),
+  LenderController.createListing,
+);
 
 // UC-L02: Upload Item Images
 router.get("/listings/:id/images", LenderController.renderUploadForm);
@@ -57,7 +62,11 @@ router.post("/images/:imageId/primary", LenderController.setPrimaryImage);
 
 // UC-L03: Edit Listing Details
 router.get("/listings/:id/edit", LenderController.renderEditForm);
-router.put("/listings/:id", LenderController.updateListing);
+router.put(
+  "/listings/:id",
+  listingValidationRules(),
+  LenderController.updateListing,
+);
 router.delete("/listings/:id", LenderController.deleteListing);
 
 // UC-L04: View Listing (Public perspective + Lender stats)
