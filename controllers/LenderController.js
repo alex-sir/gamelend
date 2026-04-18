@@ -156,7 +156,6 @@ const LenderController = {
     // 1. Check for Validation Errors first!
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // If errors exist, re-render the page, pass the first error message, and keep the user's typed data
       return res.render("lender/create-listing", {
         error: errors.array()[0].msg,
         formData: req.body,
@@ -404,7 +403,6 @@ const LenderController = {
     // 1. Check for Validation Errors first!
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // If validation fails on the edit page, we have to re-fetch the listing from the DB to render the page correctly
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
         include: [
@@ -472,6 +470,7 @@ const LenderController = {
           quantity,
         });
 
+        // Update Sub-Type tables
         if (listing.category === "Video Game") {
           await Listing_VideoGame.update(
             { platform, genre, esrbRating, publisher, releaseYear },
@@ -505,7 +504,6 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${listing.id}`);
     } catch (error) {
-      console.error(error);
       res.status(500).send("Error updating listing");
     }
   },
@@ -623,7 +621,12 @@ const LenderController = {
             as: "request",
             include: [
               { model: User, as: "borrower" },
-              { model: Listing, as: "listing" },
+              {
+                model: Listing,
+                as: "listing",
+                // ---> HERE IS THE FIX! Instructing Sequelize to fetch images for the rentals <---
+                include: [{ model: Image, as: "images" }],
+              },
             ],
           },
         ],

@@ -5,6 +5,7 @@ const methodOverride = require("method-override");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const { requireAuth } = require("./middleware/auth");
+const HomeController = require("./controllers/HomeController");
 require("dotenv").config();
 
 const { sequelize } = require("./models");
@@ -56,10 +57,8 @@ app.use("/borrower", requireAuth, borrowerRoutes);
 // Mount the profile routes
 app.use("/profile", profileRoutes);
 
-// Public Landing Page (Placeholder)
-app.get("/", (req, res) => {
-  res.render("index");
-});
+// Route for the homepage
+app.get("/", HomeController.getHomePage);
 
 // Public About Page
 app.get("/about", (req, res) => {
