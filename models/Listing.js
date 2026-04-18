@@ -17,18 +17,38 @@ const Listing = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
-        len: [5, 100], // Title must be between 5 and 100 characters
+        len: [5, 100],
       },
     },
     category: {
       type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
       allowNull: false,
     },
+    condition: {
+      type: DataTypes.ENUM(
+        "New",
+        "Like New",
+        "Very Good",
+        "Good",
+        "Acceptable",
+      ),
+      allowNull: false,
+      defaultValue: "Good",
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      validate: {
+        min: 1,
+        max: 99,
+      },
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
       validate: {
-        len: [50, 2000], // Minimum 50 characters required
+        len: [50, 2000],
       },
     },
     dailyRate: {

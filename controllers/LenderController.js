@@ -1,5 +1,14 @@
 // controllers/LenderController.js
-const { Listing, Image, RentalRequest, Rental, User } = require("../models");
+const {
+  Listing,
+  Image,
+  RentalRequest,
+  Rental,
+  User,
+  Listing_VideoGame,
+  Listing_Console,
+  Listing_Accessory,
+} = require("../models");
 const { Op } = require("sequelize");
 
 const LenderController = {
@@ -143,7 +152,32 @@ const LenderController = {
   },
 
   createListing: async (req, res) => {
-    const { title, category, description, dailyRate } = req.body;
+    const {
+      title,
+      category,
+      condition,
+      quantity,
+      description,
+      dailyRate,
+      // Sub-type fields
+      platform,
+      genre,
+      esrbRating,
+      publisher,
+      releaseYear,
+      consoleType,
+      storageCapacity,
+      controllersIncluded,
+      controllerQuantity,
+      cablesIncluded,
+      serialNumber,
+      accessoryType,
+      compatiblePlatforms,
+      isWireless,
+      brand,
+      modelNumber,
+    } = req.body;
+
     const lenderId = req.session.user.id;
 
     try {
@@ -153,21 +187,49 @@ const LenderController = {
           formData: req.body,
         });
       }
-      if (dailyRate < 1 || dailyRate > 500) {
-        return res.render("lender/create-listing", {
-          error: "Daily rate must be between $1.00 and $500.00.",
-          formData: req.body,
-        });
-      }
 
+      // 1. Create Core Listing
       const newListing = await Listing.create({
         lenderId,
         title,
         category,
+        condition,
+        quantity: quantity || 1,
         description,
         dailyRate,
         status: "Draft",
       });
+
+      // 2. Create Specific Sub-Type Record
+      if (category === "Video Game") {
+        await Listing_VideoGame.create({
+          listingId: newListing.id,
+          platform,
+          genre,
+          esrbRating,
+          publisher,
+          releaseYear,
+        });
+      } else if (category === "Console") {
+        await Listing_Console.create({
+          listingId: newListing.id,
+          consoleType,
+          storageCapacity,
+          controllersIncluded: controllersIncluded === "on",
+          controllerQuantity: controllerQuantity || 0,
+          cablesIncluded: cablesIncluded === "on",
+          serialNumber,
+        });
+      } else if (category === "Accessory") {
+        await Listing_Accessory.create({
+          listingId: newListing.id,
+          accessoryType,
+          compatiblePlatforms,
+          isWireless: isWireless === "on",
+          brand,
+          modelNumber,
+        });
+      }
 
       res.redirect(`/lender/listings/${newListing.id}/images`);
     } catch (error) {
@@ -320,8 +382,12 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
-        // ADDED THIS INCLUDE SO THE EJS FILE HAS ACCESS TO THE IMAGES
-        include: [{ model: Image, as: "images" }],
+        include: [
+          { model: Image, as: "images" },
+          { model: Listing_VideoGame, as: "videoGameDetails" },
+          { model: Listing_Console, as: "consoleDetails" },
+          { model: Listing_Accessory, as: "accessoryDetails" },
+        ],
       });
       if (!listing) return res.status(404).send("Listing not found");
 
@@ -332,7 +398,31 @@ const LenderController = {
   },
 
   updateListing: async (req, res) => {
-    const { title, description, dailyRate } = req.body;
+    const {
+      title,
+      description,
+      dailyRate,
+      condition,
+      quantity,
+      // Sub-type fields
+      platform,
+      genre,
+      esrbRating,
+      publisher,
+      releaseYear,
+      consoleType,
+      storageCapacity,
+      controllersIncluded,
+      controllerQuantity,
+      cablesIncluded,
+      serialNumber,
+      accessoryType,
+      compatiblePlatforms,
+      isWireless,
+      brand,
+      modelNumber,
+    } = req.body;
+
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
@@ -350,10 +440,48 @@ const LenderController = {
         where: { status: "Active" },
       });
 
+      // Core listing update (restrict critical fields if active rentals exist)
       if (activeRentals > 0) {
-        await listing.update({ description });
+        await listing.update({ description }); // Condition and rate locked
       } else {
-        await listing.update({ title, description, dailyRate });
+        await listing.update({
+          title,
+          description,
+          dailyRate,
+          condition,
+          quantity,
+        });
+
+        // Update Sub-Type tables
+        if (listing.category === "Video Game") {
+          await Listing_VideoGame.update(
+            { platform, genre, esrbRating, publisher, releaseYear },
+            { where: { listingId: listing.id } },
+          );
+        } else if (listing.category === "Console") {
+          await Listing_Console.update(
+            {
+              consoleType,
+              storageCapacity,
+              controllersIncluded: controllersIncluded === "on",
+              controllerQuantity,
+              cablesIncluded: cablesIncluded === "on",
+              serialNumber,
+            },
+            { where: { listingId: listing.id } },
+          );
+        } else if (listing.category === "Accessory") {
+          await Listing_Accessory.update(
+            {
+              accessoryType,
+              compatiblePlatforms,
+              isWireless: isWireless === "on",
+              brand,
+              modelNumber,
+            },
+            { where: { listingId: listing.id } },
+          );
+        }
       }
 
       res.redirect(`/lender/listings/${listing.id}`);
@@ -381,7 +509,12 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
-        include: [{ model: Image, as: "images" }],
+        include: [
+          { model: Image, as: "images" },
+          { model: Listing_VideoGame, as: "videoGameDetails" },
+          { model: Listing_Console, as: "consoleDetails" },
+          { model: Listing_Accessory, as: "accessoryDetails" },
+        ],
       });
       if (!listing) return res.status(404).send("Listing not found");
 

@@ -4,11 +4,16 @@
     : 'Lender';
 
   // Extract primary image for the sidebar display
-  let primaryImage = '/images/gaming-collage.svg';
+  let primaryImage = '/images/gaming-collage.png';
   if (listing && listing.images && listing.images.length > 0) {
     const primary = listing.images.find(img => img.isPrimary);
     primaryImage = primary ? primary.imageUrl : listing.images[0].imageUrl;
   }
+
+  // Setup sub-type variables to safely check values
+  const isVG = listing.category === 'Video Game' && listing.videoGameDetails;
+  const isCon = listing.category === 'Console' && listing.consoleDetails;
+  const isAcc = listing.category === 'Accessory' && listing.accessoryDetails;
 %>
 
 <!doctype html>
@@ -18,7 +23,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Edit Listing - <%= listing.title %></title>
 
-    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/controller.png" type="image/png" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
@@ -111,7 +116,7 @@
         <div class="alert alert-info d-flex align-items-center border-info mb-4" role="alert">
           <i class="bi bi-info-circle-fill me-3 fs-5"></i>
           <div>
-            <strong>Note:</strong> If this listing is currently being rented, certain fields (like Title and Daily Rate) will be locked by the system to protect the active transaction. Only your description updates will be applied.
+            <strong>Note:</strong> If this listing is currently being rented, certain critical fields (like Condition and Daily Rate) will be locked by the system to protect the active transaction.
           </div>
         </div>
 
@@ -121,12 +126,12 @@
             <form id="editListingForm" action="/lender/listings/<%= listing.id %>?_method=PUT" method="POST" novalidate>
               
               <div class="section-card">
-                <h2 class="h5 mb-3"><i class="bi bi-info-circle me-2"></i>Basic Information</h2>
+                <h2 class="h5 mb-3"><i class="bi bi-info-circle me-2"></i>Core Details</h2>
 
                 <div class="mb-3">
                   <label for="itemTitle" class="form-label">Item Title <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="itemTitle" name="title" value="<%= listing.title %>" required minlength="5" maxlength="100" />
-                  <div class="invalid-feedback"></div>
+                  <div class="invalid-feedback">Title must be between 5 and 100 characters.</div>
                 </div>
 
                 <div class="mb-3">
@@ -135,10 +140,29 @@
                   <div class="form-text">The equipment category cannot be changed after a listing is created.</div>
                 </div>
 
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="condition" class="form-label">Condition <span class="text-danger">*</span></label>
+                    <select class="form-select" id="condition" name="condition" required>
+                      <option value="New" <%= listing.condition === 'New' ? 'selected' : '' %>>New</option>
+                      <option value="Like New" <%= listing.condition === 'Like New' ? 'selected' : '' %>>Like New</option>
+                      <option value="Very Good" <%= listing.condition === 'Very Good' ? 'selected' : '' %>>Very Good</option>
+                      <option value="Good" <%= listing.condition === 'Good' ? 'selected' : '' %>>Good</option>
+                      <option value="Acceptable" <%= listing.condition === 'Acceptable' ? 'selected' : '' %>>Acceptable</option>
+                    </select>
+                    <div class="invalid-feedback">Please select the item's condition.</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="quantity" class="form-label">Quantity Available <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" value="<%= listing.quantity %>" min="1" max="99" required />
+                    <div class="invalid-feedback">Quantity must be between 1 and 99.</div>
+                  </div>
+                </div>
+
                 <div class="mb-3">
                   <label for="itemDescription" class="form-label">Description <span class="text-danger">*</span></label>
                   <textarea class="form-control" id="itemDescription" name="description" rows="7" required minlength="50" maxlength="2000"><%= listing.description %></textarea>
-                  <div class="invalid-feedback"></div>
+                  <div class="invalid-feedback">Description must be between 50 and 2000 characters.</div>
                   <div class="form-text">
                     <span id="charCount"><%= listing.description ? listing.description.length : 0 %></span>/2000 characters (minimum 50)
                   </div>
@@ -146,17 +170,143 @@
               </div>
 
               <div class="section-card">
-                <h2 class="h5 mb-3"><i class="bi bi-cash me-2"></i>Pricing</h2>
+                <h2 class="h5 mb-3"><i class="bi bi-gear me-2"></i>Specifics</h2>
+                
+                <% if (listing.category === 'Video Game') { %>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Platform <span class="text-danger">*</span></label>
+                      <select class="form-select" name="platform" required>
+                        <option value="PlayStation 5" <%= isVG && listing.videoGameDetails.platform === 'PlayStation 5' ? 'selected' : '' %>>PlayStation 5</option>
+                        <option value="PlayStation 4" <%= isVG && listing.videoGameDetails.platform === 'PlayStation 4' ? 'selected' : '' %>>PlayStation 4</option>
+                        <option value="Xbox Series X/S" <%= isVG && listing.videoGameDetails.platform === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
+                        <option value="Xbox One" <%= isVG && listing.videoGameDetails.platform === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
+                        <option value="Nintendo Switch" <%= isVG && listing.videoGameDetails.platform === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
+                        <option value="PC" <%= isVG && listing.videoGameDetails.platform === 'PC' ? 'selected' : '' %>>PC</option>
+                      </select>
+                      <div class="invalid-feedback">Please select a platform.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Genre</label>
+                      <select class="form-select" name="genre">
+                        <option value="">Select genre...</option>
+                        <option value="Action" <%= isVG && listing.videoGameDetails.genre === 'Action' ? 'selected' : '' %>>Action</option>
+                        <option value="Adventure" <%= isVG && listing.videoGameDetails.genre === 'Adventure' ? 'selected' : '' %>>Adventure</option>
+                        <option value="RPG" <%= isVG && listing.videoGameDetails.genre === 'RPG' ? 'selected' : '' %>>RPG</option>
+                        <option value="Sports" <%= isVG && listing.videoGameDetails.genre === 'Sports' ? 'selected' : '' %>>Sports</option>
+                        <option value="Racing" <%= isVG && listing.videoGameDetails.genre === 'Racing' ? 'selected' : '' %>>Racing</option>
+                        <option value="Fighting" <%= isVG && listing.videoGameDetails.genre === 'Fighting' ? 'selected' : '' %>>Fighting</option>
+                        <option value="Strategy" <%= isVG && listing.videoGameDetails.genre === 'Strategy' ? 'selected' : '' %>>Strategy</option>
+                        <option value="Simulation" <%= isVG && listing.videoGameDetails.genre === 'Simulation' ? 'selected' : '' %>>Simulation</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                      <label class="form-label">ESRB Rating</label>
+                      <select class="form-select" name="esrbRating">
+                        <option value="">Select rating...</option>
+                        <option value="E" <%= isVG && listing.videoGameDetails.esrbRating === 'E' ? 'selected' : '' %>>E (Everyone)</option>
+                        <option value="E10+" <%= isVG && listing.videoGameDetails.esrbRating === 'E10+' ? 'selected' : '' %>>E10+</option>
+                        <option value="T" <%= isVG && listing.videoGameDetails.esrbRating === 'T' ? 'selected' : '' %>>T (Teen)</option>
+                        <option value="M" <%= isVG && listing.videoGameDetails.esrbRating === 'M' ? 'selected' : '' %>>M (Mature)</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                      <label class="form-label">Publisher</label>
+                      <input type="text" class="form-control" name="publisher" value="<%= isVG ? listing.videoGameDetails.publisher : '' %>" />
+                    </div>
+                    <div class="col-md-4 mt-3">
+                      <label class="form-label">Release Year</label>
+                      <input type="number" class="form-control" name="releaseYear" min="1970" max="2030" value="<%= isVG ? listing.videoGameDetails.releaseYear : '' %>" />
+                    </div>
+                  </div>
+                
+                <% } else if (listing.category === 'Console') { %>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Console Type <span class="text-danger">*</span></label>
+                      <select class="form-select" name="consoleType" required>
+                        <option value="PlayStation 5" <%= isCon && listing.consoleDetails.consoleType === 'PlayStation 5' ? 'selected' : '' %>>PlayStation 5</option>
+                        <option value="PlayStation 4" <%= isCon && listing.consoleDetails.consoleType === 'PlayStation 4' ? 'selected' : '' %>>PlayStation 4</option>
+                        <option value="Xbox Series X/S" <%= isCon && listing.consoleDetails.consoleType === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
+                        <option value="Xbox One" <%= isCon && listing.consoleDetails.consoleType === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
+                        <option value="Nintendo Switch" <%= isCon && listing.consoleDetails.consoleType === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
+                      </select>
+                      <div class="invalid-feedback">Please select a console type.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Storage Capacity</label>
+                      <input type="text" class="form-control" name="storageCapacity" placeholder="e.g. 1TB" value="<%= isCon ? listing.consoleDetails.storageCapacity : '' %>" />
+                    </div>
+                    <div class="col-md-6 mt-4">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="controllersIncluded" id="controllersIncluded" <%= isCon && listing.consoleDetails.controllersIncluded ? 'checked' : '' %>>
+                        <label class="form-check-label" for="controllersIncluded">Controllers Included?</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                      <label class="form-label">Controller Quantity</label>
+                      <input type="number" class="form-control" name="controllerQuantity" min="0" value="<%= isCon ? listing.consoleDetails.controllerQuantity : 0 %>" />
+                    </div>
+                    <div class="col-md-6 mt-4">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="cablesIncluded" id="cablesIncluded" <%= isCon && listing.consoleDetails.cablesIncluded ? 'checked' : '' %>>
+                        <label class="form-check-label" for="cablesIncluded">Power/HDMI Cables Included?</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                      <label class="form-label">Serial Number (Private)</label>
+                      <input type="text" class="form-control" name="serialNumber" placeholder="For tracking" value="<%= isCon ? listing.consoleDetails.serialNumber : '' %>" />
+                    </div>
+                  </div>
 
+                <% } else if (listing.category === 'Accessory') { %>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Accessory Type <span class="text-danger">*</span></label>
+                      <select class="form-select" name="accessoryType" required>
+                        <option value="Controller" <%= isAcc && listing.accessoryDetails.accessoryType === 'Controller' ? 'selected' : '' %>>Controller</option>
+                        <option value="Headset" <%= isAcc && listing.accessoryDetails.accessoryType === 'Headset' ? 'selected' : '' %>>Headset</option>
+                        <option value="VR Equipment" <%= isAcc && listing.accessoryDetails.accessoryType === 'VR Equipment' ? 'selected' : '' %>>VR Equipment</option>
+                        <option value="Racing Wheel" <%= isAcc && listing.accessoryDetails.accessoryType === 'Racing Wheel' ? 'selected' : '' %>>Racing Wheel</option>
+                        <option value="Flight Stick" <%= isAcc && listing.accessoryDetails.accessoryType === 'Flight Stick' ? 'selected' : '' %>>Flight Stick</option>
+                        <option value="Charging Station" <%= isAcc && listing.accessoryDetails.accessoryType === 'Charging Station' ? 'selected' : '' %>>Charging Station</option>
+                        <option value="Other" <%= isAcc && listing.accessoryDetails.accessoryType === 'Other' ? 'selected' : '' %>>Other</option>
+                      </select>
+                      <div class="invalid-feedback">Please select an accessory type.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Compatible Platforms</label>
+                      <input type="text" class="form-control" name="compatiblePlatforms" placeholder="e.g. PC, PS5" value="<%= isAcc ? listing.accessoryDetails.compatiblePlatforms : '' %>" />
+                    </div>
+                    <div class="col-md-4 mt-4">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="isWireless" id="isWireless" <%= isAcc && listing.accessoryDetails.isWireless ? 'checked' : '' %>>
+                        <label class="form-check-label" for="isWireless">Is Wireless?</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                      <label class="form-label">Brand</label>
+                      <input type="text" class="form-control" name="brand" value="<%= isAcc ? listing.accessoryDetails.brand : '' %>" />
+                    </div>
+                    <div class="col-md-4 mt-3">
+                      <label class="form-label">Model Number</label>
+                      <input type="text" class="form-control" name="modelNumber" value="<%= isAcc ? listing.accessoryDetails.modelNumber : '' %>" />
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="section-card">
+                <h2 class="h5 mb-3"><i class="bi bi-cash me-2"></i>Pricing</h2>
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label for="dailyRate" class="form-label">Daily Rental Rate <span class="text-danger">*</span></label>
                     <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input type="number" class="form-control" id="dailyRate" name="dailyRate" value="<%= listing.dailyRate %>" step="0.01" min="1.00" max="500.00" required />
-                      <div class="invalid-feedback"></div>
+                      <div class="invalid-feedback">Rate must be between $1.00 and $500.00.</div>
                     </div>
-                    <div class="form-text">Between $1.00 and $500.00</div>
+                    <div class="form-text">Between $1.00 and $500.00 per day</div>
                   </div>
                 </div>
               </div>
@@ -181,7 +331,7 @@
             <div class="section-card mb-4">
               <h2 class="h5 mb-3"><i class="bi bi-images me-2"></i>Photos</h2>
               <div class="position-relative mb-3">
-                <img src="<%= primaryImage %>" class="img-fluid rounded w-100" style="aspect-ratio: 16/9; object-fit: contain !important; background-color: var(--color-black);" alt="Primary Listing Image" />
+                <img src="<%= primaryImage %>" class="img-fluid rounded w-100" style="aspect-ratio: 16/9; object-fit: contain; background-color: var(--color-black);" alt="Primary Listing Image" />
               </div>
               <p class="text-muted mb-3 small">
                 To add, remove, or change your primary image, use the Image Manager.
@@ -226,11 +376,11 @@
 
     <form id="deleteListingForm" action="/lender/listings/<%= listing.id %>?_method=DELETE" method="POST" style="display: none;"></form>
 
-    <div class="modal fade" id="deleteListingModal" tabindex="-1" aria-labelledby="deleteListingModalLabel" aria-hidden="true" data-bs-theme="dark">
+    <div class="modal fade" id="deleteListingModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark border-secondary shadow-lg">
           <div class="modal-header border-secondary">
-            <h5 class="modal-title text-white" id="deleteListingModalLabel">
+            <h5 class="modal-title text-white">
               <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Confirm Deletion
             </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -238,7 +388,7 @@
           <div class="modal-body text-light">
             Are you sure you want to delete <strong class="text-orange"><%= listing.title %></strong>? 
             <br><br>
-            <small class="text-muted">This action will permanently archive your listing and remove it from public search results.</small>
+            <small class="text-muted">This action will permanently archive your listing and remove it from public search results. This cannot be undone.</small>
           </div>
           <div class="modal-footer border-secondary">
             <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>

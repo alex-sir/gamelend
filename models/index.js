@@ -1,3 +1,4 @@
+// models/index.js
 const sequelize = require("../config/database");
 
 // Import all models normally
@@ -7,12 +8,37 @@ const Image = require("./Image");
 const RentalRequest = require("./RentalRequest");
 const Rental = require("./Rental");
 const Report = require("./Report");
+const Listing_VideoGame = require("./Listing_VideoGame");
+const Listing_Console = require("./Listing_Console");
+const Listing_Accessory = require("./Listing_Accessory");
 
 // --- Define Relationships (ER Diagram Mapping) ---
 
 // User -> Listing (One-to-Many)
 User.hasMany(Listing, { foreignKey: "lenderId", as: "listings" });
 Listing.belongsTo(User, { foreignKey: "lenderId", as: "lender" });
+
+// Listing -> Sub-Types (One-to-One)
+Listing.hasOne(Listing_VideoGame, {
+  foreignKey: "listingId",
+  as: "videoGameDetails",
+  onDelete: "CASCADE",
+});
+Listing_VideoGame.belongsTo(Listing, { foreignKey: "listingId" });
+
+Listing.hasOne(Listing_Console, {
+  foreignKey: "listingId",
+  as: "consoleDetails",
+  onDelete: "CASCADE",
+});
+Listing_Console.belongsTo(Listing, { foreignKey: "listingId" });
+
+Listing.hasOne(Listing_Accessory, {
+  foreignKey: "listingId",
+  as: "accessoryDetails",
+  onDelete: "CASCADE",
+});
+Listing_Accessory.belongsTo(Listing, { foreignKey: "listingId" });
 
 // Listing -> Image (One-to-Many)
 Listing.hasMany(Image, {
@@ -61,4 +87,7 @@ module.exports = {
   RentalRequest,
   Rental,
   Report,
+  Listing_VideoGame,
+  Listing_Console,
+  Listing_Accessory,
 };
