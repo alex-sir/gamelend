@@ -22,7 +22,32 @@ GameLend is a peer-to-peer web application for renting and lending physical vide
 
 ## Development
 
-### MariaDB Local Test Database
+### How to Install Dependencies
+
+GameLend utilizes **npm** for package management.
+
+Install all dependencies (run in the project root directory):
+
+```bash
+npm install
+```
+
+### How to Start the GameLend App
+
+> [!NOTE]
+> Starting the app automatically injects the `.env` file and starts the local MariaDB database. Ensure those are configured first.
+
+**Nodemon** is used to automatically restart the server when file changes are made.
+
+Start the app:
+
+```bash
+npm start
+```
+
+Go into your browser and type "**localhost:3000**" in the address bar to view the web app.
+
+### Configure MariaDB Local Database
 
 To develop and test the GameLend application locally, you can set up a local MariaDB database. We use an SQL script to standardize the creation of the database and the required user permissions.
 
@@ -90,6 +115,46 @@ View all rows in the `Users` table:
 
 ```sql
 SELECT * FROM Users;
+```
+
+### MariaDB Database Dump & Restore
+
+A local database dump allows you to snapshot your data as a backup.
+This data can later be restored.
+
+#### 1. Run the dump command
+
+Dump the data into a file called `gamelend_backup.sql`:
+
+```bash
+mariadb-dump -u root -p gamelend > gamelend_backup.sql
+```
+
+#### 2. Create an empty target database (if it doesn't exist)
+
+MariaDB needs a container to pour the data into.
+If the database was dropped, you must recreate it first.
+
+Log into the MariaDB shell:
+
+```bash
+mariadb -u root -p
+```
+
+Create the empty database:
+
+```sql
+CREATE DATABASE gamelend;
+EXIT;
+```
+
+#### 3. Import the dump file
+
+From your terminal, navigate to the folder where the `gamelend_backup.sql`
+file is saved and run the import command:
+
+```bash
+mariadb -u root -p gamelend < gamelend_backup.sql
 ```
 
 ## Team
