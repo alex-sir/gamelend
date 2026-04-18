@@ -5,32 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const shareBtn = document.getElementById("shareListingBtn");
 
   if (shareBtn) {
-    // 1. Store the original HTML once on load, outside the click event
     const originalHtml = shareBtn.innerHTML;
-    let copyTimeout; // Variable to hold our timer
+    let copyTimeout;
 
     shareBtn.addEventListener("click", () => {
       const url = window.location.href;
 
-      // Copy the URL to the clipboard quietly
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          // 2. Clear any existing timer if the user spam-clicks
           if (copyTimeout) {
             clearTimeout(copyTimeout);
           }
 
-          // Transform button to show success inline
           shareBtn.innerHTML =
             '<i class="bi bi-check-circle-fill me-2"></i>Link copied!';
           shareBtn.classList.replace("btn-alternate", "btn-success");
 
-          // 3. Set the new timer and store its ID in copyTimeout
           copyTimeout = setTimeout(() => {
             shareBtn.innerHTML = originalHtml;
             shareBtn.classList.replace("btn-success", "btn-alternate");
-            copyTimeout = null; // Reset the timer variable
+            copyTimeout = null;
           }, 2500);
         })
         .catch((error) => {
@@ -46,11 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (toggleViewBtn) {
     toggleViewBtn.addEventListener("click", function () {
-      // Toggle state
       const isBorrowerView = this.classList.toggle("is-borrower-view");
 
       if (isBorrowerView) {
-        // Switch TO Borrower View
         this.innerHTML =
           '<i class="bi bi-eye-slash me-2"></i>Return to Lender View';
         this.classList.replace("btn-outline-info", "btn-info");
@@ -58,19 +51,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         borrowerViewBanner.classList.remove("d-none");
 
-        // Hide all lender-specific panels (stats, quick actions)
         lenderPanels.forEach((panel) => (panel.style.display = "none"));
       } else {
-        // Switch BACK TO Lender View
         this.innerHTML = '<i class="bi bi-eye me-2"></i>View as Borrower';
         this.classList.replace("btn-info", "btn-outline-info");
         this.classList.replace("text-dark", "text-info");
 
         borrowerViewBanner.classList.add("d-none");
 
-        // Restore lender panels
         lenderPanels.forEach((panel) => (panel.style.display = "block"));
       }
+    });
+  }
+
+  // --- 3. Carousel Image Counter Logic ---
+  const listingCarousel = document.getElementById("listingCarousel");
+  const currentImageIndex = document.getElementById("currentImageIndex");
+
+  if (listingCarousel && currentImageIndex) {
+    // Listen for the slide event to update the counter text
+    listingCarousel.addEventListener("slide.bs.carousel", (event) => {
+      // event.to gives the zero-based index of the newly active item
+      currentImageIndex.textContent = event.to + 1;
     });
   }
 });
