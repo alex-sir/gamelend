@@ -20,12 +20,8 @@ const Listing = sequelize.define(
         len: [5, 100],
       },
     },
-    // category: {
-    //   type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
-    //   allowNull: false,
-    // }
-    categoryId: {
-      type: DataTypes.INTEGER,
+    category: {
+      type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
       allowNull: false,
     },
     condition: {

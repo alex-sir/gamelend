@@ -73,7 +73,7 @@ app.get("/about", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 sequelize
-  .sync({ alter: true })
+  .sync()
   .then(() => {
     console.log("MariaDB Database synced successfully.");
     app.listen(PORT, () => {

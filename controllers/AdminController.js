@@ -14,7 +14,7 @@ const AdminController = {
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
       const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
 
-      res.render('admin/admin-dashboard', {
+      res.render('admin/dashboard', {
         metrics: {
           activeListings: activeListingsCount,
           completedRentals: completedRentalsCount,
@@ -23,7 +23,7 @@ const AdminController = {
       });
     } catch (error) {
       console.error("Dashboard Loading Error:", error);
-      res.render('admin/admin-dashboard', {
+      res.render('admin/dashboard', {
         metrics: { activeListings: 0, completedRentals: 0, totalRevenue: 0 }
       });
     }
