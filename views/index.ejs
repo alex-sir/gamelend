@@ -1,7 +1,5 @@
 <%
-  // Default Navigation Categories
-  const navCategories = typeof categories !== 'undefined' ? categories :
-    ['Consoles', 'Games', 'Controllers', 'VR', 'Peripherals', 'Retro'];
+  const navCategories = ['Video Games', 'Consoles', 'Accessories'];
 
   // Helper to safely extract the primary image from a database listing
   function getPrimaryImage(listing) {
@@ -172,7 +170,7 @@
         <ul class="nav flex-nowrap overflow-auto">
           <% navCategories.forEach(function(category) { %>
             <li class="nav-item">
-               <a class="nav-link px-3" href="/browse?category=<%= category %>"><%= category %></a>
+               <a class="nav-link px-3" href="/browse?category=<%= encodeURIComponent(category) %>"><%= category %></a>
             </li>
           <% }); %>
         </ul>

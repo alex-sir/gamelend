@@ -1,5 +1,28 @@
-const { Listing, Image, RentalRequest, Rental, User, Report } = require("../models");
+const {
+  Listing,
+  Image,
+  RentalRequest,
+  Rental,
+  User,
+  Report,
+  Listing_VideoGame,
+  Listing_Console,
+  Listing_Accessory,
+} = require("../models");
 const { Op } = require("sequelize");
+
+function resolveCategoryFilter(raw) {
+  if (!raw || typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  const map = {
+    "Video Games": "Video Game",
+    Consoles: "Console",
+    Accessories: "Accessory",
+  };
+  if (map[trimmed]) return map[trimmed];
+  if (["Video Game", "Console", "Accessory"].includes(trimmed)) return trimmed;
+  return null;
+}
 
 function toDateOnly(value) {
   // value from <input type="date"> is already YYYY-MM-DD
@@ -29,15 +52,19 @@ async function listingHasAcceptedOverlap(listingId, startDate, endDate, excludeR
 const BorrowerController = {
   // UC-B01
   getDashboard: async (req, res) => {
-    const { q } = req.query;
+    const { q, category } = req.query;
 
     try {
       const where = { status: "Active" };
-      if (q) {
+      const categoryEnum = resolveCategoryFilter(category);
+      if (categoryEnum) where.category = categoryEnum;
+
+      if (q && String(q).trim()) {
+        const term = `%${String(q).trim()}%`;
         where[Op.or] = [
-          { title: { [Op.like]: `%${q}%` } },
-          { category: { [Op.like]: `%${q}%` } },
-          { description: { [Op.like]: `%${q}%` } },
+          { title: { [Op.like]: term } },
+          { category: { [Op.like]: term } },
+          { description: { [Op.like]: term } },
         ];
       }
 
@@ -50,7 +77,13 @@ const BorrowerController = {
         order: [["createdAt", "DESC"]],
       });
 
-      res.render("borrower/dashboard", { listings, searchQuery: q || "" });
+      res.render("borrower/dashboard", {
+        listings,
+        searchQuery: q ? String(q).trim() : "",
+        activeCategoryLabel: categoryEnum
+          ? { "Video Game": "Video Games", Console: "Consoles", Accessory: "Accessories" }[categoryEnum] || ""
+          : "",
+      });
     } catch (error) {
       console.error("Borrower dashboard error:", error);
       res.status(500).send("Error loading borrower dashboard");
@@ -65,6 +98,9 @@ const BorrowerController = {
         include: [
           { model: Image, as: "images" },
           { model: User, as: "lender" },
+          { model: Listing_VideoGame, as: "videoGameDetails" },
+          { model: Listing_Console, as: "consoleDetails" },
+          { model: Listing_Accessory, as: "accessoryDetails" },
         ],
         order: [[{ model: Image, as: "images" }, "isPrimary", "DESC"]],
       });
@@ -73,7 +109,7 @@ const BorrowerController = {
         return res.redirect("/borrower/dashboard");
       }
 
-      res.render("borrower/item-details", { listing, error: null });
+      res.render("borrower/item-details", { listing, error: null, isPublicListingView: false });
     } catch (error) {
       console.error("Borrower listing view error:", error);
       res.status(500).send("Error loading listing details");
