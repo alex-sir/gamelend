@@ -4,141 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GameLend · Moderate Listings</title>
-
-    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
-
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-    />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
-
+    <link rel="icon" href="/assets/icons/controller.png" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="styles/admin.css" />
+    <link rel="stylesheet" href="/css/admin/admin.css" />
   </head>
 
   <body class="admin-page d-flex flex-column min-vh-100">
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../admin/admin-dashboard.html">
-          <i class="bi bi-controller me-2"></i>GameLend
-          <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">
-            Admin
-          </span>
+        <a class="navbar-brand" href="/admin/dashboard">
+          <i class="bi bi-controller me-2"></i>GameLend <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">Admin</span>
         </a>
-
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Search listings"
-              aria-label="Search listings"
-            />
-            <button class="btn btn-primary search-submit" type="submit">
-              <i class="bi bi-search fs-5"></i>
-            </button>
-          </form>
-        </div>
-
-        <!-- Right-side navbar buttons -->
-        <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Admin Menu</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="offcanvas"
-            ></button>
-          </div>
-          <div class="offcanvas-body">
-            <div class="ms-auto d-flex align-items-center gap-3">
-              <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Admin Dashboard
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
-                      >Borrower Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Account dropdown -->
-              <div class="dropdown">
-                <button
-                  class="btn btn-alternate dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-person-circle me-1"></i>Account
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="lender-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </nav>
 
     <main class="py-4">
       <div class="container">
-        <!-- Header -->
-         <div class="admin-header mb-3">
-      <a href="moderation-dashboard.html" class="btn btn-alternate mb-3">
-        <i class="bi bi-arrow-left me-2"></i>Back to Moderation Dashboard
-      </a>
+        
+        <div class="admin-header mb-3">
+          <div class="d-flex gap-2 mb-3">
+            <a href="/admin/dashboard" class="btn btn-alternate">
+              <i class="bi bi-house me-2"></i>Main Dashboard
+            </a>
+            <a href="/admin/moderation" class="btn btn-alternate">
+              <i class="bi bi-arrow-left me-2"></i>Moderation Hub
+            </a>
+          </div>
 
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -148,228 +41,185 @@
           </div>
         </div>
 
-        <!-- Filters + quick actions -->
-        <section class="admin-section mb-4">
-          <div
-            class="d-flex flex-wrap justify-content-between align-items-center mb-3"
-          >
-            <div class="d-flex flex-wrap gap-2">
-              <select class="form-select form-select-sm" style="width: auto">
-                <option value="">All statuses</option>
-                <option value="pending">Pending review</option>
-                <option value="in_review">In review</option>
-                <option value="resolved">Resolved</option>
-                <option value="removed">Removed</option>
-              </select>
+        <form action="/admin/listings/bulk" method="POST" id="bulkActionForm">
+          <input type="hidden" name="bulkAction" id="bulkActionInput" value="">
 
-              <select class="form-select form-select-sm" style="width: auto">
-                <option value="">All severity</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
+          <section class="admin-section mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="m-0">
+                <select class="form-select form-select-sm" onchange="window.location.href='/admin/listings?status=' + this.value">
+                  <option value="">All statuses</option>
+                  <option value="Active" <%= (locals.currentStatus === 'Active') ? 'selected' : '' %>>Active</option>
+                  <option value="Suspended" <%= (locals.currentStatus === 'Suspended') ? 'selected' : '' %>>Suspended</option>
+                  <option value="Deleted" <%= (locals.currentStatus === 'Deleted') ? 'selected' : '' %>>Deleted</option>
+                </select>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#bulkRestoreModal"><i class="bi bi-arrow-counterclockwise me-1"></i> Restore</button>
+                <button type="button" class="btn btn-sm btn-outline-warning text-warning" data-bs-toggle="modal" data-bs-target="#bulkSuspendModal"><i class="bi bi-pause-circle me-1"></i> Suspend</button>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal"><i class="bi bi-trash me-1"></i> Delete</button>
+              </div>
             </div>
 
-            <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0">
-              <button class="btn btn-sm btn-outline-light">
-                <i class="bi bi-check-circle me-1"></i>
-                Mark selected resolved
-              </button>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="bi bi-trash me-1"></i>
-                Remove selected listings
-              </button>
+            <div class="table-responsive">
+              <table class="table table-dark table-striped table-sm align-middle mb-0 text-nowrap">
+                <thead>
+                  <tr>
+                    <th scope="col">Select</th>
+                    <th scope="col">Listing</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (listings && listings.length > 0) { %>
+                    <% listings.forEach(listing => { %>
+                      <tr>
+                        <td><input class="form-check-input" type="checkbox" name="listingIds" value="<%= listing.id %>" /></td>
+                        <td>
+                          <div class="fw-bold"><%= listing.title %></div>
+                          <small class="text-muted">ID: LST-<%= listing.id %></small>
+                        </td>
+                        <td><%= listing.lender ? listing.lender.email.split('@')[0] : 'Unknown' %></td>
+                        <td>
+                          <span class="badge <%= listing.status === 'Deleted' ? 'bg-danger' : (listing.status === 'Suspended' ? 'bg-warning text-dark' : 'bg-success') %>">
+                            <%= listing.status || 'Active' %>
+                          </span>
+                        </td>
+                        <td class="text-end">
+                          <button type="button" class="btn btn-sm btn-outline-light me-1" data-bs-toggle="modal" data-bs-target="#viewModal<%= listing.id %>"><i class="bi bi-eye"></i></button>
+                          
+                          <% if (listing.status === 'Suspended' || listing.status === 'Deleted') { %>
+                            <button type="button" class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#restoreModal<%= listing.id %>"><i class="bi bi-arrow-counterclockwise"></i></button>
+                          <% } else { %>
+                            <button type="button" class="btn btn-sm btn-outline-secondary disabled me-1"><i class="bi bi-arrow-counterclockwise"></i></button>
+                          <% } %>
+
+                          <% if (listing.status === 'Active') { %>
+                            <button type="button" class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#suspendModal<%= listing.id %>"><i class="bi bi-pause-circle"></i></button>
+                          <% } else { %>
+                            <button type="button" class="btn btn-sm btn-outline-secondary disabled me-1"><i class="bi bi-pause-circle"></i></button>
+                          <% } %>
+
+                          <% if (listing.status !== 'Deleted') { %>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= listing.id %>"><i class="bi bi-trash"></i></button>
+                          <% } else { %>
+                            <button type="button" class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-trash"></i></button>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5" class="text-center py-3">No listings found.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="modal fade" id="bulkRestoreModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-success">
+                <div class="modal-body p-4">Restore selected listings to <strong>Active</strong>?</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" onclick="document.getElementById('bulkActionInput').value='restore'" class="btn btn-success">Confirm Restore</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Listings table -->
-          <div class="table-responsive">
-            <table
-              class="table table-dark table-striped table-sm align-middle mb-0"
-            >
-              <thead>
-                <tr>
-                  <th scope="col">
-                    <input class="form-check-input" type="checkbox" />
-                  </th>
-                  <th scope="col">Listing</th>
-                  <th scope="col">Owner</th>
-                  <th scope="col">Reason</th>
-                  <th scope="col">Severity</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Reported</th>
-                  <th scope="col" class="text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Row 1 -->
-                <tr>
-                  <td>
-                    <input class="form-check-input" type="checkbox" />
-                  </td>
-                  <td>
-                    <div>“Elden Ring” (PS5)</div>
-                    <small class="text-muted">ID: LST‑1023</small>
-                  </td>
-                  <td>
-                    <div>Jordan Diaz</div>
-                    <small class="text-muted">@jordand</small>
-                  </td>
-                  <td>Inappropriate description</td>
-                  <td>
-                    <span class="badge bg-warning text-dark">Medium</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-warning text-dark"
-                      >Pending review</span
-                    >
-                  </td>
-                  <td>Mar 2, 2026</td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-light me-1">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-success me-1">
-                      <i class="bi bi-check-circle"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-
-                <!-- Row 2 -->
-                <tr>
-                  <td>
-                    <input class="form-check-input" type="checkbox" />
-                  </td>
-                  <td>
-                    <div>“Zelda: TOTK” (Switch)</div>
-                    <small class="text-muted">ID: LST‑0894</small>
-                  </td>
-                  <td>
-                    <div>Alyssa Lee</div>
-                    <small class="text-muted">@alyssa</small>
-                  </td>
-                  <td>Possible duplicate listing</td>
-                  <td>
-                    <span class="badge bg-info text-dark">Low</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary">In review</span>
-                  </td>
-                  <td>Feb 27, 2026</td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-light me-1">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-success me-1">
-                      <i class="bi bi-check-circle"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-
-                <!-- Row 3 -->
-                <tr>
-                  <td>
-                    <input class="form-check-input" type="checkbox" />
-                  </td>
-                  <td>
-                    <div>“Spider‑Man 2” (PS5)</div>
-                    <small class="text-muted">ID: LST‑0761</small>
-                  </td>
-                  <td>
-                    <div>Riley Moore</div>
-                    <small class="text-muted">@riley</small>
-                  </td>
-                  <td>Misleading condition</td>
-                  <td>
-                    <span class="badge bg-danger">High</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-success">Resolved</span>
-                  </td>
-                  <td>Feb 18, 2026</td>
-                  <td class="text-end">
-                    <button class="btn btn-sm btn-outline-light me-1">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary me-1">
-                      <i class="bi bi-arrow-counterclockwise"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="modal fade" id="bulkSuspendModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-warning">
+                <div class="modal-body p-4">Suspend selected listings? They will be hidden from the catalog.</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" onclick="document.getElementById('bulkActionInput').value='suspend'" class="btn btn-warning text-dark fw-bold">Confirm Suspend</button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Pagination placeholder -->
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <small class="text-muted"
-              >Showing 1–3 of 3 flagged listings (mock data)</small
-            >
-            <nav aria-label="Listing pagination">
-              <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled">
-                  <span class="page-link">Previous</span>
-                </li>
-                <li class="page-item active">
-                  <span class="page-link">1</span>
-                </li>
-                <li class="page-item disabled">
-                  <span class="page-link">Next</span>
-                </li>
-              </ul>
-            </nav>
+          <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-danger">
+                <div class="modal-body p-4">Delete selected listings? This action is permanent.</div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" onclick="document.getElementById('bulkActionInput').value='delete'" class="btn btn-danger">Confirm Delete</button>
+                </div>
+              </div>
+             </div>
           </div>
-        </section>
+        </form>
+
+        <% if (listings) { listings.forEach(listing => { %>
+          <div class="modal fade" id="viewModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header"><h5>Listing Details: <%= listing.title %></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4">
+                  <p><strong>Owner:</strong> <%= listing.lender ? listing.lender.email : 'N/A' %></p>
+                  <p><strong>Description:</strong></p>
+                  <p class="text-muted"><%= listing.description %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="suspendModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-warning">
+                <div class="modal-header border-warning"><h5 class="modal-title text-warning">Suspend Listing</h5></div>
+                <form action="/admin/listings/<%= listing.id %>/suspend" method="POST">
+                  <div class="modal-body p-4">Suspend <strong><%= listing.title %></strong>?</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Suspend</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="restoreModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-success">
+                <div class="modal-header border-success"><h5 class="modal-title text-success">Restore Listing</h5></div>
+                <form action="/admin/listings/<%= listing.id %>/unsuspend" method="POST">
+                  <div class="modal-body p-4">Restore <strong><%= listing.title %></strong> to Active status?</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success fw-bold">Restore</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="deleteModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content bg-dark border-danger">
+                <div class="modal-header border-danger"><h5 class="modal-title text-danger">Delete Listing</h5></div>
+                <form action="/admin/listings/<%= listing.id %>/remove" method="POST">
+                  <div class="modal-body p-4">Permanently delete <strong><%= listing.title %></strong>?</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-bold">Delete</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% })} %>
+
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer>
-      <div class="container">
-        <div class="row justify-content-center mx-auto">
-          <div class="col-md-3 mb-4">
-            <h5>About</h5>
-            <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3 mb-4">
-            <h5>Support</h5>
-            <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
-            </ul>
-          </div>
-          <div class="col-md-3 mb-4">
-            <h5>Connect</h5>
-            <ul>
-              <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
-            reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

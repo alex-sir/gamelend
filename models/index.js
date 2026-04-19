@@ -1,7 +1,7 @@
 // models/index.js
 const sequelize = require("../config/database");
 
-// Import all models normally
+// Import all models
 const User = require("./User");
 const Listing = require("./Listing");
 const Image = require("./Image");
@@ -11,6 +11,8 @@ const Report = require("./Report");
 const Listing_VideoGame = require("./Listing_VideoGame");
 const Listing_Console = require("./Listing_Console");
 const Listing_Accessory = require("./Listing_Accessory");
+const Category = require("./Category");
+const PlatformSettings = require("./PlatformSettings");
 
 // --- Define Relationships (ER Diagram Mapping) ---
 
@@ -79,6 +81,20 @@ Report.belongsTo(Listing, { foreignKey: "listingId", as: "listing" });
 User.hasMany(Report, { foreignKey: "borrowerId", as: "reports" });
 Report.belongsTo(User, { foreignKey: "borrowerId", as: "borrower" });
 
+// --- NEW ADMIN RELATIONSHIPS ---
+
+// Category -> Listing (One-to-Many)
+Category.hasMany(Listing, { foreignKey: "categoryId", as: "listings" });
+Listing.belongsTo(Category, { foreignKey: "categoryId", as: "category" });
+
+// Category -> Category (One-to-Many for sub-categories)
+Category.hasMany(Category, { foreignKey: "parentId", as: "subCategories" });
+Category.belongsTo(Category, { foreignKey: "parentId", as: "parentCategory" });
+
+// User (Admin) -> PlatformSettings (One-to-Many change history)
+User.hasMany(PlatformSettings, { foreignKey: "updatedBy", as: "settingsChanges" });
+PlatformSettings.belongsTo(User, { foreignKey: "updatedBy", as: "admin" });
+
 module.exports = {
   sequelize,
   User,
@@ -90,4 +106,6 @@ module.exports = {
   Listing_VideoGame,
   Listing_Console,
   Listing_Accessory,
+  Category,
+  PlatformSettings
 };

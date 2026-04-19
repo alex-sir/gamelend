@@ -1,4 +1,3 @@
-// models/User.js
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
 const sequelize = require("../config/database");
@@ -23,22 +22,7 @@ const User = sequelize.define(
       type: DataTypes.ENUM("borrower", "lender", "admin"),
       defaultValue: "borrower",
     },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    lastName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    phoneNumber: {
-      type: DataTypes.STRING,
-      allowNull: true, // Can be collected later in profile settings
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true, // Can be collected later for delivery features
-    },
+
     isSuspended: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -62,4 +46,8 @@ const User = sequelize.define(
   },
 );
 
+<<<<<<< HEAD
 module.exports = User;
+=======
+module.exports = User;
+>>>>>>> bbdfaac015731a8720733561aa553171a8a35466

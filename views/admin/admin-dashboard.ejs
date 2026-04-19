@@ -8,19 +8,17 @@
     <!-- Favicon -->
     <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
 
-    <!-- Bootstrap CSS -->
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
 
-    <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,16 +26,15 @@
       rel="stylesheet"
     />
 
-    <!-- Re‑use your main styles -->
     <link rel="stylesheet" href="/css/app.css" />
     <link rel="stylesheet" href="styles/admin.css" />
+
   </head>
 
   <body class="admin-page d-flex flex-column min-vh-100">
-    <!-- Re‑use main navbar, link brand back to main site -->
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
+        <a class="navbar-brand" href="/admin/dashboard">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Admin</span>
         </a>
@@ -51,12 +48,12 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Search bar -->
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
+          <form class="d-flex" action="/admin/search" method="GET">
             <input
               class="form-control"
               type="search"
+              name="query"
               placeholder="Search users, listings, or rentals"
               aria-label="Search"
             />
@@ -66,7 +63,6 @@
           </form>
         </div>
 
-        <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Admin Menu</h5>
@@ -91,42 +87,42 @@
                   <li>
                     <a
                       class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
+                      href="/borrower/dashboard"
                       >Borrower Dashboard</a
                     >
                   </li>
                   <li>
                     <a
                       class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
+                      href="/lender/dashboard"
                       >Lender Dashboard</a
                     >
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
+                    <a class="dropdown-item" href="/">Home</a>
                   </li>
                 </ul>
               </div>
 
-              <!-- Account dropdown -->
               <div class="dropdown">
                 <button
                   class="btn btn-alternate dropdown-toggle"
                   type="button"
                   data-bs-toggle="dropdown"
                 >
-                  <i class="bi bi-person-circle me-1"></i>Account
+                  <i class="bi bi-person-circle me-1"></i>
+                  <%= locals.currentUser ? locals.currentUser.email.split('@')[0] : 'Account' %>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li>
-                    <a class="dropdown-item" href="lender-profile.html"
+                    <a class="dropdown-item" href="/lender/profile"
                       >Profile Settings</a
                     >
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
+                    <a class="dropdown-item" href="/auth/logout"
                       >Log Out</a
                     >
                   </li>
@@ -138,31 +134,21 @@
       </div>
     </nav>
 
-    <!-- Main admin content -->
     <main class="py-4">
       <div class="container">
-        <!-- Header -->
         <div class="admin-header mb-3">
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h1>Admin Home</h1>
               <p>Overview of GameLend activity and quick admin actions.</p>
             </div>
-            <!--
-            <div class="text-end d-none d-md-block">
-              <span class="badge bg-secondary">
-                Today: Mar 1, 2026
-              </span>
-            </div>
-            -->
           </div>
         </div>
 
-        <!-- Analytics section -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Analytics</h2>
-            <a href="analytics.html" class="section-footer-link">
+            <a href="/admin/analytics" class="section-footer-link">
               View full analytics <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -171,7 +157,7 @@
             <div class="col-md-4">
               <div class="metric-card">
                 <div class="metric-label">Active Listings</div>
-                <div class="metric-value">127</div>
+                <div class="metric-value"><%= metrics.activeListings %></div>
                 <div class="metric-trend">
                   <i class="bi bi-arrow-up-right text-success me-1"></i>
                   +12% vs last week
@@ -181,7 +167,7 @@
             <div class="col-md-4">
               <div class="metric-card">
                 <div class="metric-label">Completed Rentals (30 days)</div>
-                <div class="metric-value">89</div>
+                <div class="metric-value"><%= metrics.completedRentals %></div>
                 <div class="metric-trend">
                   <i class="bi bi-arrow-up-right text-success me-1"></i>
                   +8% vs last month
@@ -191,7 +177,7 @@
             <div class="col-md-4">
               <div class="metric-card">
                 <div class="metric-label">Platform Revenue (30 days)</div>
-                <div class="metric-value">$1,230</div>
+                <div class="metric-value">$<%= metrics.totalRevenue %></div>
                 <div class="metric-trend">
                   <i class="bi bi-arrow-down-right text-danger me-1"></i>
                   −3% vs last month
@@ -205,66 +191,63 @@
           </div>
         </section>
 
-        <!-- Moderation section -->
-<section class="admin-section mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h2>Moderation</h2>
-    <a href="moderation-dashboard.html" class="section-footer-link">
-      Open moderation hub <i class="bi bi-arrow-right"></i>
-    </a>
-  </div>
+        <section class="admin-section mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2>Moderation</h2>
+            <a href="/admin/moderation" class="section-footer-link">
+              Open moderation hub <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
 
-  <div class="row g-3">
-    <div class="col-md-4">
-      <h6 class="mb-2">Users</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-users.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span><i class="bi bi-people me-2"></i> Manage Users</span>
-          <span class="badge bg-warning text-dark">3 reports</span>
-        </a>
-      </ul>
-    </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <h6 class="mb-2">Users</h6>
+              <ul class="list-group moderation-links">
+                <a
+                  href="/admin/users"
+                  class="list-group-item list-group-item-action"
+                >
+                  <span><i class="bi bi-people me-2"></i> Manage Users</span>
+                  <span class="badge bg-warning text-dark">3 reports</span>
+                </a>
+              </ul>
+            </div>
 
-    <div class="col-md-4">
-      <h6 class="mb-2">Listings</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-listings.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span>
-            <i class="bi bi-controller me-2"></i> Moderate Listings
-          </span>
-          <span class="badge bg-warning text-dark">5 flagged</span>
-        </a>
-      </ul>
-    </div>
+            <div class="col-md-4">
+              <h6 class="mb-2">Listings</h6>
+              <ul class="list-group moderation-links">
+                <a
+                  href="/admin/listings"
+                  class="list-group-item list-group-item-action"
+                >
+                  <span>
+                    <i class="bi bi-controller me-2"></i> Moderate Listings
+                  </span>
+                  <span class="badge bg-warning text-dark">5 flagged</span>
+                </a>
+              </ul>
+            </div>
 
-    <div class="col-md-4">
-      <h6 class="mb-2">Categories</h6>
-      <ul class="list-group moderation-links">
-        <a
-          href="moderation-categories.html"
-          class="list-group-item list-group-item-action"
-        >
-          <span>
-            <i class="bi bi-tags me-2"></i> Manage Categories
-          </span>
-        </a>
-      </ul>
-    </div>
-  </div>
-</section>
+            <div class="col-md-4">
+              <h6 class="mb-2">Categories</h6>
+              <ul class="list-group moderation-links">
+                <a
+                  href="/admin/categories"
+                  class="list-group-item list-group-item-action"
+                >
+                  <span>
+                    <i class="bi bi-tags me-2"></i> Manage Categories
+                  </span>
+                </a>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-
-        <!-- Configuration section -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Configuration</h2>
-            <a href="admin-settings.html" class="section-footer-link">
+            <a href="/admin/settings" class="section-footer-link">
               Open full settings <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -276,29 +259,28 @@
       </div>
     </main>
 
-    <!-- Footer -->
     <footer>
       <div class="container">
         <div class="row justify-content-center mx-auto">
           <div class="col-md-3 mb-4">
             <h5>About</h5>
             <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+              <li><a href="/">About GameLend</a></li>
+              <li><a href="/">Our Team</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Support</h5>
             <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+              <li><a href="/">FAQ</a></li>
+              <li><a href="/">Contact Us</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Connect</h5>
             <ul>
               <li>
-                <a href="https://github.com/alex-sir/gamelend"
+                <a href="https://github.com/alex-sir/gamelend" target="_blank"
                   ><i class="bi bi-github me-2"></i>GitHub</a
                 >
               </li>
