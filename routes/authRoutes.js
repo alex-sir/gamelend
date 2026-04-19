@@ -8,7 +8,12 @@ const { User } = require("../models");
 
 // Render the Login Page
 router.get("/login", (req, res) => {
-  res.render("auth/login", { error: null });
+  const { suspended, reason, error } = req.query;
+  res.render("auth/login", { 
+    error: error || null,
+    suspended: suspended === 'true',
+    suspensionReason: reason || null
+  });
 });
 
 // Handle Login Form Submission
@@ -19,6 +24,15 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      // Check if user is suspended before logging in
+      if (user.isSuspended) {
+        return res.render("auth/login", { 
+          error: null,
+          suspended: true,
+          suspensionReason: user.suspensionReason || "No specific reason provided."
+        });
+      }
+
       // Set session data including the new name fields
       req.session.user = {
         id: user.id,

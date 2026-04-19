@@ -1,9 +1,25 @@
 // middleware/auth.js
+const { User } = require("../models");
 
 // Generic check: Is the user logged in at all?
-const requireAuth = (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   if (req.session && req.session.user) {
-    return next();
+    // SECURITY FIX: Check the database to see if the user has been suspended in real-time
+    try {
+      const user = await User.findByPk(req.session.user.id);
+      
+      if (!user || user.isSuspended) {
+        const reason = user ? user.suspensionReason : "Account not found.";
+        // If they were suspended, clear their session and send them to login
+        req.session.destroy();
+        return res.redirect(`/auth/login?suspended=true&reason=${encodeURIComponent(reason)}`);
+      }
+      
+      return next();
+    } catch (error) {
+      console.error("Auth Middleware Error:", error);
+      return res.status(500).send("Internal Server Error during authentication.");
+    }
   }
 
   // Save the URL they were trying to reach so they can be redirected back after login

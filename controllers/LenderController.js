@@ -207,29 +207,29 @@ const LenderController = {
         await Listing_VideoGame.create({
           listingId: newListing.id,
           platform,
-          genre,
-          esrbRating,
-          publisher,
-          releaseYear,
+          genre: genre || null,
+          esrbRating: esrbRating || null,
+          publisher: publisher || null,
+          releaseYear: releaseYear || null,
         });
       } else if (category === "Console") {
         await Listing_Console.create({
           listingId: newListing.id,
-          consoleType,
-          storageCapacity,
+          consoleType: consoleType || null,
+          storageCapacity: storageCapacity || null,
           controllersIncluded: controllersIncluded === "on",
           controllerQuantity: controllerQuantity || 0,
           cablesIncluded: cablesIncluded === "on",
-          serialNumber,
+          serialNumber: serialNumber || null,
         });
       } else if (category === "Accessory") {
         await Listing_Accessory.create({
           listingId: newListing.id,
-          accessoryType,
-          compatiblePlatforms,
+          accessoryType: accessoryType || null,
+          compatiblePlatforms: compatiblePlatforms || null,
           isWireless: isWireless === "on",
-          brand,
-          modelNumber,
+          brand: brand || null,
+          modelNumber: modelNumber || null,
         });
       }
 

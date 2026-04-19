@@ -129,9 +129,9 @@
           <div class="col-lg-4">
             <div class="settings-card p-4 text-center h-100">
               <div class="avatar-circle">
-                <%= activeUser.firstName.charAt(0).toUpperCase() %>
+                <%= (activeUser.firstName && activeUser.firstName.length > 0) ? activeUser.firstName.charAt(0).toUpperCase() : 'U' %>
               </div>
-              <h3 class="fw-bold mb-1"><%= activeUser.firstName %> <%= activeUser.lastName %></h3>
+              <h3 class="fw-bold mb-1"><%= activeUser.firstName || 'User' %> <%= activeUser.lastName || '' %></h3>
               <p class="text-muted mb-3"><%= activeUser.email %></p>
               
               <div class="mb-4">

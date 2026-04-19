@@ -266,7 +266,11 @@ updateSettings: async (req, res) => {
 
   suspendUser: async (req, res) => {
     try {
-      await User.update({ isSuspended: true }, { where: { id: req.params.id } });
+      const { reason } = req.body;
+      await User.update(
+        { isSuspended: true, suspensionReason: reason || "No specific reason provided." }, 
+        { where: { id: req.params.id } }
+      );
       res.redirect('/admin/users');
     } catch (error) {
       console.error("Suspend User Error:", error);
@@ -276,7 +280,10 @@ updateSettings: async (req, res) => {
 
   unsuspendUser: async (req, res) => {
     try {
-      await User.update({ isSuspended: false }, { where: { id: req.params.id } });
+      await User.update(
+        { isSuspended: false, suspensionReason: null }, 
+        { where: { id: req.params.id } }
+      );
       res.redirect('/admin/users');
     } catch (error) {
       console.error("Unsuspend User Error:", error);

@@ -219,6 +219,19 @@
                                   </div>
                                 </div>
                               </div>
+
+                              <div class="mt-4">
+                                <label for="reason<%= user.id %>" class="form-label text-light fw-semibold">Reason for Suspension</label>
+                                <textarea 
+                                  class="form-control bg-dark text-light border-secondary" 
+                                  id="reason<%= user.id %>" 
+                                  name="reason" 
+                                  rows="3" 
+                                  placeholder="e.g., Repeated violations of terms of service..."
+                                  required
+                                ></textarea>
+                                <small class="text-muted mt-1 d-block">This reason will be shown to the user when they attempt to log in.</small>
+                              </div>
                             </div>
                             
                             <div class="modal-footer border-danger border-top-0 pt-0 mt-3">
