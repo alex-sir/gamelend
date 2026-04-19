@@ -64,6 +64,10 @@ app.use("/profile", profileRoutes);
 // Route for the homepage
 app.get("/", HomeController.getHomePage);
 
+// Public marketplace & listing detail (linked from homepage carousel & category nav)
+app.get("/browse", HomeController.browseMarketplace);
+app.get("/listing/:id", HomeController.viewPublicListing);
+
 // Public About Page
 app.get("/about", (req, res) => {
   res.render("about");

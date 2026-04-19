@@ -8,12 +8,7 @@ const { User } = require("../models");
 
 // Render the Login Page
 router.get("/login", (req, res) => {
-  const { suspended, reason, error } = req.query;
-  res.render("auth/login", { 
-    error: error || null,
-    suspended: suspended === 'true',
-    suspensionReason: reason || null
-  });
+  res.render("auth/login", { error: null });
 });
 
 // Handle Login Form Submission
@@ -26,7 +21,7 @@ router.post("/login", async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
       // Check if user is suspended before logging in
       if (user.isSuspended) {
-        return res.render("auth/login", { 
+        return res.render("auth/login", {
           error: null,
           suspended: true,
           suspensionReason: user.suspensionReason || "No specific reason provided."
@@ -62,6 +57,10 @@ router.post("/login", async (req, res) => {
 
 // Render the Register Page
 router.get("/register", (req, res) => {
+  const redirect = req.query.redirect;
+  if (redirect && typeof redirect === "string" && redirect.startsWith("/")) {
+    req.session.returnTo = redirect;
+  }
   res.render("auth/register", { error: null });
 });
 
@@ -96,8 +95,9 @@ router.post("/register", async (req, res) => {
       username: newUser.firstName, // Use their real first name for UI greetings
     };
 
-    // Redirect to their respective dashboard
-    res.redirect(`/${newUser.role}/dashboard`);
+    const redirectUrl = req.session.returnTo || `/${newUser.role}/dashboard`;
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error("Registration error:", error);
     res.render("auth/register", {

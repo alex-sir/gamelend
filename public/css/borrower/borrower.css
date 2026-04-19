@@ -1,6 +1,22 @@
+.borrower-page {
+    background-color: var(--color-black);
+    min-height: 100vh;
+}
+
 .catalog-section {
-    background: #0f1115;
+    background: transparent;
     min-height: 80vh;
+}
+
+.listing-browse-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.listing-browse-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    border-color: var(--color-gray-hover);
 }
 
 .filter-panel {

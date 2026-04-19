@@ -1,10 +1,13 @@
 <%
-  const userName = (typeof currentUser !== "undefined" && currentUser && currentUser.firstName)
-    ? currentUser.firstName
-    : "Borrower";
-  const searchQ = typeof searchQuery !== "undefined" ? searchQuery : "";
-  const activeCat = typeof activeCategoryLabel !== "undefined" ? activeCategoryLabel : "";
-  const navCategories = ['Video Games', 'Consoles', 'Accessories'];
+  const navCategories = typeof categoryLabels !== 'undefined' ? categoryLabels : ['Video Games', 'Consoles', 'Accessories'];
+  const searchQ = typeof searchQuery !== 'undefined' ? searchQuery : '';
+  const activeCat = typeof activeCategoryLabel !== 'undefined' ? activeCategoryLabel : '';
+
+  function getPrimaryImage(listing) {
+    if (!listing.images || listing.images.length === 0) return '/images/gaming-collage.svg';
+    const primary = listing.images.find(img => img.isPrimary);
+    return primary ? primary.imageUrl : listing.images[0].imageUrl;
+  }
 %>
 
 <!doctype html>
@@ -12,81 +15,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Borrower Dashboard - GameLend</title>
-
+    <title><%= typeof title !== 'undefined' ? title : 'Browse - GameLend' %></title>
     <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
-
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="/css/lender/lender.css" />
     <link rel="stylesheet" href="/css/borrower/borrower.css" />
   </head>
-
   <body class="borrower-page d-flex flex-column min-vh-100">
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
-          <span class="ms-1 role">Borrower</span>
         </a>
-
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex" action="/borrower/dashboard" method="GET">
+          <form class="d-flex" action="/browse" method="GET">
             <% if (activeCat) { %>
               <input type="hidden" name="category" value="<%= activeCat %>" />
             <% } %>
-            <input
-              class="form-control"
-              type="search"
-              name="q"
-              placeholder="Search listings..."
-              value="<%= searchQ %>"
-              aria-label="Search"
-            />
+            <input class="form-control" type="search" name="q" placeholder="Search listings..." value="<%= searchQ %>" aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
           </form>
         </div>
-
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <h5 class="offcanvas-title">Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3 flex-wrap">
-              <a class="btn btn-alternate" href="/borrower/my-rentals">
-                <i class="bi bi-clock-history me-1"></i>My Rentals
-              </a>
-              <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="/">Home</a></li>
-                </ul>
-              </div>
-              <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-person-circle me-1"></i><%= userName %>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
-                </ul>
-              </div>
+              <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                <a class="btn btn-alternate" href="/<%= currentUser.role %>/dashboard">My Dashboard</a>
+                <a class="btn btn-alternate" href="/auth/logout">Log Out</a>
+              <% } else { %>
+                <a href="/auth/login" class="btn btn-alternate">Log In</a>
+                <a href="/auth/register" class="btn btn-main">Sign Up</a>
+              <% } %>
             </div>
           </div>
         </div>
@@ -97,13 +69,13 @@
       <div class="container-fluid d-flex justify-content-center">
         <ul class="nav flex-nowrap overflow-auto">
           <li class="nav-item">
-            <a class="nav-link px-3 <%= !activeCat ? 'fw-bold text-white' : '' %>" href="/borrower/dashboard">All</a>
+            <a class="nav-link px-3 <%= !activeCat ? 'fw-bold text-white' : '' %>" href="/browse">All</a>
           </li>
           <% navCategories.forEach(function(category) { %>
             <li class="nav-item">
               <a
                 class="nav-link px-3 <%= activeCat === category ? 'fw-bold text-white' : '' %>"
-                href="/borrower/dashboard?category=<%= encodeURIComponent(category) %>"
+                href="/browse?category=<%= encodeURIComponent(category) %>"
               ><%= category %></a>
             </li>
           <% }); %>
@@ -114,13 +86,8 @@
     <main class="catalog-section py-4 flex-grow-1">
       <div class="container">
         <div class="lender-header mb-4">
-          <h1 class="mb-2">Welcome back, <%= userName %>!</h1>
-          <p class="mb-0">Browse active listings and request rentals.</p>
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 mb-4">
-          <a href="/browse" class="btn btn-alternate"><i class="bi bi-shop-window me-2"></i>Public Marketplace</a>
-          <a href="/borrower/my-rentals" class="btn btn-main"><i class="bi bi-clock-history me-2"></i>My Rentals</a>
+          <h1 class="mb-2">Marketplace</h1>
+          <p class="mb-0">Browse active listings from the community.</p>
         </div>
 
         <% if (searchQ || activeCat) { %>
@@ -130,26 +97,23 @@
               <% if (searchQ && activeCat) { %> &middot; <% } %>
               <% if (activeCat) { %><span>Category: <strong><%= activeCat %></strong></span><% } %>
             </div>
-            <a href="/borrower/dashboard" class="btn btn-sm btn-outline-info">Clear filters</a>
+            <a href="/browse" class="btn btn-sm btn-outline-info">Clear filters</a>
           </div>
         <% } %>
 
         <% if (!listings || listings.length === 0) { %>
           <div class="section-card">
-            <p class="text-muted mb-0">No listings match your search. Try clearing filters or changing keywords.</p>
+            <p class="text-muted mb-0">No listings match your filters. Try another category or search term.</p>
           </div>
         <% } else { %>
           <div class="row g-3">
             <% listings.forEach((listing) => { %>
               <%
-                const primaryImage =
-                  listing.images && listing.images.length > 0
-                    ? (listing.images.find((img) => img.isPrimary) || listing.images[0]).imageUrl
-                    : "/images/gaming-collage.svg";
-                const lenderName = listing.lender?.firstName || listing.lender?.email?.split("@")[0] || "Lender";
+                const primaryImage = getPrimaryImage(listing);
+                const lenderName = listing.lender?.firstName || listing.lender?.email?.split('@')[0] || 'Lender';
               %>
               <div class="col-sm-6 col-lg-4 col-xl-3">
-                <a href="/borrower/listings/<%= listing.id %>" class="text-decoration-none">
+                <a href="/listing/<%= listing.id %>" class="text-decoration-none">
                   <div class="section-card p-0 h-100 overflow-hidden listing-browse-card">
                     <img
                       src="<%= primaryImage %>"
