@@ -46,8 +46,5 @@ const User = sequelize.define(
   },
 );
 
-<<<<<<< HEAD
+
 module.exports = User;
-=======
-module.exports = User;
->>>>>>> bbdfaac015731a8720733561aa553171a8a35466
