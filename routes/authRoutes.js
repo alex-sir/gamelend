@@ -8,7 +8,18 @@ const { User } = require("../models");
 
 // Render the Login Page
 router.get("/login", (req, res) => {
-  res.render("auth/login", { error: null });
+  const { suspended, reason, error, redirect } = req.query;
+  
+  // Handle redirect if provided
+  if (redirect && typeof redirect === "string" && redirect.startsWith("/")) {
+    req.session.returnTo = redirect;
+  }
+
+  res.render("auth/login", { 
+    error: error || null,
+    suspended: suspended === 'true',
+    suspensionReason: reason || null
+  });
 });
 
 // Handle Login Form Submission

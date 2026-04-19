@@ -610,6 +610,25 @@ const LenderController = {
     }
   },
 
+  // UC-L08: Complete Rental (Mark as Returned)
+  completeRental: async (req, res) => {
+    try {
+      const rental = await Rental.findOne({
+        where: { id: req.params.id, lenderId: req.session.user.id },
+      });
+
+      if (rental) {
+        await rental.update({ status: "Completed" });
+        return res.status(200).json({ success: true });
+      }
+
+      res.status(404).json({ error: "Rental not found" });
+    } catch (error) {
+      console.error("Complete Rental Error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
   // --- UC-L07: View Lending History ---
   getLendingHistory: async (req, res) => {
     try {
