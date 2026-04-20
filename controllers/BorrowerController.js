@@ -153,7 +153,18 @@ const BorrowerController = {
       const maxRentalsSetting = await PlatformSettings.findOne({ where: { settingKey: 'maxActiveRentals' } });
       const maxRentals = maxRentalsSetting ? parseInt(maxRentalsSetting.settingValue, 10) : 5;
       
-      const activeRentalsCount = await Rental.count({ where: { borrowerId, status: "Active" } });
+      // Borrower is on RentalRequest, not Rental — count active rentals for this borrower via the request join
+      const activeRentalsCount = await Rental.count({
+        where: { status: "Active" },
+        include: [
+          {
+            model: RentalRequest,
+            as: "request",
+            where: { borrowerId },
+            required: true,
+          },
+        ],
+      });
       if (activeRentalsCount >= maxRentals) {
         return res.render("borrower/rental-request", {
           listing,
