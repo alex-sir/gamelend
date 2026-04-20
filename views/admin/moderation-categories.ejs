@@ -162,6 +162,7 @@
                   <th scope="col">Status</th>
                   <th scope="col">Listings</th>
                   <th scope="col">Last updated</th>
+                  <th scope="col" class="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -177,11 +178,18 @@
                       </td>
                       <td><%= category.listingsCount || 0 %></td>
                       <td><%= new Date(category.updatedAt || category.createdAt).toLocaleDateString() %></td>
+                      <td class="text-end">
+                        <form action="/admin/categories/<%= category.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this category? Listings using it will retain their text but it will be removed from navigation.');">
+                          <button class="btn btn-sm btn-outline-danger" type="submit">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </td>
                     </tr>
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="5" class="text-center py-3">No categories found.</td>
+                    <td colspan="6" class="text-center py-3">No categories found.</td>
                   </tr>
                 <% } %>
               </tbody>

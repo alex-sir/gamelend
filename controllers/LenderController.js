@@ -9,6 +9,7 @@ const {
   Listing_VideoGame,
   Listing_Console,
   Listing_Accessory,
+  Category,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -148,8 +149,14 @@ const LenderController = {
     }
   },
 
-  renderCreateForm: (req, res) => {
-    res.render("lender/create-listing", { error: null, formData: {} });
+  renderCreateForm: async (req, res) => {
+    try {
+      const categories = await Category.findAll({ where: { status: 'Active' } });
+      res.render("lender/create-listing", { error: null, formData: {}, categories });
+    } catch (error) {
+      console.error(error);
+      res.render("lender/create-listing", { error: "Failed to load categories", formData: {}, categories: [] });
+    }
   },
 
   createListing: async (req, res) => {
@@ -393,7 +400,9 @@ const LenderController = {
       });
       if (!listing) return res.status(404).send("Listing not found");
 
-      res.render("lender/edit-listing", { listing, error: null });
+      const categories = await Category.findAll({ where: { status: 'Active' } });
+
+      res.render("lender/edit-listing", { listing, error: null, categories });
     } catch (error) {
       res.status(500).send("Error loading edit form");
     }

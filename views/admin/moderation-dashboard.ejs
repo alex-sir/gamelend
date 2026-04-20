@@ -383,6 +383,9 @@
                     <td><%= category.lastUpdated %></td>
                   </tr>
                 <% }) %>
+                <% if(categories.length === 0) { %>
+                  <tr><td colspan="5" class="text-center py-3">No categories have been created yet.</td></tr>
+                <% } %>
               </tbody>
             </table>
           </div>

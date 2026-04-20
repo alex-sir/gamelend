@@ -1,5 +1,7 @@
 <%
-  const navCategories = ['Video Games', 'Consoles', 'Accessories'];
+  const navCategories = (typeof categories !== 'undefined' && categories.length > 0) 
+    ? categories.map(c => c.name) 
+    : ['Video Games', 'Consoles', 'Accessories'];
 
   // Helper to safely extract the primary image from a database listing
   function getPrimaryImage(listing) {

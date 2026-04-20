@@ -24,6 +24,7 @@ router.post('/settings', AdminController.updateSettings);
 // Categories (UC-A04)
 router.get('/categories', AdminController.viewCategories);
 router.post('/categories', AdminController.createCategory);
+router.post('/categories/:id/delete', AdminController.deleteCategory);
 
 // Users Moderation (UC-A05)
 router.get('/users', AdminController.viewUsers);

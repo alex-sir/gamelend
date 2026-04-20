@@ -143,13 +143,16 @@ const AdminController = {
         order: [['updatedAt', 'DESC']]
       });
 
-      const categories = rawCategories.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        status: cat.status || 'Active',
-        statusColor: cat.status === 'Hidden' ? 'secondary' : 'success',
-        listingsCount: '-', // Placeholder since we don't eager load listings count here
-        lastUpdated: cat.updatedAt ? cat.updatedAt.toLocaleDateString() : 'Unknown'
+      const categories = await Promise.all(rawCategories.map(async (cat) => {
+        const count = await Listing.count({ where: { category: cat.name, status: 'Active' } });
+        return {
+          id: cat.id,
+          name: cat.name,
+          status: cat.status || 'Active',
+          statusColor: cat.status === 'Hidden' ? 'secondary' : 'success',
+          listingsCount: count,
+          lastUpdated: cat.updatedAt ? cat.updatedAt.toLocaleDateString() : 'Unknown'
+        };
       }));
 
       res.render('admin/moderation-dashboard', {
@@ -384,7 +387,16 @@ const AdminController = {
   // --- UC-A04: Manage Equipment Categories ---
   viewCategories: async (req, res) => {
     try {
-      const categories = await Category.findAll();
+      const rawCategories = await Category.findAll();
+      
+      const categories = await Promise.all(rawCategories.map(async (cat) => {
+        const count = await Listing.count({ where: { category: cat.name, status: 'Active' } });
+        return {
+          ...cat.toJSON(),
+          listingsCount: count
+        };
+      }));
+
       res.render('admin/moderation-categories', { categories });
     } catch (error) {
       console.error("View Categories Error:", error);
@@ -405,6 +417,16 @@ const AdminController = {
     } catch (error) {
       console.error("Create Category Error:", error);
       res.status(500).send("Failed to create category.");
+    }
+  },
+
+  deleteCategory: async (req, res) => {
+    try {
+      await Category.destroy({ where: { id: req.params.id } });
+      res.redirect('/admin/categories');
+    } catch (error) {
+      console.error("Delete Category Error:", error);
+      res.status(500).send("Failed to delete category.");
     }
   },
 
