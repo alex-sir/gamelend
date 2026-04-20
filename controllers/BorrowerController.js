@@ -468,9 +468,8 @@ const BorrowerController = {
   // UC-B06
   renderReportForm: async (req, res) => {
     try {
-      const listing = await Listing.findOne({
-        where: { id: req.params.id, status: "Active" },
-        include: [{ model: User, as: "lender" }],
+      const listing = await Listing.findByPk(req.params.id, {
+        include: [{ model: User, as: 'lender' }]
       });
       if (!listing) return res.redirect("/borrower/dashboard");
 
@@ -487,17 +486,13 @@ const BorrowerController = {
     const { reason, details, referenceUrl } = req.body;
 
     try {
-      const listing = await Listing.findOne({ where: { id: listingId, status: "Active" } });
-      if (!listing) return res.redirect("/borrower/dashboard");
-
-      const dup = await Report.count({ where: { listingId, borrowerId } });
-      if (dup > 0) {
-        return res.redirect(`/borrower/listings/${listingId}`);
+      const listing = await Listing.findByPk(listingId);
+      if (!listing) {
+        return res.redirect("/borrower/dashboard");
       }
 
       if (!reason || !details) {
-        const fullListing = await Listing.findOne({
-          where: { id: listingId, status: "Active" },
+        const fullListing = await Listing.findByPk(listingId, {
           include: [{ model: User, as: "lender" }],
         });
         return res.render("borrower/report-listing", {
@@ -517,7 +512,7 @@ const BorrowerController = {
 
       res.redirect(`/borrower/listings/${listingId}`);
     } catch (error) {
-      console.error("Submit report error:", error);
+      console.error("Submit report error details:", error);
       res.status(500).send("Error submitting report");
     }
   },

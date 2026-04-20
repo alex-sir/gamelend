@@ -638,15 +638,7 @@ const LenderController = {
           {
             model: RentalRequest,
             as: "request",
-            include: [
-              { model: User, as: "borrower" },
-              {
-                model: Listing,
-                as: "listing",
-                // ---> HERE IS THE FIX! Instructing Sequelize to fetch images for the rentals <---
-                include: [{ model: Image, as: "images" }],
-              },
-            ],
+            include: [{ model: User, as: "borrower" }, { model: Listing, as: "listing" }],
           },
         ],
         order: [["createdAt", "DESC"]],
@@ -654,7 +646,8 @@ const LenderController = {
 
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
-      res.status(500).send("Error loading history");
+      console.error("Lending History Error:", error);
+      res.status(500).send("Error loading history: " + error.message);
     }
   },
 };

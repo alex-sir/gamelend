@@ -167,7 +167,94 @@
               </div>
             </div>
           </div>
+        <section class="admin-section mb-4">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="metric-card h-100">
+                <h5 class="mb-3">Account Health</h5>
+                <div style="height: 250px;">
+                  <canvas id="userStatusChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="metric-card h-100">
+                <h5 class="mb-3">Listing Safety Overview</h5>
+                <div style="height: 250px;">
+                  <canvas id="listingStatusChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
+
+        <!-- Chart.js and Moderation Script -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            // --- User Status Chart (Pie) ---
+            const userCtx = document.getElementById('userStatusChart').getContext('2d');
+            const userData = JSON.parse('<%- JSON.stringify(chartData.users) %>');
+            
+            new Chart(userCtx, {
+              type: 'pie',
+              data: {
+                labels: ['Active', 'Suspended'],
+                datasets: [{
+                  data: [userData.active, userData.suspended],
+                  backgroundColor: ['#28a745', '#dc3545'],
+                  borderWidth: 0,
+                  hoverOffset: 10
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'right',
+                    labels: { color: '#CCC' }
+                  }
+                }
+              }
+            });
+
+            // --- Listing Status Chart (Bar) ---
+            const listCtx = document.getElementById('listingStatusChart').getContext('2d');
+            const listData = JSON.parse('<%- JSON.stringify(chartData.listings) %>');
+            
+            new Chart(listCtx, {
+              type: 'bar',
+              data: {
+                labels: ['Active', 'Suspended', 'Draft'],
+                datasets: [{
+                  label: 'Listing Count',
+                  data: [listData.active, listData.suspended, listData.draft],
+                  backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                  borderRadius: 6
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false }
+                },
+                scales: {
+                  y: { 
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#888' }
+                  },
+                  x: { 
+                    grid: { display: false },
+                    ticks: { color: '#888' }
+                  }
+                }
+              }
+            });
+          });
+        </script>
 
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -181,29 +268,25 @@
             <table class="table table-dark table-striped table-sm align-middle mb-0">
               <thead>
                 <tr>
-                  <th scope="col">Reported user</th>
-                  <th scope="col">Reporter</th>
+                  <th scope="col">Reported User</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Severity</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Created</th>
-                  <th scope="col" class="text-end">Action</th>
+                  <th scope="col">Last Reported</th>
                 </tr>
               </thead>
               <tbody>
                 <% userReports.forEach(report => { %>
                   <tr>
                     <td>
-                      <div><%= report.reportedUser.name %></div>
+                      <div class="fw-bold"><%= report.reportedUser.name %></div>
                       <small class="text-muted"><%= report.reportedUser.handle %></small>
-                    </td>
-                    <td>
-                      <div><%= report.reporter.name %></div>
-                      <small class="text-muted"><%= report.reporter.handle %></small>
                     </td>
                     <td><%= report.reason %></td>
                     <td>
-                      <span class="badge bg-<%= report.severityColor %>"><%= report.severity %></span>
+                      <span class="badge bg-<%= report.severityColor %> <%= report.severityColor === 'warning' || report.severityColor === 'info' ? 'text-dark' : '' %>">
+                        <%= report.severity %>
+                      </span>
                     </td>
                     <td>
                       <span class="badge bg-<%= report.statusColor %> <%= report.statusColor === 'warning' || report.statusColor === 'info' ? 'text-dark' : '' %>">
@@ -211,15 +294,10 @@
                       </span>
                     </td>
                     <td><%= report.createdDate %></td>
-                    <td class="text-end">
-                      <a href="/admin/users/<%= report.id %>" class="btn btn-sm btn-outline-light">
-                        <i class="bi bi-arrow-right"></i>
-                      </a>
-                    </td>
                   </tr>
                 <% }) %>
                 <% if(userReports.length === 0) { %>
-                  <tr><td colspan="7" class="text-center py-3">No pending user reports.</td></tr>
+                  <tr><td colspan="5" class="text-center py-3">No pending user reports.</td></tr>
                 <% } %>
               </tbody>
             </table>
@@ -239,24 +317,18 @@
               <thead>
                 <tr>
                   <th scope="col">Listing</th>
-                  <th scope="col">Owner</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Severity</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Created</th>
-                  <th scope="col" class="text-end">Action</th>
+                  <th scope="col">Reported</th>
                 </tr>
               </thead>
               <tbody>
                 <% listingReports.forEach(report => { %>
                   <tr>
                     <td>
-                      <div>“<%= report.listing.name %>” (<%= report.listing.platform %>)</div>
-                      <small class="text-muted">ID: <%= report.listing.id %></small>
-                    </td>
-                    <td>
-                      <div><%= report.owner.name %></div>
-                      <small class="text-muted"><%= report.owner.handle %></small>
+                      <div class="fw-bold">“<%= report.listing.name %>”</div>
+                      <small class="text-muted">Owner: <%= report.owner.name %></small>
                     </td>
                     <td><%= report.reason %></td>
                     <td>
@@ -270,15 +342,10 @@
                       </span>
                     </td>
                     <td><%= report.createdDate %></td>
-                    <td class="text-end">
-                      <a href="/admin/listings/<%= report.id %>" class="btn btn-sm btn-outline-light">
-                        <i class="bi bi-arrow-right"></i>
-                      </a>
-                    </td>
                   </tr>
                 <% }) %>
                 <% if(listingReports.length === 0) { %>
-                  <tr><td colspan="7" class="text-center py-3">No pending listing reports.</td></tr>
+                  <tr><td colspan="5" class="text-center py-3">No pending listing reports.</td></tr>
                 <% } %>
               </tbody>
             </table>
@@ -301,7 +368,6 @@
                   <th scope="col">Status</th>
                   <th scope="col">Listings</th>
                   <th scope="col">Last updated</th>
-                  <th scope="col" class="text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -315,11 +381,6 @@
                     </td>
                     <td><%= category.listingsCount %></td>
                     <td><%= category.lastUpdated %></td>
-                    <td class="text-end">
-                      <a href="/admin/categories/edit/<%= category.id %>" class="btn btn-sm btn-outline-light">
-                        <i class="bi bi-pencil"></i>
-                      </a>
-                    </td>
                   </tr>
                 <% }) %>
               </tbody>

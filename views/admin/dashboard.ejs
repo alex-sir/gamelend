@@ -135,10 +135,98 @@
           </div>
         </div>
 
-        <div class="analytics-chart-placeholder">
-          Traffic over time chart placeholder (rentals per day)
+        <div class="row g-3">
+          <div class="col-lg-8">
+            <div class="metric-card h-100">
+              <h5 class="mb-3">Revenue Overview</h5>
+              <div style="height: 300px;">
+                <canvas id="revenueChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="metric-card h-100">
+              <h5 class="mb-3">Listing Categories</h5>
+              <div style="height: 300px;">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
+      <!-- Chart.js and Dashboard Script -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // --- Revenue Chart (Line) ---
+          const revCtx = document.getElementById('revenueChart').getContext('2d');
+          const revenueData = JSON.parse('<%- JSON.stringify(chartData.revenue) %>');
+          
+          new Chart(revCtx, {
+            type: 'line',
+            data: {
+              labels: revenueData.map(d => d.month),
+              datasets: [{
+                label: 'Monthly Revenue ($)',
+                data: revenueData.map(d => d.total),
+                borderColor: '#FF7D1F',
+                backgroundColor: 'rgba(255, 125, 31, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#FF7D1F'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: { 
+                  beginAtZero: true,
+                  grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                  ticks: { color: '#888' }
+                },
+                x: { 
+                  grid: { display: false },
+                  ticks: { color: '#888' }
+                }
+              }
+            }
+          });
+
+          // --- Category Chart (Doughnut) ---
+          const catCtx = document.getElementById('categoryChart').getContext('2d');
+          const catData = JSON.parse('<%- JSON.stringify(chartData.categories) %>');
+          
+          new Chart(catCtx, {
+            type: 'doughnut',
+            data: {
+              labels: catData.map(d => d.category),
+              datasets: [{
+                data: catData.map(d => d.dataValues.count),
+                backgroundColor: ['#FF7D1F', '#4A90E2', '#50E3C2', '#B8E986'],
+                borderWidth: 0,
+                hoverOffset: 10
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: { color: '#CCC', padding: 20 }
+                }
+              },
+              cutout: '70%'
+            }
+          });
+        });
+      </script>
 
       <section class="admin-section mb-4">
         <div class="d-flex justify-content-between align-items-center mb-2">

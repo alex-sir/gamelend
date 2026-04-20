@@ -87,7 +87,22 @@
                             <%= user.email.charAt(0) %>
                           </div>
                           <div>
-                            <div><%= user.email.split('@')[0] %></div>
+                            <div class="d-flex align-items-center">
+                              <div><%= user.email.split('@')[0] %></div>
+                              <% 
+                                let totalUserReports = 0;
+                                if (user.listings) {
+                                  user.listings.forEach(l => {
+                                    if (l.reports) totalUserReports += l.reports.length;
+                                  });
+                                }
+                              %>
+                              <% if (totalUserReports > 0) { %>
+                                <span class="ms-2 badge bg-danger" title="<%= totalUserReports %> active reports against this user">
+                                  <i class="bi bi-flag-fill me-1"></i><%= totalUserReports %>
+                                </span>
+                              <% } %>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -109,6 +124,15 @@
                       <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
                       <td class="text-end">
                         
+                        <% if (totalUserReports > 0) { %>
+                          <button type="button" class="btn btn-sm btn-outline-light me-1" title="View Reports" data-bs-toggle="modal" data-bs-target="#userReportsModal<%= user.id %>">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Dismiss Reports" data-bs-toggle="modal" data-bs-target="#dismissUserReportsModal<%= user.id %>">
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        <% } %>
+
                         <button type="button" class="btn btn-sm btn-outline-warning me-1" title="Change Role" data-bs-toggle="modal" data-bs-target="#roleModal<%= user.id %>">
                           <i class="bi bi-shield-lock"></i>
                         </button>
@@ -125,6 +149,62 @@
                         
                       </td>
                     </tr>
+
+                    <% if (totalUserReports > 0) { %>
+                      <div class="modal fade" id="userReportsModal<%= user.id %>" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                          <div class="modal-content bg-dark text-light border-danger">
+                            <div class="modal-header border-danger">
+                              <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Reports for <%= user.email.split('@')[0] %></h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                              <div class="list-group list-group-flush bg-transparent">
+                                <% user.listings.forEach(listing => { %>
+                                  <% if (listing.reports) { listing.reports.forEach(report => { %>
+                                    <div class="list-group-item bg-transparent text-light border-secondary px-0">
+                                      <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                          <span class="badge bg-danger text-uppercase me-2" style="font-size: 0.65rem;"><%= report.reason %></span>
+                                          <small class="text-white-50">On listing: <strong><%= listing.title %></strong></small>
+                                        </div>
+                                          <div class="text-end">
+                                            <div class="text-muted small mb-1"><%= new Date(report.createdAt).toLocaleDateString() %></div>
+                                          </div>
+                                      </div>
+                                      <p class="mb-0 small"><%= report.details %></p>
+                                    </div>
+                                  <% }) } %>
+                                <% }) %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
+
+                    <% if (totalUserReports > 0) { %>
+                      <div class="modal fade" id="dismissUserReportsModal<%= user.id %>" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content bg-dark text-light border-secondary">
+                            <div class="modal-header border-secondary">
+                              <h5 class="modal-title">Dismiss Reports</h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                              <p>Are you sure you want to dismiss all pending reports against <strong><%= user.email.split('@')[0] %></strong>?</p>
+                              <p class="text-muted small mb-0">This will mark all reports as "Dismissed" and clear them from the moderation queue.</p>
+                            </div>
+                            <div class="modal-footer border-secondary">
+                              <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                              <form action="/admin/users/<%= user.id %>/dismiss-reports" method="POST">
+                                <button type="submit" class="btn btn-secondary">Dismiss Reports</button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
 
                     <div class="modal fade" id="roleModal<%= user.id %>" tabindex="-1" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered text-wrap">

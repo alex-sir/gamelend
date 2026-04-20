@@ -79,10 +79,17 @@
                       <tr>
                         <td><input class="form-check-input" type="checkbox" name="listingIds" value="<%= listing.id %>" /></td>
                         <td>
-                          <div class="fw-bold"><%= listing.title %></div>
+                          <div class="d-flex align-items-center">
+                            <div class="fw-bold"><%= listing.title %></div>
+                            <% if (listing.reports && listing.reports.length > 0) { %>
+                              <span class="ms-2 badge bg-danger" title="<%= listing.reports.length %> active reports">
+                                <i class="bi bi-flag-fill me-1"></i><%= listing.reports.length %>
+                              </span>
+                            <% } %>
+                          </div>
                           <small class="text-muted">ID: LST-<%= listing.id %></small>
                         </td>
-                        <td><%= listing.lender ? listing.lender.email.split('@')[0] : 'Unknown' %></td>
+                        <td><%= listing.lender ? (listing.lender.firstName + ' ' + listing.lender.lastName) : 'Unknown' %></td>
                         <td>
                           <span class="badge <%= listing.status === 'Deleted' ? 'bg-danger' : (listing.status === 'Suspended' ? 'bg-warning text-dark' : 'bg-success') %>">
                             <%= listing.status || 'Active' %>
@@ -90,6 +97,9 @@
                         </td>
                         <td class="text-end">
                           <button type="button" class="btn btn-sm btn-outline-light me-1" data-bs-toggle="modal" data-bs-target="#viewModal<%= listing.id %>"><i class="bi bi-eye"></i></button>
+                          <% if (listing.reports && listing.reports.length > 0) { %>
+                            <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Dismiss Reports" data-bs-toggle="modal" data-bs-target="#dismissListingReportsModal<%= listing.id %>"><i class="bi bi-x-circle"></i></button>
+                          <% } %>
                           
                           <% if (listing.status === 'Suspended' || listing.status === 'Deleted') { %>
                             <button type="button" class="btn btn-sm btn-outline-success me-1" data-bs-toggle="modal" data-bs-target="#restoreModal<%= listing.id %>"><i class="bi bi-arrow-counterclockwise"></i></button>
@@ -164,9 +174,25 @@
               <div class="modal-content bg-dark text-light border-secondary">
                 <div class="modal-header"><h5>Listing Details: <%= listing.title %></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body p-4">
-                  <p><strong>Owner:</strong> <%= listing.lender ? listing.lender.email : 'N/A' %></p>
+                  <p><strong>Owner:</strong> <%= listing.lender ? (listing.lender.firstName + ' ' + listing.lender.lastName + ' (' + listing.lender.email + ')') : 'N/A' %></p>
                   <p><strong>Description:</strong></p>
                   <p class="text-muted"><%= listing.description %></p>
+                  
+                  <% if (listing.reports && listing.reports.length > 0) { %>
+                    <hr class="border-secondary">
+                    <h6 class="text-danger mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i>Report History</h6>
+                    <div class="list-group list-group-flush bg-transparent">
+                      <% listing.reports.forEach(report => { %>
+                        <div class="list-group-item bg-transparent text-light border-secondary px-0">
+                          <div class="d-flex justify-content-between">
+                            <span class="badge bg-danger mb-2 text-uppercase" style="font-size: 0.65rem;"><%= report.reason %></span>
+                            <small class="text-muted"><%= new Date(report.createdAt).toLocaleDateString() %></small>
+                          </div>
+                          <p class="mb-1 small"><%= report.details %></p>
+                        </div>
+                      <% }) %>
+                    </div>
+                  <% } %>
                 </div>
               </div>
             </div>
@@ -186,6 +212,28 @@
               </div>
             </div>
           </div>
+
+          <% if (listing.reports && listing.reports.length > 0) { %>
+            <div class="modal fade" id="dismissListingReportsModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border-secondary">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Dismiss Reports</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body p-4">
+                    <p>Are you sure you want to dismiss all pending reports for <strong><%= listing.title %></strong>?</p>
+                  </div>
+                  <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <form action="/admin/listings/<%= listing.id %>/dismiss-reports" method="POST">
+                      <button type="submit" class="btn btn-secondary">Dismiss Reports</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
 
           <div class="modal fade" id="restoreModal<%= listing.id %>" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
