@@ -1,34 +1,73 @@
-// public/js/edit-listing.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. Character Counter ---
-  const descriptionInput = document.getElementById("itemDescription");
-  const charCountDisplay = document.getElementById("charCount");
+  const form = document.getElementById("editListingForm");
+  const categoryRadios = document.querySelectorAll('input[name="category"]');
 
-  if (descriptionInput && charCountDisplay) {
-    // Initialize count on load
-    charCountDisplay.textContent = descriptionInput.value.length;
+  const gameFields = document.getElementById("gameFields");
+  const consoleFields = document.getElementById("consoleFields");
+  const accessoryFields = document.getElementById("accessoryFields");
+  const otherFields = document.getElementById("otherFields");
 
-    descriptionInput.addEventListener("input", function () {
-      charCountDisplay.textContent = this.value.length;
+  const generalErrorAlert = document.getElementById("generalErrorAlert");
+  const descInput = document.getElementById("itemDescription");
+  const charCount = document.getElementById("charCount");
+
+  if (descInput && charCount) {
+    charCount.textContent = descInput.value.length;
+    descInput.addEventListener("input", function () {
+      charCount.textContent = this.value.length;
     });
   }
 
-  // --- 2. Form Validation & Submission ---
-  const form = document.getElementById("editListingForm");
-  const generalErrorAlert = document.getElementById("generalErrorAlert");
+  function toggleCategoryFields() {
+    const selectedCategory = document.querySelector(
+      'input[name="category"]:checked',
+    )?.value;
+
+    if (gameFields) gameFields.style.display = "none";
+    if (consoleFields) consoleFields.style.display = "none";
+    if (accessoryFields) accessoryFields.style.display = "none";
+    if (otherFields) otherFields.style.display = "none";
+
+    const dynamicInputs = document.querySelectorAll(
+      '.category-fields select, .category-fields input[type="text"], .category-fields input[type="number"]',
+    );
+    dynamicInputs.forEach((input) => input.removeAttribute("required"));
+
+    if (selectedCategory === "Video Game" && gameFields) {
+      gameFields.style.display = "block";
+      document.getElementById("platform")?.setAttribute("required", "required");
+      document.getElementById("genre")?.setAttribute("required", "required");
+    } else if (selectedCategory === "Console" && consoleFields) {
+      consoleFields.style.display = "block";
+      document
+        .getElementById("consoleType")
+        ?.setAttribute("required", "required");
+    } else if (selectedCategory === "Accessory" && accessoryFields) {
+      accessoryFields.style.display = "block";
+      document
+        .getElementById("accessoryType")
+        ?.setAttribute("required", "required");
+    } else if (selectedCategory === "Other" && otherFields) {
+      otherFields.style.display = "block";
+      document
+        .getElementById("dynamicCategoryId")
+        ?.setAttribute("required", "required");
+    }
+  }
+
+  categoryRadios.forEach((radio) => {
+    radio.addEventListener("change", toggleCategoryFields);
+  });
+
+  toggleCategoryFields();
 
   if (form) {
     form.addEventListener(
       "submit",
       function (e) {
-        // Check if all required fields are filled out and valid
         if (!form.checkValidity()) {
-          // Prevent submission if invalid
           e.preventDefault();
           e.stopPropagation();
-
-          // Show the general error banner at the top
           if (generalErrorAlert) {
             generalErrorAlert.classList.remove("d-none");
             generalErrorAlert.classList.add("d-flex");
@@ -38,13 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
         } else {
-          // Form is valid!
           if (generalErrorAlert) {
             generalErrorAlert.classList.add("d-none");
             generalErrorAlert.classList.remove("d-flex");
           }
-
-          // Prevent double-clicking by disabling the submit button and showing a spinner
           const submitBtn = form.querySelector('button[type="submit"]');
           if (submitBtn) {
             submitBtn.innerHTML =
@@ -52,38 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
             submitBtn.disabled = true;
           }
         }
-
-        // Add Bootstrap's validation class to highlight exactly which fields are missing/invalid
         form.classList.add("was-validated");
       },
       false,
     );
-  }
-
-  // --- 3. Custom Delete Confirmation Modal Logic ---
-  const deleteListingForm = document.getElementById("deleteListingForm");
-  const deleteModalEl = document.getElementById("deleteListingModal");
-
-  if (deleteModalEl && deleteListingForm) {
-    const deleteModal = new bootstrap.Modal(deleteModalEl);
-    const confirmDeleteBtn = document.getElementById("confirmListingDeleteBtn");
-    const openDeleteModalBtn = document.getElementById("openDeleteModalBtn");
-
-    // Open modal when the delete button is clicked
-    if (openDeleteModalBtn) {
-      openDeleteModalBtn.addEventListener("click", () => {
-        deleteModal.show();
-      });
-    }
-
-    // Submit form when confirmed inside the modal
-    if (confirmDeleteBtn) {
-      confirmDeleteBtn.addEventListener("click", () => {
-        confirmDeleteBtn.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Deleting...';
-        confirmDeleteBtn.disabled = true;
-        deleteListingForm.submit();
-      });
-    }
   }
 });

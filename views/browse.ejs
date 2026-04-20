@@ -1,5 +1,19 @@
 <%
-  const navCategories = typeof categoryLabels !== 'undefined' ? categoryLabels : ['Video Games', 'Consoles', 'Accessories'];
+  // 1. Establish the core database categories and their exact database Enum values
+  const coreNav = [
+    { label: 'Video Games', val: 'Video Game' },
+    { label: 'Consoles', val: 'Console' },
+    { label: 'Accessories', val: 'Accessory' }
+  ];
+
+  // 2. Map any dynamically added categories from the admin (passed from controller)
+  const dynamicNav = (typeof categories !== 'undefined' && categories.length > 0)
+    ? categories.map(c => ({ label: c.name, val: c.name }))
+    : [];
+
+  // 3. Combine them into one array for the navigation bar and sidebar
+  const allNavCategories = [...coreNav, ...dynamicNav];
+
   const searchQ = typeof searchQuery !== 'undefined' ? searchQuery : '';
   const activeCat = typeof activeCategoryLabel !== 'undefined' ? activeCategoryLabel : '';
 
@@ -22,42 +36,74 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="/css/borrower/borrower.css" />
+    <link rel="stylesheet" type="text/css" href="/css/app.css" />
+    <style>
+      .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.3)!important;
+      }
+    </style>
   </head>
-  <body class="borrower-page d-flex flex-column min-vh-100">
+  <body class="d-flex flex-column min-vh-100">
+    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
         </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
           <form class="d-flex" action="/browse" method="GET">
-            <% if (activeCat) { %>
-              <input type="hidden" name="category" value="<%= activeCat %>" />
-            <% } %>
-            <input class="form-control" type="search" name="q" placeholder="Search listings..." value="<%= searchQ %>" aria-label="Search" />
+            <input class="form-control" type="search" name="q" placeholder="Search GameLend" aria-label="Search" value="<%= searchQ %>" />
             <button class="btn btn-primary search-submit" type="submit">
               <i class="bi bi-search fs-5"></i>
             </button>
           </form>
         </div>
+
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
-            <div class="ms-auto d-flex align-items-center gap-3 flex-wrap">
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <div class="dropdown">
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-house me-1"></i>Home
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li>
+                      <a class="dropdown-item" href="/<%= currentUser.role %>/dashboard">My Dashboard</a>
+                    </li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
+                </ul>
+              </div>
+
               <% if (typeof currentUser !== 'undefined' && currentUser) { %>
-                <a class="btn btn-alternate" href="/<%= currentUser.role %>/dashboard">My Dashboard</a>
-                <a class="btn btn-alternate" href="/auth/logout">Log Out</a>
+                <div class="dropdown">
+                  <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1"></i><%= currentUser.firstName || currentUser.username || 'Account' %>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
+                  </ul>
+                </div>
               <% } else { %>
-                <a href="/auth/login" class="btn btn-alternate">Log In</a>
-                <a href="/auth/register" class="btn btn-main">Sign Up</a>
+                <a href="/auth/login" class="btn btn-main m-0"><i class="bi bi-box-arrow-in-right me-1"></i> Log In</a>
               <% } %>
             </div>
           </div>
@@ -65,78 +111,103 @@
       </div>
     </nav>
 
-    <nav class="navbar navbar-secondary navbar-expand-lg p-1">
+    <nav class="navbar navbar-secondary navbar-expand-lg p-1 shadow-sm">
       <div class="container-fluid d-flex justify-content-center">
         <ul class="nav flex-nowrap overflow-auto">
           <li class="nav-item">
-            <a class="nav-link px-3 <%= !activeCat ? 'fw-bold text-white' : '' %>" href="/browse">All</a>
+            <a class="nav-link px-3 <%= activeCat === '' ? 'text-white fw-bold' : '' %>" href="/browse">All Categories</a>
           </li>
-          <% navCategories.forEach(function(category) { %>
+          <% allNavCategories.forEach(function(cat) { %>
             <li class="nav-item">
-              <a
-                class="nav-link px-3 <%= activeCat === category ? 'fw-bold text-white' : '' %>"
-                href="/browse?category=<%= encodeURIComponent(category) %>"
-              ><%= category %></a>
+              <a class="nav-link px-3 <%= activeCat === cat.val ? 'text-white fw-bold' : '' %>" href="/browse?category=<%= encodeURIComponent(cat.val) %>"><%= cat.label %></a>
             </li>
           <% }); %>
         </ul>
       </div>
     </nav>
 
-    <main class="catalog-section py-4 flex-grow-1">
-      <div class="container">
-        <div class="lender-header mb-4">
-          <h1 class="mb-2">Marketplace</h1>
-          <p class="mb-0">Browse active listings from the community.</p>
-        </div>
-
-        <% if (searchQ || activeCat) { %>
-          <div class="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 border-info">
-            <div>
-              <% if (searchQ) { %><span><i class="bi bi-search me-2"></i>Search: <strong>"<%= searchQ %>"</strong></span><% } %>
-              <% if (searchQ && activeCat) { %> &middot; <% } %>
-              <% if (activeCat) { %><span>Category: <strong><%= activeCat %></strong></span><% } %>
-            </div>
-            <a href="/browse" class="btn btn-sm btn-outline-info">Clear filters</a>
-          </div>
-        <% } %>
-
-        <% if (!listings || listings.length === 0) { %>
-          <div class="section-card">
-            <p class="text-muted mb-0">No listings match your filters. Try another category or search term.</p>
-          </div>
-        <% } else { %>
-          <div class="row g-3">
-            <% listings.forEach((listing) => { %>
-              <%
-                const primaryImage = getPrimaryImage(listing);
-                const lenderName = listing.lender?.firstName || listing.lender?.email?.split('@')[0] || 'Lender';
-              %>
-              <div class="col-sm-6 col-lg-4 col-xl-3">
-                <a href="/listing/<%= listing.id %>" class="text-decoration-none">
-                  <div class="section-card p-0 h-100 overflow-hidden listing-browse-card">
-                    <img
-                      src="<%= primaryImage %>"
-                      class="w-100"
-                      alt="<%= listing.title %>"
-                      style="aspect-ratio: 16/9; object-fit: cover"
-                    />
-                    <div class="p-3">
-                      <h2 class="h6 mb-1 text-white"><%= listing.title %></h2>
-                      <p class="small text-secondary mb-2">
-                        <span class="badge bg-secondary me-1"><%= listing.category %></span>
-                        <span>by <span class="text-white"><%= lenderName %></span></span>
-                      </p>
-                      <p class="mb-0 text-white">
-                        $<%= Number(listing.dailyRate).toFixed(2) %><span class="text-secondary">/day</span>
-                      </p>
-                    </div>
-                  </div>
-                </a>
+    <main class="flex-grow-1 py-5">
+      <div class="container-fluid px-lg-5">
+        <div class="row">
+          
+          <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card bg-dark border-secondary shadow-sm">
+              <div class="card-header border-secondary bg-transparent py-3">
+                <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filters</h5>
               </div>
-            <% }) %>
+              <div class="card-body p-0">
+                <div class="list-group list-group-flush bg-transparent rounded-0">
+                  <a href="/browse" class="list-group-item list-group-item-action <%= activeCat === '' ? 'active' : 'bg-transparent text-light border-secondary' %> border-start-0 border-end-0 py-3">
+                    <i class="bi bi-collection me-2 small"></i>All Equipment
+                  </a>
+                  <% allNavCategories.forEach(function(cat) { %>
+                    <a href="/browse?category=<%= encodeURIComponent(cat.val) %>"
+                       class="list-group-item list-group-item-action <%= activeCat === cat.val ? 'active' : 'bg-transparent text-light border-secondary' %> border-start-0 border-end-0 py-3">
+                      <i class="bi bi-chevron-right me-2 small"></i><%= cat.label %>
+                    </a>
+                  <% }); %>
+                </div>
+              </div>
+            </div>
           </div>
-        <% } %>
+
+          <div class="col-lg-9 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h1 class="h3 mb-0">
+                <%= searchQ ? `Search Results for "${searchQ}"` : (activeCat ? `${allNavCategories.find(c => c.val === activeCat)?.label || activeCat}` : 'All Equipment') %>
+              </h1>
+              <span class="text-muted"><%= listings.length %> <%= listings.length === 1 ? 'item' : 'items' %> found</span>
+            </div>
+
+            <% if (listings.length === 0) { %>
+              <div class="text-center py-5 bg-dark rounded border border-secondary shadow-sm">
+                <i class="bi bi-search display-1 text-muted mb-3 d-block"></i>
+                <h3 class="text-light">No listings found</h3>
+                <p class="text-muted mb-4">Try adjusting your filters or searching for something else.</p>
+                <a href="/browse" class="btn btn-alternate px-4 py-2">Clear All Filters</a>
+              </div>
+            <% } else { %>
+              <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                <% listings.forEach(function(item) { %>
+                  <div class="col">
+                    <a href="/listing/<%= item.id %>" class="text-decoration-none">
+                      <div class="card h-100 bg-dark border-secondary listing-card shadow-sm hover-lift">
+                        <div class="position-relative">
+                          <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover" alt="<%= item.title %>" style="height: 220px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                          <div class="position-absolute top-0 end-0 p-2">
+                            <span class="badge bg-main fs-6 shadow"><%= item.condition %></span>
+                          </div>
+                        </div>
+                        <div class="card-body d-flex flex-column p-4">
+                          <h5 class="card-title text-light text-truncate mb-2" title="<%= item.title %>"><%= item.title %></h5>
+                          <p class="card-text text-muted small mb-4">
+                            <i class="bi bi-tag me-1"></i>
+                            <%
+                              // Safely map dynamic category IDs to their proper names for display
+                              let displayCat = item.category;
+                              if (item.category === 'Other' && item.dynamicCategoryId && typeof categories !== 'undefined') {
+                                const foundCat = categories.find(c => c.id === item.dynamicCategoryId);
+                                if (foundCat) displayCat = foundCat.name;
+                              }
+                            %>
+                            <%= displayCat %>
+                          </p>
+                          <div class="mt-auto d-flex justify-content-between align-items-end pt-3 border-top border-secondary">
+                            <div>
+                              <span class="fs-4 fw-bold text-orange">$<%= parseFloat(item.dailyRate).toFixed(2) %></span><span class="text-muted fs-6 fw-normal">/day</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-light">View Details</button>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                <% }); %>
+              </div>
+            <% } %>
+          </div>
+
+        </div>
       </div>
     </main>
 

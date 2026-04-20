@@ -1,7 +1,18 @@
 <%
-  const navCategories = (typeof categories !== 'undefined' && categories.length > 0) 
-    ? categories.map(c => c.name) 
-    : ['Video Games', 'Consoles', 'Accessories'];
+  // 1. Establish the core database categories and their exact database Enum values
+  const coreNav = [
+    { label: 'Video Games', val: 'Video Game' },
+    { label: 'Consoles', val: 'Console' },
+    { label: 'Accessories', val: 'Accessory' }
+  ];
+
+  // 2. Map any dynamically added categories from the admin
+  const dynamicNav = (typeof categories !== 'undefined' && categories.length > 0)
+    ? categories.map(c => ({ label: c.name, val: c.name }))
+    : [];
+
+  // 3. Combine them into one array for the navigation bar
+  const allNavCategories = [...coreNav, ...dynamicNav];
 
   // Helper to safely extract the primary image from a database listing
   function getPrimaryImage(listing) {
@@ -45,7 +56,7 @@
       /* Dynamic Hero Collage Styles */
       .hero-collage {
         display: grid;
-        grid-template-columns: 5fr 3fr; /* Asymmetric grid for a more interesting layout */
+        grid-template-columns: 5fr 3fr; 
         grid-template-rows: 1fr 1fr;
         gap: 1rem;
         height: 450px;
@@ -54,8 +65,8 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: center; /* Ensures the center of the image is always visible */
-        border-radius: 1rem; /* Rounded corners for the images */
+        object-position: center; 
+        border-radius: 1rem; 
         box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         transition: transform 0.4s ease, box-shadow 0.4s ease;
       }
@@ -175,9 +186,9 @@
     <nav class="navbar navbar-secondary navbar-expand-lg p-1">
       <div class="container-fluid d-flex justify-content-center">
         <ul class="nav flex-nowrap overflow-auto">
-          <% navCategories.forEach(function(category) { %>
+          <% allNavCategories.forEach(function(cat) { %>
             <li class="nav-item">
-              <a class="nav-link px-3" href="/browse?category=<%= encodeURIComponent(category) %>"><%= category %></a>
+              <a class="nav-link px-3" href="/browse?category=<%= encodeURIComponent(cat.val) %>"><%= cat.label %></a>
             </li>
           <% }); %>
         </ul>

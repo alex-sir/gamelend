@@ -59,9 +59,19 @@ const Listing = sequelize.define(
         max: 500.0,
       },
     },
+    // NEW: Foreign key for dynamically added admin categories
+    dynamicCategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Categories", // Maps to the Category table
+        key: "id",
+      },
+    },
     status: {
-      type: DataTypes.ENUM("Active", "Draft", "Suspended", "Deleted"),
-      defaultValue: "Active",
+      type: DataTypes.ENUM("Draft", "Active", "Suspended", "Deleted"),
+      allowNull: false,
+      defaultValue: "Draft",
     },
   },
   {

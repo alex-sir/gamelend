@@ -28,51 +28,102 @@
     <link rel="icon" href="/icons/controller.png" type="image/png" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/app.css" />
     <link rel="stylesheet" href="/css/lender/lender.css" />
     <style>
-      .badge-status { padding: 0.35em 0.65em; font-size: 0.75em; font-weight: 700; border-radius: 4px; }
-      .badge-active { background-color: rgba(25, 135, 84, 0.2); color: #20c997; }
-      .badge-draft { background-color: rgba(108, 117, 125, 0.2); color: #adb5bd; }
-      .badge-suspended { background-color: rgba(220, 53, 69, 0.2); color: #ff7b8a; }
-      .carousel-item img { aspect-ratio: 16/9; object-fit: contain !important; border-radius: 10px; background-color: var(--color-black); }
-      .detail-card { transition: transform 0.2s ease; }
-      .detail-card:hover { transform: translateY(-2px); border-color: var(--color-gray-hover) !important; }
-      
-      /* New style for the image counter overlay */
-      .image-counter-badge {
-        z-index: 10; 
-        font-size: 0.85rem; 
-        border: 1px solid rgba(255,255,255,0.2);
-        backdrop-filter: blur(4px);
+      .badge-active { background-color: var(--color-success); color: white; }
+      .badge-draft { background-color: var(--color-gray-hover); color: white; }
+      .badge-suspended { background-color: var(--color-danger); color: white; }
+      .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .gallery-img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        border: 1px solid var(--color-gray-hover);
+      }
+      .gallery-img:hover { opacity: 0.8; }
+      .main-image-container {
+        width: 100%;
+        height: 400px;
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: var(--color-black);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--color-gray-hover);
+      }
+      .main-image-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .spec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .spec-item {
+        background: rgba(255,255,255,0.02);
+        padding: 10px 15px;
+        border-radius: 8px;
+        border-left: 3px solid var(--color-blue);
       }
     </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
-    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="bi bi-controller me-2"></i>GameLend<span class="ms-1 role">Lender</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-controller me-2"></i>GameLend
+          <span class="ms-1 role">Lender</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
           <form class="d-flex" action="/lender/listings" method="GET">
-            <input class="form-control" type="search" name="q" placeholder="Search your listings..." />
+            <input class="form-control" type="search" name="q" placeholder="Search your listings..." aria-label="Search" />
             <button class="btn btn-primary search-submit" type="submit"><i class="bi bi-search fs-5"></i></button>
           </form>
         </div>
+
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
-          <div class="offcanvas-header"><h5 class="offcanvas-title">Lender Menu</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Lender Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+          </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-speedometer2 me-1"></i>Dashboards</button>
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
+                </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li><a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a></li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
+                  <li><hr class="dropdown-divider" /></li>
                   <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
+
               <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle me-1"></i><%= userName %></button>
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-person-circle me-1"></i><%= userName %>
+                </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
@@ -88,188 +139,185 @@
     <main class="flex-grow-1 py-4">
       <div class="container">
         
-        <div id="borrowerViewBanner" class="alert alert-info d-none d-flex justify-content-between align-items-center mb-4 border-info">
-          <div><i class="bi bi-eye me-2"></i><strong>Viewing as Borrower:</strong> You are seeing this listing exactly as it appears to the public.</div>
-        </div>
-
-        <div class="lender-header mb-4">
-          <a href="/lender/listings" class="btn btn-alternate mb-3"><i class="bi bi-arrow-left me-2"></i>Back to My Listings</a>
-          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-              <h1 class="mb-2"><%= listing.title %></h1>
-              <p class="mb-0"><span class="badge-status <%= badgeClass %>"><%= listing.status %></span></p>
-            </div>
-            <button id="toggleBorrowerViewBtn" class="btn btn-outline-info text-info">
-              <i class="bi bi-eye me-2"></i>View as Borrower
-            </button>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <a href="/lender/listings" class="text-decoration-none text-muted mb-2 d-inline-block">
+              <i class="bi bi-arrow-left me-1"></i>Back to My Listings
+            </a>
+            <h1 class="h2 mb-0 d-flex align-items-center gap-3">
+              <%= listing.title %>
+              <span class="badge <%= badgeClass %> fs-6 fw-normal px-3 py-2 rounded-pill"><%= listing.status %></span>
+            </h1>
           </div>
         </div>
 
-        <% if (listing.status === 'Suspended') { %>
-          <div class="lender-only-panel mb-4">
-            <div class="alert alert-danger d-flex align-items-center" role="alert">
-              <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-              <div>
-                <strong>Listing Suspended by Admin.</strong> This listing has been hidden from the public marketplace due to a policy violation.
-                <br><small>If you believe this is an error, please contact support to resolve the issue.</small>
-              </div>
-            </div>
-          </div>
-        <% } %>
-
-        <div class="row g-4">
+        <div class="row">
           <div class="col-lg-8">
-            
-            <div class="section-card p-0 overflow-hidden position-relative">
+            <div class="section-card mb-4">
+              
               <% if (listing.images && listing.images.length > 0) { %>
-                <div id="listingCarousel" class="carousel slide" data-bs-ride="carousel">
-                  
-                  <% if (listing.images.length > 1) { %>
-                    <div class="position-absolute top-0 end-0 m-3 px-3 py-1 bg-dark bg-opacity-75 text-white rounded-pill image-counter-badge">
-                      <i class="bi bi-images me-1"></i> <span id="currentImageIndex">1</span> / <%= listing.images.length %>
-                    </div>
-                  <% } %>
-
-                  <div class="carousel-inner bg-dark">
-                    <% listing.images.forEach((img, index) => { %>
-                      <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-                        <img src="<%= img.imageUrl %>" class="d-block w-100" alt="Listing Image <%= index + 1 %>" />
-                      </div>
-                    <% }); %>
-                  </div>
-                  <% if (listing.images.length > 1) { %>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
-                  <% } %>
+                <div class="main-image-container mb-3 shadow-sm">
+                  <img id="mainImage" src="<%= listing.images[0].imageUrl %>" alt="<%= listing.title %>">
                 </div>
+                
+                <% if (listing.images.length > 1) { %>
+                  <div class="image-gallery">
+                    <% listing.images.forEach((img, index) => { %>
+                      <img src="<%= img.imageUrl %>" 
+                           class="gallery-img <%= index === 0 ? 'border-primary border-2' : '' %>" 
+                           onclick="document.getElementById('mainImage').src=this.src; document.querySelectorAll('.gallery-img').forEach(i => i.classList.remove('border-primary', 'border-2')); this.classList.add('border-primary', 'border-2');"
+                           alt="Thumbnail">
+                    <% }) %>
+                  </div>
+                <% } %>
               <% } else { %>
-                <div class="bg-dark d-flex flex-column align-items-center justify-content-center text-muted" style="aspect-ratio: 16/9;">
-                  <i class="bi bi-camera-fill display-1 mb-2"></i><p>No images uploaded yet.</p>
+                <div class="main-image-container mb-3">
+                  <div class="text-center text-muted">
+                    <i class="bi bi-image display-1 d-block mb-3"></i>
+                    <p>No images uploaded yet.</p>
+                  </div>
                 </div>
               <% } %>
+
             </div>
 
-            <div class="section-card mt-4">
-              <h2 class="h5 mb-3"><i class="bi bi-card-text me-2"></i>Description</h2>
-              <p style="white-space: pre-wrap;"><%= listing.description %></p>
+            <div class="section-card mb-4">
+              <h2 class="h4 mb-3">Description</h2>
+              <p class="text-light" style="white-space: pre-wrap; line-height: 1.6;"><%= listing.description %></p>
+            </div>
 
-              <hr class="border-secondary my-4" />
+            <div class="section-card mb-4">
+              <h2 class="h4 mb-3">Item Specifics</h2>
+              
+              <div class="spec-grid">
+                <div class="spec-item">
+                  <span class="text-muted d-block small text-uppercase fw-bold mb-1">Category</span>
+                  <span class="fs-5"><i class="bi bi-tag me-2 text-primary"></i><%= listing.category %></span>
+                </div>
+                <div class="spec-item">
+                  <span class="text-muted d-block small text-uppercase fw-bold mb-1">Condition</span>
+                  <span class="fs-5"><i class="bi bi-star me-2 text-warning"></i><%= listing.condition %></span>
+                </div>
 
-              <h2 class="h5 mb-3"><i class="bi bi-gear me-2"></i>Equipment Details</h2>
-              <div class="row g-3 mb-4">
-                <div class="col-sm-4">
-                  <div class="p-3 bg-dark rounded border border-secondary detail-card h-100">
-                    <p class="mb-1 text-muted"><small>Category</small></p>
-                    <p class="mb-0 fw-bold"><i class="bi bi-tag me-2 text-info"></i><%= listing.category %></p>
+                <% if (isVG) { %>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Platform</span>
+                    <span class="fs-5"><%= listing.videoGameDetails.platform %></span>
                   </div>
-                </div>
-                <div class="col-sm-4">
-                  <div class="p-3 bg-dark rounded border border-secondary detail-card h-100">
-                    <p class="mb-1 text-muted"><small>Condition</small></p>
-                    <p class="mb-0 fw-bold"><i class="bi bi-star me-2 text-info"></i><%= listing.condition %></p>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Genre</span>
+                    <span class="fs-5"><%= listing.videoGameDetails.genre %></span>
                   </div>
-                </div>
-                <div class="col-sm-4">
-                  <div class="p-3 bg-dark rounded border border-secondary detail-card h-100">
-                    <p class="mb-1 text-muted"><small>Quantity Available</small></p>
-                    <p class="mb-0 fw-bold"><i class="bi bi-boxes me-2 text-info"></i><%= listing.quantity %></p>
-                  </div>
-                </div>
-              </div>
-
-              <h2 class="h5 mb-3"><i class="bi bi-list-columns-reverse me-2"></i>Specifics</h2>
-              <div class="row g-3">
-                
-                  <% if (isVG) { %>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Platform</span><span class="fw-bold"><%= listing.videoGameDetails.platform %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Genre</span><span class="fw-bold"><%= listing.videoGameDetails.genre || 'N/A' %></span></div></div>
-                  <div class="col-sm-4"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">ESRB Rating</span><span class="fw-bold"><%= listing.videoGameDetails.esrbRating || 'N/A' %></span></div></div>
-                  <div class="col-sm-4"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Publisher</span><span class="fw-bold"><%= listing.videoGameDetails.publisher || 'N/A' %></span></div></div>
-                  <div class="col-sm-4"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Release Year</span><span class="fw-bold"><%= listing.videoGameDetails.releaseYear || 'N/A' %></span></div></div>
-                
+                  <% if (listing.videoGameDetails.esrbRating) { %>
+                    <div class="spec-item">
+                      <span class="text-muted d-block small text-uppercase fw-bold mb-1">ESRB Rating</span>
+                      <span class="fs-5 fw-bold"><%= listing.videoGameDetails.esrbRating %></span>
+                    </div>
+                  <% } %>
+                  <% if (listing.videoGameDetails.releaseYear) { %>
+                    <div class="spec-item">
+                      <span class="text-muted d-block small text-uppercase fw-bold mb-1">Release Year</span>
+                      <span class="fs-5"><%= listing.videoGameDetails.releaseYear %></span>
+                    </div>
+                  <% } %>
                 <% } else if (isCon) { %>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Console Type</span><span class="fw-bold"><%= listing.consoleDetails.consoleType %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Storage</span><span class="fw-bold"><%= listing.consoleDetails.storageCapacity || 'N/A' %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Controllers Included</span><span class="fw-bold"><%= listing.consoleDetails.controllersIncluded ? `Yes (${listing.consoleDetails.controllerQuantity})` : 'No' %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Cables Included</span><span class="fw-bold"><%= listing.consoleDetails.cablesIncluded ? 'Yes' : 'No' %></span></div></div>
-                
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Console Type</span>
+                    <span class="fs-5"><%= listing.consoleDetails.consoleType %></span>
+                  </div>
+                  <% if (listing.consoleDetails.storageCapacity) { %>
+                    <div class="spec-item">
+                      <span class="text-muted d-block small text-uppercase fw-bold mb-1">Storage</span>
+                      <span class="fs-5"><%= listing.consoleDetails.storageCapacity %></span>
+                    </div>
+                  <% } %>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Controllers Included</span>
+                    <span class="fs-5"><%= listing.consoleDetails.controllersIncluded ? listing.consoleDetails.controllerQuantity : 'None' %></span>
+                  </div>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Cables Included</span>
+                    <span class="fs-5"><%= listing.consoleDetails.cablesIncluded ? 'Yes' : 'No' %></span>
+                  </div>
                 <% } else if (isAcc) { %>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Type</span><span class="fw-bold"><%= listing.accessoryDetails.accessoryType %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Connection</span><span class="fw-bold"><%= listing.accessoryDetails.isWireless ? 'Wireless' : 'Wired' %></span></div></div>
-                  <div class="col-sm-12"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Compatible Platforms</span><span class="fw-bold"><%= listing.accessoryDetails.compatiblePlatforms || 'Universal' %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Brand</span><span class="fw-bold"><%= listing.accessoryDetails.brand || 'N/A' %></span></div></div>
-                  <div class="col-sm-6"><div class="p-3 bg-dark rounded border border-secondary"><span class="text-muted d-block small">Model</span><span class="fw-bold"><%= listing.accessoryDetails.modelNumber || 'N/A' %></span></div></div>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Accessory Type</span>
+                    <span class="fs-5"><%= listing.accessoryDetails.accessoryType %></span>
+                  </div>
+                  <% if (listing.accessoryDetails.compatiblePlatforms) { %>
+                    <div class="spec-item">
+                      <span class="text-muted d-block small text-uppercase fw-bold mb-1">Compatibility</span>
+                      <span class="fs-5"><%= listing.accessoryDetails.compatiblePlatforms %></span>
+                    </div>
+                  <% } %>
+                  <div class="spec-item">
+                    <span class="text-muted d-block small text-uppercase fw-bold mb-1">Connectivity</span>
+                    <span class="fs-5"><%= listing.accessoryDetails.isWireless ? 'Wireless' : 'Wired' %></span>
+                  </div>
+                  <% if (listing.accessoryDetails.brand) { %>
+                    <div class="spec-item">
+                      <span class="text-muted d-block small text-uppercase fw-bold mb-1">Brand</span>
+                      <span class="fs-5"><%= listing.accessoryDetails.brand %></span>
+                    </div>
+                  <% } %>
                 <% } %>
               </div>
             </div>
-
-            <div class="section-card lender-only-panel mt-4">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 mb-0"><i class="bi bi-clock-history me-2"></i>Recent Rental History</h2>
-                <a href="/lender/history?listingId=<%= listing.id %>" class="text-decoration-none">View All</a>
-              </div>
-              <div class="list-group list-group-flush border border-secondary rounded">
-                <div class="list-group-item bg-dark text-muted text-center py-4 border-secondary">
-                  <i class="bi bi-journal-text fs-3 d-block mb-2"></i>
-                  No completed rentals to display yet.
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <div class="col-lg-4">
-            <div class="section-card sticky-top" style="top: 90px; z-index: 1;">
-              <div class="text-center mb-3">
-                <h2 class="item-price mb-1">$<%= parseFloat(listing.dailyRate).toFixed(2) %><span style="font-size: 1rem; font-weight: normal; color: var(--color-light-gray);">/day</span></h2>
-              </div>
-              <hr class="border-secondary" />
-              
-              <div class="lender-only-panel mb-3">
-                <h3 class="h6 mb-3"><i class="bi bi-graph-up me-2"></i>Performance</h3>
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Status</span>
-                  <span class="badge-status <%= badgeClass %>"><%= listing.status %></span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Total Views</span>
-                  <strong><%= listing.totalViews || 0 %></strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Total Rentals</span>
-                  <strong><%= listing.totalRentals || 0 %></strong>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span class="text-muted">Total Earned</span>
-                  <strong style="color: var(--color-orange)">$<%= parseFloat(listing.totalEarnings || 0).toFixed(2) %></strong>
-                </div>
-                <hr class="border-secondary mt-3" />
-              </div>
-              
-              <h3 class="h6 mb-3">Quick Actions</h3>
-              <div class="quick-actions">
-                <div class="lender-only-panel">
-                  <% if (listing.status !== 'Suspended') { %>
-                    <a href="/lender/listings/<%= listing.id %>/edit" class="btn btn-main w-100 mb-2"><i class="bi bi-pencil me-2"></i>Edit Listing</a>
-                    <a href="/lender/listings/<%= listing.id %>/images" class="btn btn-main w-100 mb-2"><i class="bi bi-images me-2"></i>Manage Images</a>
-                  <% } else { %>
-                    <button class="btn btn-secondary w-100 mb-2" disabled><i class="bi bi-pencil me-2"></i>Edit (Suspended)</button>
-                  <% } %>
-                </div>
-                <button class="btn btn-alternate w-100" id="shareListingBtn" data-title="<%= listing.title %>">
-                  <i class="bi bi-share me-2"></i>Share Link
-                </button>
+            
+            <div class="section-card sticky-top" style="top: 100px;">
+              <div class="text-center mb-4">
+                <span class="d-block text-muted text-uppercase fw-bold mb-1">Daily Rate</span>
+                <span class="display-5 fw-bold text-orange">$<%= parseFloat(listing.dailyRate).toFixed(2) %></span>
+                <span class="text-muted">/ day</span>
               </div>
 
-              <% if (listing.status === 'Active') { %>
-                <div class="lender-only-panel mt-4 mb-0">
-                  <div class="alert py-2 px-3 text-center" style="background-color: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.5); color: #28a745;">
-                    <i class="bi bi-check-circle-fill me-1"></i> Live & Visible
+              <div class="d-flex justify-content-between mb-3 pb-3 border-bottom border-secondary">
+                <span class="text-muted">Quantity Available:</span>
+                <span class="fw-bold"><%= listing.quantity %></span>
+              </div>
+              
+              <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Total Earnings:</span>
+                <span class="fw-bold text-success">$0.00 <small class="text-muted fw-normal">(Demo)</small></span>
+              </div>
+
+              <% if (listing.status === 'Active' || listing.status === 'Draft') { %>
+                <div>
+                  <h3 class="h6 mb-2">Actions</h3>
+                  <div class="d-grid gap-2">
+                    <a href="/lender/listings/<%= listing.id %>/edit" class="btn btn-alternate">
+                      <i class="bi bi-pencil-square me-2"></i>Edit Details
+                    </a>
+                    <a href="/lender/listings/<%= listing.id %>/images" class="btn btn-alternate">
+                      <i class="bi bi-images me-2"></i>Manage Images
+                    </a>
+                    
+                    <% if (listing.status === 'Draft') { %>
+                      <form action="/lender/listings/<%= listing.id %>/publish?_method=PUT" method="POST" class="m-0 mt-2">
+                        <button type="submit" class="btn btn-success w-100">
+                          <i class="bi bi-globe me-2"></i>Publish Listing
+                        </button>
+                      </form>
+                    <% } %>
+
                   </div>
                 </div>
-              <% } else if (listing.status === 'Draft') { %>
-                <div class="lender-only-panel mt-4 mb-0">
-                  <div class="alert py-2 px-3 text-center text-muted" style="background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255, 0.2);">
+              <% } else { %>
+                <div class="alert alert-danger mb-0">
+                  <div class="d-flex align-items-center justify-content-center text-danger mb-2">
+                    <i class="bi bi-exclamation-triangle-fill fs-4 me-2"></i>
+                    <strong>Listing Unavailable</strong>
+                  </div>
+                  <p class="small text-center mb-0">This listing cannot be edited because it is suspended or deleted.</p>
+                </div>
+              <% } %>
+              
+              <% if (listing.status === 'Draft') { %>
+                <div class="mt-4 pt-3 border-top border-secondary text-center">
+                  <div class="d-inline-flex align-items-center text-warning px-3 py-2 rounded" style="background: rgba(255,193,7,0.05); border: 1px solid rgba(255,255,255, 0.2);">
                     <i class="bi bi-eye-slash-fill me-1"></i> Draft (Hidden)
                   </div>
                 </div>
@@ -312,6 +360,5 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/listing-detail.js"></script>
   </body>
 </html>

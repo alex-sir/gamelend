@@ -1,5 +1,13 @@
 // controllers/HomeController.js
-const { Listing, Image, User, Listing_VideoGame, Listing_Console, Listing_Accessory, Category } = require("../models");
+const {
+  Listing,
+  Image,
+  User,
+  Listing_VideoGame,
+  Listing_Console,
+  Listing_Accessory,
+  Category,
+} = require("../models");
 const { Op } = require("sequelize");
 
 const HomeController = {
@@ -12,19 +20,22 @@ const HomeController = {
         limit: 6,
       });
 
-      const categories = await Category.findAll({ where: { status: "Active" } });
+      // Fetch dynamic categories created by the admin
+      const categories = await Category.findAll({
+        where: { status: "Active" },
+      });
 
       res.render("index", {
         title: "GameLend - Rent and Lend Physical Games",
         featuredListings,
-        categories
+        categories,
       });
     } catch (error) {
       console.error("Error loading homepage data:", error);
       res.render("index", {
         title: "GameLend - Rent and Lend Physical Games",
         featuredListings: [],
-        categories: []
+        categories: [],
       });
     }
   },
@@ -33,39 +44,43 @@ const HomeController = {
     const { q, category } = req.query;
 
     try {
-      const categories = await Category.findAll({ where: { status: "Active" } });
-      const categoryNames = categories.map(c => c.name);
+      // Fetch dynamic categories so we can check against them AND pass them to the view
+      const categories = await Category.findAll({
+        where: { status: "Active" },
+      });
+      const dynamicCategoryNames = categories.map((c) => c.name);
 
+      const coreCategories = ["Video Game", "Console", "Accessory"];
       const where = { status: "Active" };
-      
-      // If the requested category is valid, filter by it
-      if (category && categoryNames.includes(category)) {
-        where.category = category;
+
+      // If a category was clicked, figure out if it's a core ENUM or a dynamic "Other" category
+      if (category) {
+        if (coreCategories.includes(category)) {
+          // It's a standard hardcoded category
+          where.category = category;
+        } else if (dynamicCategoryNames.includes(category)) {
+          // It's a custom admin category. Filter by 'Other' AND the specific dynamic ID
+          const matchedCategory = categories.find((c) => c.name === category);
+          where.category = "Other";
+          where.dynamicCategoryId = matchedCategory.id;
+        }
       }
 
       if (q && String(q).trim()) {
-        const term = `%${String(q).trim()}%`;
-        where[Op.or] = [
-          { title: { [Op.like]: term } },
-          { description: { [Op.like]: term } },
-        ];
+        where.title = { [Op.like]: `%${q}%` };
       }
 
       const listings = await Listing.findAll({
         where,
-        include: [
-          { model: Image, as: "images" },
-          { model: User, as: "lender" },
-        ],
+        include: [{ model: Image, as: "images" }],
         order: [["createdAt", "DESC"]],
       });
 
       res.render("browse", {
-        title: "Browse Listings - GameLend",
         listings,
-        searchQuery: q ? String(q).trim() : "",
-        activeCategoryLabel: category,
-        categoryLabels: categoryNames,
+        searchQuery: q ? String(q) : "",
+        activeCategoryLabel: category || "",
+        categories, // <--- CRITICAL FIX: Pass the categories so browse.ejs can build its navbars
       });
     } catch (error) {
       console.error("Browse marketplace error:", error);
@@ -73,10 +88,6 @@ const HomeController = {
     }
   },
 
-  /**
-   * Public listing URL used from the homepage carousel.
-   * Logged-in borrowers are sent to the authenticated borrower detail URL.
-   */
   viewPublicListing: async (req, res) => {
     const user = req.session.user;
     if (user && user.role === "borrower") {
@@ -93,11 +104,19 @@ const HomeController = {
           { model: Listing_Console, as: "consoleDetails" },
           { model: Listing_Accessory, as: "accessoryDetails" },
         ],
-        order: [[{ model: Image, as: "images" }, "isPrimary", "DESC"]],
       });
 
       if (!listing) {
-        return res.status(404).send("Listing not found or no longer available.");
+        return res
+          .status(404)
+          .send("Listing not found or no longer available.");
+      }
+
+      if (listing.images && listing.images.length > 0) {
+        listing.images.sort(
+          (a, b) =>
+            (b.isPrimary === true ? 1 : 0) - (a.isPrimary === true ? 1 : 0),
+        );
       }
 
       res.render("borrower/item-details", {
@@ -106,8 +125,8 @@ const HomeController = {
         isPublicListingView: true,
       });
     } catch (error) {
-      console.error("Public listing view error:", error);
-      res.status(500).send("Error loading listing");
+      console.error("View public listing error:", error);
+      res.status(500).send("Error viewing listing");
     }
   },
 };

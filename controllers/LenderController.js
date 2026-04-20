@@ -19,7 +19,6 @@ const LenderController = {
     const lenderId = req.session.user.id;
 
     try {
-      // 1. Calculate Stats
       const activeListingsCount = await Listing.count({
         where: { lenderId, status: "Active" },
       });
@@ -41,7 +40,6 @@ const LenderController = {
         thisMonthEarnings: `$${earningsSum || 0}`,
       };
 
-      // 2. Fetch Pending Requests for the UI
       const rawRequests = await RentalRequest.findAll({
         include: [
           {
@@ -70,15 +68,12 @@ const LenderController = {
           title: req.listing.title,
           image: imageUrl,
           borrower: req.borrower.firstName || req.borrower.email.split("@")[0],
-          dates: `${new Date(req.startDate).toLocaleDateString()} - ${new Date(
-            req.endDate,
-          ).toLocaleDateString()}`,
+          dates: `${new Date(req.startDate).toLocaleDateString()} - ${new Date(req.endDate).toLocaleDateString()}`,
           price: `$${parseFloat(req.listing.dailyRate).toFixed(2)}`,
           duration: "Requested",
         };
       });
 
-      // 3. Fetch Active Rentals for the UI
       const rawRentals = await Rental.findAll({
         include: [
           {
@@ -124,9 +119,7 @@ const LenderController = {
         };
       });
 
-      // 4. Build the Recent Activity Feed dynamically
       const activities = [];
-
       const recentRequests = await RentalRequest.findAll({
         include: [
           { model: Listing, as: "listing", where: { lenderId } },
@@ -191,7 +184,6 @@ const LenderController = {
           type = "primary",
           label = "Listing Updated",
           text = `You updated ${listing.title}`;
-
         if (listing.createdAt.getTime() === listing.updatedAt.getTime()) {
           label = "New Listing Created";
           icon = "bi-plus-circle";
@@ -231,20 +223,15 @@ const LenderController = {
   getListings: async (req, res) => {
     try {
       let whereClause = { lenderId: req.session.user.id };
-
-      if (req.query.q) {
-        whereClause.title = { [Op.iLike]: `%${req.query.q}%` };
-      }
+      if (req.query.q) whereClause.title = { [Op.iLike]: `%${req.query.q}%` };
 
       const listings = await Listing.findAll({
         where: whereClause,
         include: [{ model: Image, as: "images" }],
         order: [["createdAt", "DESC"]],
       });
-
-      res.render("lender/listings", { listings });
+      res.render("lender/my-listings", { listings });
     } catch (error) {
-      console.error(error);
       res.status(500).send("Server Error");
     }
   },
@@ -279,7 +266,6 @@ const LenderController = {
     }
 
     const lenderId = req.session.user.id;
-    // Extract everything, including the specific sub-type details
     const {
       title,
       description,
@@ -307,7 +293,6 @@ const LenderController = {
     } = req.body;
 
     try {
-      // 1. Create the Parent Listing
       const newListing = await Listing.create({
         lenderId,
         title,
@@ -320,7 +305,6 @@ const LenderController = {
         status: "Draft",
       });
 
-      // 2. Create the precise Sub-Type record mapped to the new Listing
       if (category === "Video Game") {
         await Listing_VideoGame.create({
           listingId: newListing.id,
@@ -335,7 +319,7 @@ const LenderController = {
           listingId: newListing.id,
           consoleType,
           storageCapacity: storageCapacity || null,
-          controllersIncluded: controllersIncluded === "on", // Checkbox gives 'on'
+          controllersIncluded: controllersIncluded === "on",
           controllerQuantity: controllerQuantity
             ? parseInt(controllerQuantity)
             : 0,
@@ -355,7 +339,6 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${newListing.id}/images`);
     } catch (error) {
-      console.error(error);
       const dynamicCategories = await Category.findAll({
         where: { status: "Active" },
       });
@@ -372,8 +355,8 @@ const LenderController = {
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
-        // Make sure to include the sub-details so the edit form can pre-fill them
         include: [
+          { model: Image, as: "images" }, // Ensure images are grabbed for the sidebar
           { model: Listing_VideoGame, as: "videoGameDetails" },
           { model: Listing_Console, as: "consoleDetails" },
           { model: Listing_Accessory, as: "accessoryDetails" },
@@ -386,7 +369,6 @@ const LenderController = {
         where: { status: "Active" },
       });
 
-      // Flatten the listing for the EJS view formData
       const formData = {
         ...listing.get({ plain: true }),
         ...(listing.videoGameDetails
@@ -400,64 +382,70 @@ const LenderController = {
           : {}),
       };
 
-      res.render("lender/create-listing", {
+      res.render("lender/edit-listing", {
         error: null,
         formData: formData,
         dynamicCategories,
+        listing,
       });
     } catch (error) {
-      console.error(error);
       res.status(500).send("Error loading form");
     }
   },
 
   updateListing: async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const dynamicCategories = await Category.findAll({
-        where: { status: "Active" },
-      });
-      return res.render("lender/create-listing", {
-        error: errors.array()[0].msg,
-        formData: req.body,
-        dynamicCategories,
-      });
-    }
-
-    const {
-      title,
-      description,
-      category,
-      condition,
-      quantity,
-      dailyRate,
-      dynamicCategoryId,
-      platform,
-      genre,
-      esrbRating,
-      publisher,
-      releaseYear,
-      consoleType,
-      storageCapacity,
-      controllersIncluded,
-      controllerQuantity,
-      cablesIncluded,
-      serialNumber,
-      accessoryType,
-      compatiblePlatforms,
-      isWireless,
-      brand,
-      modelNumber,
-    } = req.body;
-
     try {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
+        include: [
+          { model: Image, as: "images" },
+          { model: Listing_VideoGame, as: "videoGameDetails" },
+          { model: Listing_Console, as: "consoleDetails" },
+          { model: Listing_Accessory, as: "accessoryDetails" },
+        ],
       });
 
       if (!listing) return res.status(404).send("Listing not found");
 
-      // 1. Update the parent listing
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const dynamicCategories = await Category.findAll({
+          where: { status: "Active" },
+        });
+        return res.render("lender/edit-listing", {
+          error: errors.array()[0].msg,
+          formData: req.body,
+          dynamicCategories,
+          listing,
+        });
+      }
+
+      const {
+        title,
+        description,
+        category,
+        condition,
+        quantity,
+        dailyRate,
+        dynamicCategoryId,
+        platform,
+        genre,
+        esrbRating,
+        publisher,
+        releaseYear,
+        consoleType,
+        storageCapacity,
+        controllersIncluded,
+        controllerQuantity,
+        cablesIncluded,
+        serialNumber,
+        accessoryType,
+        compatiblePlatforms,
+        isWireless,
+        brand,
+        modelNumber,
+      } = req.body;
+
       await listing.update({
         title,
         description,
@@ -468,12 +456,10 @@ const LenderController = {
         dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
       });
 
-      // 2. Clear out any old sub-types
       await Listing_VideoGame.destroy({ where: { listingId: listing.id } });
       await Listing_Console.destroy({ where: { listingId: listing.id } });
       await Listing_Accessory.destroy({ where: { listingId: listing.id } });
 
-      // 3. Rebuild the proper sub-type mapped to the updated category
       if (category === "Video Game") {
         await Listing_VideoGame.create({
           listingId: listing.id,
@@ -508,15 +494,31 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${listing.id}`);
     } catch (error) {
-      console.error(error);
-      const dynamicCategories = await Category.findAll({
-        where: { status: "Active" },
+      res.status(500).send("Database error updating listing.");
+    }
+  },
+
+  // --- NEW: Publish a Draft Listing ---
+  publishListing: async (req, res) => {
+    try {
+      const listing = await Listing.findOne({
+        where: { id: req.params.id, lenderId: req.session.user.id },
+        include: [{ model: Image, as: "images" }],
       });
-      res.render("lender/create-listing", {
-        error: "Database error updating listing.",
-        formData: req.body,
-        dynamicCategories,
-      });
+
+      if (!listing) return res.status(404).send("Listing not found");
+
+      if (listing.images && listing.images.length > 0) {
+        await listing.update({ status: "Active" });
+        res.redirect(`/lender/listings/${listing.id}`);
+      } else {
+        // Redirect back to the images page with an error if no images exist
+        res.redirect(
+          `/lender/listings/${listing.id}/images?error=${encodeURIComponent("You must upload at least one image before publishing.")}`,
+        );
+      }
+    } catch (error) {
+      res.status(500).send("Error publishing listing");
     }
   },
 
@@ -526,9 +528,7 @@ const LenderController = {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
       });
-      if (listing) {
-        await listing.update({ status: "Deleted" });
-      }
+      if (listing) await listing.update({ status: "Deleted" });
       res.redirect("/lender/listings");
     } catch (error) {
       res.status(500).send("Error deleting listing");
@@ -545,52 +545,67 @@ const LenderController = {
 
       if (!listing) return res.status(404).send("Listing not found");
 
-      res.render("lender/manage-images", { listing });
+      res.render("lender/upload-images", {
+        listing,
+        error: req.query.error || null,
+      });
     } catch (error) {
-      console.error(error);
       res.status(500).send("Server Error");
     }
   },
 
-  // RESTORED: Image Upload Logic
   uploadImages: async (req, res) => {
     try {
       const listingId = req.params.id;
-      if (!req.files || req.files.length === 0)
+      let imagesToCreate = [];
+
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          imagesToCreate.push({
+            listingId,
+            imageUrl: `/images/uploads/${file.filename}`,
+            isPrimary: false,
+          });
+        });
+      }
+
+      if (req.body.imageUrls) {
+        let urls = req.body.imageUrls;
+        if (!Array.isArray(urls)) urls = [urls];
+        urls.forEach((url) => {
+          if (url.trim())
+            imagesToCreate.push({
+              listingId,
+              imageUrl: url.trim(),
+              isPrimary: false,
+            });
+        });
+      }
+
+      if (imagesToCreate.length === 0)
         return res.redirect(`/lender/listings/${listingId}/images`);
 
-      const imagesToCreate = req.files.map((file) => ({
-        listingId,
-        imageUrl: `/images/uploads/${file.filename}`,
-        isPrimary: false,
-      }));
-
       const existingImages = await Image.count({ where: { listingId } });
-      if (existingImages === 0 && imagesToCreate.length > 0) {
+      if (existingImages === 0 && imagesToCreate.length > 0)
         imagesToCreate[0].isPrimary = true;
-      }
 
       await Image.bulkCreate(imagesToCreate);
       res.redirect(`/lender/listings/${listingId}/images`);
     } catch (error) {
-      console.error("Error uploading images:", error);
       res.status(500).send("Error uploading images");
     }
   },
 
-  // RESTORED: Image Deletion Logic
   deleteImage: async (req, res) => {
     try {
       const image = await Image.findByPk(req.params.imageId);
       if (image) await image.destroy();
       res.redirect("back");
     } catch (error) {
-      console.error("Error deleting image:", error);
       res.status(500).send("Error deleting image");
     }
   },
 
-  // RESTORED: Set Primary Image Logic
   setPrimaryImage: async (req, res) => {
     try {
       const image = await Image.findByPk(req.params.imageId);
@@ -603,7 +618,6 @@ const LenderController = {
       }
       res.redirect("back");
     } catch (error) {
-      console.error("Error setting primary image:", error);
       res.status(500).send("Error setting primary image");
     }
   },
@@ -646,7 +660,7 @@ const LenderController = {
         order: [["createdAt", "ASC"]],
       });
 
-      res.render("lender/requests", { requests });
+      res.render("lender/pending-requests", { requests });
     } catch (error) {
       res.status(500).send("Server Error");
     }
@@ -671,13 +685,11 @@ const LenderController = {
 
       if (action === "accept") {
         await request.update({ status: "Accepted" });
-
         const duration = Math.ceil(
           (new Date(request.endDate) - new Date(request.startDate)) /
             (1000 * 60 * 60 * 24),
         );
         const total = duration * request.listing.dailyRate;
-
         await Rental.create({
           requestId: request.id,
           lenderId: req.session.user.id,
@@ -690,7 +702,6 @@ const LenderController = {
 
       res.redirect("/lender/requests");
     } catch (error) {
-      console.error("Process Request Error:", error);
       res.status(500).send("Server Error processing request");
     }
   },
@@ -699,10 +710,7 @@ const LenderController = {
   getActiveRentals: async (req, res) => {
     try {
       const rentals = await Rental.findAll({
-        where: {
-          lenderId: req.session.user.id,
-          status: "Active",
-        },
+        where: { lenderId: req.session.user.id, status: "Active" },
         include: [
           {
             model: RentalRequest,
@@ -714,10 +722,8 @@ const LenderController = {
           },
         ],
       });
-
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
-      console.error("Active Rentals Error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   },
@@ -739,15 +745,12 @@ const LenderController = {
         ],
         order: [["createdAt", "DESC"]],
       });
-
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
-      console.error("Lending History Error:", error);
       res.status(500).send("Error loading history: " + error.message);
     }
   },
 
-  // --- UC-L07: Confirm Item Return ---
   completeRental: async (req, res) => {
     try {
       const rental = await Rental.findOne({
@@ -757,14 +760,9 @@ const LenderController = {
           status: "Active",
         },
       });
-
-      if (rental) {
-        await rental.update({ status: "Completed" });
-      }
-
+      if (rental) await rental.update({ status: "Completed" });
       res.redirect("/lender/history");
     } catch (error) {
-      console.error("Error completing rental:", error);
       res.status(500).send("Error completing rental");
     }
   },

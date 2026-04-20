@@ -67,6 +67,9 @@ router.put(
 );
 router.delete("/listings/:id", LenderController.deleteListing);
 
+// NEW: Publish Draft
+router.put("/listings/:id/publish", LenderController.publishListing);
+
 // UC-L04: View Listing Details
 router.get("/listings/:id", LenderController.viewListingDetails);
 

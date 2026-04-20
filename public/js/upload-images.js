@@ -17,10 +17,93 @@ document.addEventListener("DOMContentLoaded", () => {
     ? parseInt(uploadForm.getAttribute("data-current-count"), 10) || 0
     : 0;
 
-  // Array to track URLs added by the user
+  const MAX_IMAGES = 8;
+
+  // Arrays to track items added by the user before upload
+  let selectedFiles = [];
   let selectedUrls = [];
 
-  // --- 1. Drag and Drop Visual Handlers ---
+  // --- 1. Core Logic to Update UI (Show/Hide, Previews) ---
+  function updateUI() {
+    const totalPending = selectedFiles.length + selectedUrls.length;
+    const totalFuture = currentImageCount + totalPending;
+
+    if (totalPending > 0) {
+      uploadActionDiv.classList.remove("d-none");
+      selectedFilesText.textContent = `${totalPending} image(s) ready to upload (${totalFuture}/${MAX_IMAGES} total slots used).`;
+
+      if (totalFuture > MAX_IMAGES) {
+        selectedFilesText.classList.remove("text-info");
+        selectedFilesText.classList.add("text-danger");
+        selectedFilesText.textContent += " You have exceeded the limit!";
+      } else {
+        selectedFilesText.classList.add("text-info");
+        selectedFilesText.classList.remove("text-danger");
+      }
+    } else {
+      uploadActionDiv.classList.add("d-none");
+    }
+
+    // Render Previews
+    previewGallery.innerHTML = "";
+
+    // Generate File previews
+    selectedFiles.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        createPreviewElement(e.target.result, file.name, () => {
+          selectedFiles.splice(index, 1);
+          updateUI();
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Generate URL previews
+    selectedUrls.forEach((url, index) => {
+      createPreviewElement(url, url, () => {
+        selectedUrls.splice(index, 1);
+        updateUI();
+      });
+    });
+  }
+
+  function createPreviewElement(src, title, onRemove) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "position-relative shadow-sm";
+    wrapper.style.width = "120px";
+    wrapper.style.height = "120px";
+
+    const img = document.createElement("img");
+    img.src = src;
+    img.className =
+      "img-thumbnail w-100 h-100 object-fit-cover bg-black border-secondary";
+    img.title = title;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className =
+      "btn btn-danger btn-sm position-absolute top-0 end-0 translate-middle rounded-circle p-1 lh-1 shadow";
+    removeBtn.style.width = "28px";
+    removeBtn.style.height = "28px";
+    removeBtn.innerHTML = "<i class='bi bi-x fs-6'></i>";
+    removeBtn.onclick = onRemove;
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(removeBtn);
+    previewGallery.appendChild(wrapper);
+  }
+
+  // --- 2. Add Local Files ---
+  function handleFiles(files) {
+    for (let file of files) {
+      if (file.type.startsWith("image/")) {
+        selectedFiles.push(file);
+      }
+    }
+    updateUI();
+  }
+
   if (uploadZone) {
     uploadZone.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -34,124 +117,84 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadZone.addEventListener("drop", (e) => {
       e.preventDefault();
       uploadZone.classList.remove("drag-over");
-
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        fileInput.files = e.dataTransfer.files;
-        updatePreviews();
-      }
+      if (e.dataTransfer.files) handleFiles(e.dataTransfer.files);
     });
   }
 
-  // --- 2. Handle File Button Click & Selection ---
   if (selectFilesBtn && fileInput) {
-    selectFilesBtn.addEventListener("click", () => {
-      fileInput.click();
-    });
-
+    selectFilesBtn.addEventListener("click", () => fileInput.click());
     fileInput.addEventListener("change", () => {
-      updatePreviews();
+      handleFiles(fileInput.files);
+      fileInput.value = ""; // Clear so same file can be selected again
     });
   }
 
-  // --- 3. Handle URL Addition ---
+  // --- 3. Add URLs ---
   if (addUrlBtn && imageUrlInput) {
     addUrlBtn.addEventListener("click", () => {
       const url = imageUrlInput.value.trim();
-      if (!url) return;
-
-      // Basic URL validation
-      try {
-        new URL(url);
-      } catch (_) {
-        alert("Please enter a valid URL.");
-        return;
+      if (url) {
+        selectedUrls.push(url);
+        imageUrlInput.value = "";
+        updateUI();
       }
+    });
 
-      const fileCount = fileInput.files ? fileInput.files.length : 0;
-      if (currentImageCount + fileCount + selectedUrls.length >= 8) {
-        alert(`You can only have a maximum of 8 images.`);
-        return;
+    imageUrlInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addUrlBtn.click();
       }
-
-      selectedUrls.push(url);
-      imageUrlInput.value = "";
-      updatePreviews();
     });
   }
 
-  // --- 4. Process and Preview Files & URLs ---
-  function updatePreviews() {
-    previewGallery.innerHTML = ""; // Clear existing previews
+  // --- 4. Handle Form Submission ---
+  if (uploadForm) {
+    uploadForm.addEventListener("submit", (e) => {
+      const totalFuture =
+        currentImageCount + selectedFiles.length + selectedUrls.length;
 
-    // Remove old hidden URL inputs from the form
-    document
-      .querySelectorAll('input[name="imageUrls"]')
-      .forEach((el) => el.remove());
+      if (selectedFiles.length === 0 && selectedUrls.length === 0) {
+        e.preventDefault();
+        return;
+      }
 
-    const files = fileInput.files ? Array.from(fileInput.files) : [];
-    const totalAttempted =
-      currentImageCount + files.length + selectedUrls.length;
+      if (totalFuture > MAX_IMAGES) {
+        e.preventDefault();
+        alert(
+          `You can only have up to ${MAX_IMAGES} images total. Please remove some before uploading.`,
+        );
+        return;
+      }
 
-    if (totalAttempted > 8) {
-      alert(
-        `You can only have a maximum of 8 images. You are trying to exceed the limit.`,
-      );
-      fileInput.value = "";
-      selectedUrls = [];
-      uploadActionDiv.classList.add("d-none");
-      return;
-    }
+      // Pack the accumulated local files into the actual file input using DataTransfer
+      const dt = new DataTransfer();
+      selectedFiles.forEach((file) => dt.items.add(file));
+      fileInput.files = dt.files;
 
-    // Generate hidden inputs for the URLs so they get sent in the POST request body
-    selectedUrls.forEach((url) => {
-      const hiddenInput = document.createElement("input");
-      hiddenInput.type = "hidden";
-      hiddenInput.name = "imageUrls";
-      hiddenInput.value = url;
-      uploadForm.appendChild(hiddenInput);
-    });
-
-    if (files.length > 0 || selectedUrls.length > 0) {
-      selectedFilesText.textContent = `${files.length} file(s) and ${selectedUrls.length} URL(s) ready to upload.`;
-
-      // Render Local File Previews
-      files.forEach((file) => {
-        if (!file.type.startsWith("image/")) return;
-        createThumbnail(URL.createObjectURL(file), true);
-      });
-
-      // Render URL Previews
+      // Inject the URL strings into hidden inputs so backend receives them
+      document
+        .querySelectorAll('input[name="imageUrls"]')
+        .forEach((el) => el.remove());
       selectedUrls.forEach((url) => {
-        createThumbnail(url, false);
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = "imageUrls";
+        hidden.value = url;
+        uploadForm.appendChild(hidden);
       });
 
-      uploadActionDiv.classList.remove("d-none");
-      uploadActionDiv.scrollIntoView({ behavior: "smooth", block: "end" });
-    } else {
-      uploadActionDiv.classList.add("d-none");
-    }
+      // Disable button to prevent double-submit
+      const submitBtn = uploadForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.innerHTML =
+          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
+        submitBtn.disabled = true;
+      }
+    });
   }
 
-  function createThumbnail(src, isBlob) {
-    const imgContainer = document.createElement("div");
-    imgContainer.className = "position-relative";
-
-    const img = document.createElement("img");
-    img.src = src;
-    img.className = "img-thumbnail bg-dark border-secondary";
-    img.style.width = "100px";
-    img.style.height = "100px";
-    img.style.objectFit = "cover";
-
-    if (isBlob) {
-      img.onload = () => URL.revokeObjectURL(img.src);
-    }
-
-    imgContainer.appendChild(img);
-    previewGallery.appendChild(imgContainer);
-  }
-
-  // --- 5. Custom Image Deletion Modal Logic ---
+  // --- 5. Custom Image Deletion Modal Logic (Current Images) ---
   const deleteImageForms = document.querySelectorAll(".delete-image-form");
   const deleteModalEl = document.getElementById("deleteImageModal");
 
@@ -180,12 +223,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 6. Set Primary Image Logic ---
+  // --- 6. Set Primary Image Logic (Current Images) ---
   const setPrimaryForms = document.querySelectorAll(".set-primary-form");
 
   setPrimaryForms.forEach((form) => {
     form.addEventListener("submit", function (e) {
-      // Prevent double submissions visually
       const btn = this.querySelector('button[type="submit"]');
       if (btn) {
         btn.innerHTML =
