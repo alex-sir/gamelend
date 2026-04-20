@@ -157,6 +157,15 @@ file is saved and run the import command:
 mariadb -u root -p gamelend < gamelend_backup.sql
 ```
 
+### Database Seed Data
+
+To quickly test GameLend with seed data, a script is provided
+to fill a test database with predetermined information:
+
+```bash
+npm run seed
+```
+
 ## Team
 
 - Tyler Weddle ([tyler-weddle](https://github.com/tyler-weddle))

@@ -71,8 +71,8 @@ async function seedDatabase() {
       title: "PlayStation 5 Console - Disk Edition",
       category: "Console",
       condition: "Like New",
-      dailyRate: 15.0,
-      quantity: 1,
+      dailyRate: 7.0,
+      quantity: 5,
       description:
         "Hardly used PS5 with two controllers. 4K gaming ready! Comes in original box with all HDMI and power cables. Perfectly quiet, no fan coil whine.",
       status: "Active",
@@ -93,13 +93,19 @@ async function seedDatabase() {
       {
         listingId: ps5.id,
         imageUrl:
-          "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&q=80&w=800",
+          "https://media.gamestop.com/i/gamestop/20009351_ALT05?$pdp$?w=1256&h=664&fmt=auto",
         isPrimary: true,
       },
       {
         listingId: ps5.id,
         imageUrl:
-          "https://images.unsplash.com/photo-1607458256227-2ad1907797da?auto=format&fit=crop&q=80&w=800",
+          "https://media.wired.com/photos/5fa9dbb7ed97b6b30c266262/master/pass/games_gear_ps5-disc.jpg",
+        isPrimary: false,
+      },
+      {
+        listingId: ps5.id,
+        imageUrl:
+          "https://i5.walmartimages.com/asr/fe290a26-8640-4f5f-8027-e608a1b549ad.69c307a933c0fae8e8ea8246d89664ff.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
         isPrimary: false,
       },
     ]);
@@ -109,7 +115,7 @@ async function seedDatabase() {
       title: "The Legend of Zelda: Tears of the Kingdom",
       category: "Video Game",
       condition: "Very Good",
-      dailyRate: 5.0,
+      dailyRate: 1.5,
       quantity: 1,
       description:
         "Physical cartridge for Nintendo Switch. Case is included and in perfect condition. Dive into the massive world of Hyrule and the skies above!",
@@ -130,8 +136,26 @@ async function seedDatabase() {
       {
         listingId: zelda.id,
         imageUrl:
-          "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&q=80&w=800",
+          "https://thesunflower.com/wp-content/uploads/2024/02/Tears-of-the-Kingdom-wallpaper-1170x720-1.jpg",
         isPrimary: true,
+      },
+      {
+        listingId: zelda.id,
+        imageUrl:
+          "https://static0.pocketlintimages.com/wordpress/wp-content/uploads/2023/05/legend-of-zelda-tears-of-the-kingdom-9.jpg?w=1600&h=900&fit=crop",
+        isPrimary: false,
+      },
+      {
+        listingId: zelda.id,
+        imageUrl:
+          "https://www.videogameschronicle.com/files/2023/03/TLOZ_TearsOfTheKingdom_28032023_scrn_12.jpg",
+        isPrimary: false,
+      },
+      {
+        listingId: zelda.id,
+        imageUrl:
+          "https://kotaku.com/app/uploads/2023/04/fbc3178a6ed86ba04193fe22571ff0dd.jpg",
+        isPrimary: false,
       },
     ]);
 
@@ -140,7 +164,7 @@ async function seedDatabase() {
       title: "Xbox Elite Wireless Controller Series 2",
       category: "Accessory",
       condition: "Good",
-      dailyRate: 8.0,
+      dailyRate: 2.0,
       quantity: 2,
       description:
         "Pro-level Xbox controller with adjustable-tension thumbsticks, wrap-around rubberized grip, and shorter hair trigger locks. Includes carrying case.",
@@ -161,13 +185,13 @@ async function seedDatabase() {
       {
         listingId: controller.id,
         imageUrl:
-          "https://images.unsplash.com/photo-1593118247619-e2d6f056869e?auto=format&fit=crop&q=80&w=800",
+          "https://m.media-amazon.com/images/I/717XTm0moDL._AC_UF1000,1000_QL80_.jpg",
         isPrimary: true,
       },
       {
         listingId: controller.id,
         imageUrl:
-          "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&q=80&w=800",
+          "https://i.extremetech.com/imagery/content-types/04K176NzQ8xAqEfIXArLIHe/hero-image.fit_lim.v1678673188.jpg",
         isPrimary: false,
       },
     ]);
@@ -195,8 +219,7 @@ async function seedDatabase() {
     await Image.bulkCreate([
       {
         listingId: n64.id,
-        imageUrl:
-          "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&q=80&w=800",
+        imageUrl: "https://m.media-amazon.com/images/I/81-6ZsysglL.jpg",
         isPrimary: true,
       },
     ]);
@@ -224,7 +247,7 @@ async function seedDatabase() {
     await Rental.create({
       requestId: req1.id,
       lenderId: lender.id,
-      actualTotal: 20.0,
+      actualTotal: 6.0,
       status: "Completed",
     });
 
@@ -243,7 +266,7 @@ async function seedDatabase() {
     await Rental.create({
       requestId: req2.id,
       lenderId: lender.id,
-      actualTotal: 75.0,
+      actualTotal: 21.0,
       status: "Active",
     });
 
