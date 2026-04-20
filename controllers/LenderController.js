@@ -223,15 +223,24 @@ const LenderController = {
   getListings: async (req, res) => {
     try {
       let whereClause = { lenderId: req.session.user.id };
-      if (req.query.q) whereClause.title = { [Op.iLike]: `%${req.query.q}%` };
+
+      // FIX: Changed Op.iLike to Op.like for MariaDB compatibility
+      if (req.query.q) {
+        whereClause.title = { [Op.like]: `%${req.query.q}%` };
+      }
 
       const listings = await Listing.findAll({
         where: whereClause,
         include: [{ model: Image, as: "images" }],
         order: [["createdAt", "DESC"]],
       });
-      res.render("lender/my-listings", { listings });
+
+      res.render("lender/my-listings", {
+        listings,
+        searchQuery: req.query.q || "",
+      });
     } catch (error) {
+      console.error("Get Listings Error:", error);
       res.status(500).send("Server Error");
     }
   },
@@ -356,7 +365,7 @@ const LenderController = {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
         include: [
-          { model: Image, as: "images" }, // Ensure images are grabbed for the sidebar
+          { model: Image, as: "images" },
           { model: Listing_VideoGame, as: "videoGameDetails" },
           { model: Listing_Console, as: "consoleDetails" },
           { model: Listing_Accessory, as: "accessoryDetails" },
@@ -512,7 +521,6 @@ const LenderController = {
         await listing.update({ status: "Active" });
         res.redirect(`/lender/listings/${listing.id}`);
       } else {
-        // Redirect back to the images page with an error if no images exist
         res.redirect(
           `/lender/listings/${listing.id}/images?error=${encodeURIComponent("You must upload at least one image before publishing.")}`,
         );
@@ -599,10 +607,71 @@ const LenderController = {
   deleteImage: async (req, res) => {
     try {
       const image = await Image.findByPk(req.params.imageId);
-      if (image) await image.destroy();
+      if (image) {
+        const listingId = image.listingId;
+        const wasPrimary = image.isPrimary;
+
+        // Safety Check: Do not delete the last available image
+        const currentCount = await Image.count({ where: { listingId } });
+        if (currentCount <= 1) {
+          return res.redirect(
+            `/lender/listings/${listingId}/images?error=Cannot+delete+the+last+remaining+image.`,
+          );
+        }
+
+        await image.destroy();
+
+        // Automatically set the next remaining image as primary if the old primary was deleted
+        if (wasPrimary) {
+          const nextImage = await Image.findOne({
+            where: { listingId },
+            order: [["createdAt", "ASC"]], // Sort chronologically to get the top image
+          });
+          if (nextImage) {
+            await nextImage.update({ isPrimary: true });
+          }
+        }
+
+        return res.redirect(
+          `/lender/listings/${listingId}/images?success=Image+successfully+deleted.`,
+        );
+      }
       res.redirect("back");
     } catch (error) {
+      console.error("Error deleting image:", error);
       res.status(500).send("Error deleting image");
+    }
+  },
+
+  // Processes the drag-and-drop reordering
+  reorderImages: async (req, res) => {
+    try {
+      const listingId = req.params.id;
+      const { imageIds } = req.body;
+
+      // Use the current time as a baseline and increment by 1 second for each position
+      // This enforces chronological order without needing a schema migration for an 'orderIndex' column
+      let baseTime = new Date().getTime();
+
+      for (let i = 0; i < imageIds.length; i++) {
+        const imgId = imageIds[i];
+
+        // Automatically make the item dragged to the first slot the new Primary
+        const isPrimary = i === 0;
+
+        await Image.update(
+          {
+            createdAt: new Date(baseTime + i * 1000),
+            isPrimary: isPrimary,
+          },
+          { where: { id: imgId, listingId: listingId } },
+        );
+      }
+
+      res.status(200).json({ message: "Reordered successfully" });
+    } catch (error) {
+      console.error("Error reordering images:", error);
+      res.status(500).json({ error: "Server error" });
     }
   },
 
@@ -610,14 +679,40 @@ const LenderController = {
     try {
       const image = await Image.findByPk(req.params.imageId);
       if (image) {
+        const listingId = image.listingId;
+
+        // 1. Remove primary status from all other images
         await Image.update(
           { isPrimary: false },
-          { where: { listingId: image.listingId } },
+          { where: { listingId: listingId } },
         );
-        await image.update({ isPrimary: true });
+
+        // 2. Find the current oldest image in the list
+        const oldestImage = await Image.findOne({
+          where: { listingId: listingId },
+          order: [["createdAt", "ASC"]],
+        });
+
+        // 3. Calculate a new timestamp 1 second older than the current oldest
+        let newTime = new Date().getTime();
+        if (oldestImage) {
+          newTime = new Date(oldestImage.createdAt).getTime() - 1000;
+        }
+
+        // 4. Set the selected image as primary AND move it to the front
+        await image.update({
+          isPrimary: true,
+          createdAt: new Date(newTime),
+        });
+
+        // 5. Explicitly redirect back with a success message
+        return res.redirect(
+          `/lender/listings/${listingId}/images?success=Primary+image+successfully+updated.`,
+        );
       }
-      res.redirect("back");
+      res.redirect("/lender/listings");
     } catch (error) {
+      console.error("Error setting primary image:", error);
       res.status(500).send("Error setting primary image");
     }
   },
@@ -720,7 +815,7 @@ const LenderController = {
               {
                 model: Listing,
                 as: "listing",
-                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+                include: [{ model: Image, as: "images" }],
               },
             ],
           },
@@ -747,7 +842,7 @@ const LenderController = {
               {
                 model: Listing,
                 as: "listing",
-                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+                include: [{ model: Image, as: "images" }],
               },
             ],
           },

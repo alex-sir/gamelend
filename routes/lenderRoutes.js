@@ -55,6 +55,7 @@ router.post(
   upload.array("listingImages", 8),
   LenderController.uploadImages,
 );
+router.put("/listings/:id/images/reorder", LenderController.reorderImages);
 router.delete("/images/:imageId", LenderController.deleteImage);
 router.post("/images/:imageId/primary", LenderController.setPrimaryImage);
 

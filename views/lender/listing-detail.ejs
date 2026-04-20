@@ -7,11 +7,12 @@
   if (listing.status === 'Suspended') { badgeClass = 'bg-danger'; statusIcon = 'bi-exclamation-triangle'; }
   if (listing.status === 'Deleted') { badgeClass = 'bg-danger'; statusIcon = 'bi-trash'; }
 
+  // FIXED: Images now respect the exact order set in the Image Manager
   if (listing && listing.images && listing.images.length > 0) {
     listing.images.sort((a, b) => {
       if (a.isPrimary && !b.isPrimary) return -1;
       if (!a.isPrimary && b.isPrimary) return 1;
-      return 0;
+      return new Date(a.createdAt) - new Date(b.createdAt);
     });
   }
 

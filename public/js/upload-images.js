@@ -9,21 +9,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewGallery = document.getElementById("previewGallery");
   const uploadForm = document.getElementById("uploadForm");
 
-  // URL Input Elements
   const addUrlBtn = document.getElementById("addUrlBtn");
   const imageUrlInput = document.getElementById("imageUrl");
 
   const currentImageCount = uploadForm
     ? parseInt(uploadForm.getAttribute("data-current-count"), 10) || 0
     : 0;
-
   const MAX_IMAGES = 8;
 
-  // Arrays to track items added by the user before upload
   let selectedFiles = [];
   let selectedUrls = [];
 
-  // --- 1. Core Logic to Update UI (Show/Hide, Previews) ---
+  // --- 1. Dynamic URL Success/Error Message Interceptor & Toast Logic ---
+  const urlParams = new URLSearchParams(window.location.search);
+  const alertsContainer = document.getElementById("dynamicAlertsContainer");
+
+  function showInlineAlert(type, message) {
+    if (!alertsContainer) return;
+    const icon =
+      type === "success"
+        ? "bi-check-circle-fill"
+        : "bi-exclamation-triangle-fill";
+    const alertClass = type === "success" ? "alert-success" : "alert-danger";
+
+    alertsContainer.innerHTML = `
+      <div class="alert ${alertClass} d-flex align-items-center shadow-sm alert-dismissible fade show" role="alert">
+        <i class="bi ${icon} me-3 fs-5"></i>
+        <div>${message}</div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+    setTimeout(() => {
+      alertsContainer.innerHTML = "";
+    }, 3500);
+  }
+
+  // Clear existing URL params (used for initial page loads after uploading or deleting)
+  if (alertsContainer) {
+    if (urlParams.has("success"))
+      showInlineAlert("success", urlParams.get("success"));
+    else if (urlParams.has("error"))
+      showInlineAlert("danger", urlParams.get("error"));
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // --- 2. Core UI Update Function ---
   function updateUI() {
     const totalPending = selectedFiles.length + selectedUrls.length;
     const totalFuture = currentImageCount + totalPending;
@@ -44,10 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
       uploadActionDiv.classList.add("d-none");
     }
 
-    // Render Previews
     previewGallery.innerHTML = "";
 
-    // Generate File previews
     selectedFiles.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -59,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
       reader.readAsDataURL(file);
     });
 
-    // Generate URL previews
     selectedUrls.forEach((url, index) => {
       createPreviewElement(url, url, () => {
         selectedUrls.splice(index, 1);
@@ -94,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     previewGallery.appendChild(wrapper);
   }
 
-  // --- 2. Add Local Files ---
+  // --- 3. Add Files/URLs ---
   function handleFiles(files) {
     for (let file of files) {
       if (file.type.startsWith("image/")) {
@@ -109,11 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       uploadZone.classList.add("drag-over");
     });
-
     uploadZone.addEventListener("dragleave", () => {
       uploadZone.classList.remove("drag-over");
     });
-
     uploadZone.addEventListener("drop", (e) => {
       e.preventDefault();
       uploadZone.classList.remove("drag-over");
@@ -125,11 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
     selectFilesBtn.addEventListener("click", () => fileInput.click());
     fileInput.addEventListener("change", () => {
       handleFiles(fileInput.files);
-      fileInput.value = ""; // Clear so same file can be selected again
+      fileInput.value = "";
     });
   }
 
-  // --- 3. Add URLs ---
   if (addUrlBtn && imageUrlInput) {
     addUrlBtn.addEventListener("click", () => {
       const url = imageUrlInput.value.trim();
@@ -139,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateUI();
       }
     });
-
     imageUrlInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -158,7 +181,6 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         return;
       }
-
       if (totalFuture > MAX_IMAGES) {
         e.preventDefault();
         alert(
@@ -167,12 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Pack the accumulated local files into the actual file input using DataTransfer
       const dt = new DataTransfer();
       selectedFiles.forEach((file) => dt.items.add(file));
       fileInput.files = dt.files;
 
-      // Inject the URL strings into hidden inputs so backend receives them
       document
         .querySelectorAll('input[name="imageUrls"]')
         .forEach((el) => el.remove());
@@ -184,7 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadForm.appendChild(hidden);
       });
 
-      // Disable button to prevent double-submit
       const submitBtn = uploadForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.innerHTML =
@@ -194,10 +213,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 5. Custom Image Deletion Modal Logic (Current Images) ---
+  // --- 5. Delete Modal Logic ---
   const deleteImageForms = document.querySelectorAll(".delete-image-form");
   const deleteModalEl = document.getElementById("deleteImageModal");
-
   if (deleteModalEl) {
     const deleteModal = new bootstrap.Modal(deleteModalEl);
     const confirmDeleteBtn = document.getElementById("confirmImageDeleteBtn");
@@ -223,17 +241,86 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 6. Set Primary Image Logic (Current Images) ---
-  const setPrimaryForms = document.querySelectorAll(".set-primary-form");
+  // --- 6. Seamless Reordering & Primary Status Control ---
+  const imageGallery = document.getElementById("imageGallery");
 
-  setPrimaryForms.forEach((form) => {
-    form.addEventListener("submit", function (e) {
-      const btn = this.querySelector('button[type="submit"]');
-      if (btn) {
-        btn.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Saving...';
-        btn.disabled = true;
+  function updatePrimaryUI() {
+    if (!imageGallery) return;
+    const items = imageGallery.querySelectorAll(".image-item");
+
+    items.forEach((item, index) => {
+      const badge = item.querySelector(".primary-badge");
+      const makePrimaryBtn = item.querySelector(".btn-make-primary");
+
+      // Index 0 is always Primary. Show badge, hide button.
+      if (index === 0) {
+        if (badge) badge.classList.remove("d-none");
+        if (makePrimaryBtn) makePrimaryBtn.classList.add("d-none");
+      } else {
+        // Not primary. Hide badge, show button.
+        if (badge) badge.classList.add("d-none");
+        if (makePrimaryBtn) makePrimaryBtn.classList.remove("d-none");
       }
     });
-  });
+  }
+
+  function saveOrderSilently() {
+    if (!imageGallery) return;
+    const listingId = imageGallery.getAttribute("data-listing-id");
+    const imageItems = imageGallery.querySelectorAll(".image-item");
+    const newOrderIds = Array.from(imageItems).map((item) =>
+      item.getAttribute("data-id"),
+    );
+
+    fetch(`/lender/listings/${listingId}/images/reorder`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageIds: newOrderIds }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          showInlineAlert("danger", "Failed to save the new image order.");
+        }
+        // Removed the success alert entirely for a smoother UX
+      })
+      .catch((err) => {
+        console.error(err);
+        showInlineAlert(
+          "danger",
+          "Network error occurred while saving the new order.",
+        );
+      });
+  }
+
+  // Initialize Drag-and-Drop Sortable
+  if (imageGallery && typeof Sortable !== "undefined") {
+    new Sortable(imageGallery, {
+      animation: 150,
+      handle: ".drag-handle",
+      ghostClass: "sortable-ghost",
+      onEnd: function () {
+        updatePrimaryUI(); // Visually update the Primary badge immediately
+        saveOrderSilently(); // Send API call to save to backend
+      },
+    });
+  }
+
+  // Event Delegation for "Make Primary" button click
+  if (imageGallery) {
+    imageGallery.addEventListener("click", (e) => {
+      const primaryBtn = e.target.closest(".btn-make-primary");
+      if (primaryBtn) {
+        e.preventDefault();
+        const imageItem = primaryBtn.closest(".image-item");
+        if (imageItem) {
+          // Physically move the image element to the front of the gallery container
+          imageGallery.prepend(imageItem);
+
+          // Update the UI badges and trigger the reorder save
+          updatePrimaryUI();
+          saveOrderSilently();
+        }
+      }
+    });
+  }
 });
