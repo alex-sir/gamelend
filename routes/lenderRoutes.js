@@ -84,5 +84,6 @@ router.post("/requests/:id/reject", LenderController.rejectRequest);
 // --- Rental History ---
 // UC-L07: View Lending History
 router.get("/history", LenderController.getLendingHistory);
+router.put("/rentals/:id/complete", LenderController.completeRental);
 
 module.exports = router;

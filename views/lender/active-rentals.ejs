@@ -49,7 +49,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Active Rentals - GameLend</title>
 
-    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/controller.png" type="image/png" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
@@ -64,6 +64,7 @@
         object-fit: cover;
         border-radius: 8px;
         margin-right: 1.5rem;
+        background-color: var(--color-black);
       }
       .timeline {
         position: relative;
@@ -107,6 +108,7 @@
     </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
+    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -227,8 +229,12 @@
                   const end = new Date(rent.request.endDate);
                   const reqDate = new Date(rent.request.createdAt);
                   
-                  const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                  const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  // By enforcing the UTC timezone, Javascript won't mistakenly subtract 7 hours
+                  // and push the date backward to the previous day (e.g., April 19 -> April 18)
+                  const startStr = start.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+                  const endStr = end.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+                  
+                  // The exact timestamp of confirmation can still be displayed in the local timezone
                   const reqDateStr = reqDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
                   
                   const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) || 1;
@@ -244,7 +250,7 @@
                   const borrowerName = rent.request.borrower.firstName || rent.request.borrower.email.split('@')[0];
                 %>
                 
-                <div class="section-card">
+                <div class="section-card mb-4">
                   <div class="row">
                     <div class="col-md-8">
                       <div class="d-flex align-items-start mb-3">
@@ -320,14 +326,14 @@
                           <strong style="color: var(--color-orange); font-size: 1.25rem">$<%= parseFloat(rent.actualTotal).toFixed(2) %></strong>
                         </div>
 
-                        <div class="d-grid gap-2">
-                          <button class="btn btn-main btn-sm btn-contact-borrower" data-borrower-name="<%= borrowerName %>">
+                        <div class="d-grid gap-2 w-100">
+                          <button class="btn btn-main btn-sm w-100 btn-contact-borrower" data-borrower-name="<%= borrowerName %>">
                             <i class="bi bi-chat-dots me-1"></i>Contact Borrower
                           </button>
-                          <button class="btn btn-main btn-sm btn-report-issue" data-listing-title="<%= rent.request.listing.title %>">
+                          <button class="btn btn-main btn-sm w-100 btn-report-issue" data-listing-title="<%= rent.request.listing.title %>">
                             <i class="bi bi-exclamation-triangle me-1"></i>Report Issue
                           </button>
-                          <button class="btn btn-alternate btn-sm btn-confirm-return" data-listing-title="<%= rent.request.listing.title %>" data-rental-id="<%= rent.id %>">
+                          <button class="btn btn-alternate btn-sm w-100 btn-confirm-return" data-listing-title="<%= rent.request.listing.title %>" data-rental-id="<%= rent.id %>">
                             <i class="bi bi-check-circle me-1"></i>Confirm Return
                           </button>
                         </div>
@@ -349,7 +355,7 @@
               <% if (upcomingList.length > 0) { %>
                 <% upcomingList.forEach(function(rent) { %>
                   <% 
-                    const startStr = new Date(rent.request.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const startStr = new Date(rent.request.startDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
                     const end = new Date(rent.request.endDate);
                     const duration = Math.ceil((end - new Date(rent.request.startDate)) / (1000 * 60 * 60 * 24)) || 1;
                     
@@ -391,7 +397,7 @@
               <% if (completedList.length > 0) { %>
                 <% completedList.forEach(function(rent) { %>
                   <% 
-                    const endStr = new Date(rent.request.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const endStr = new Date(rent.request.endDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
                     const duration = Math.ceil((new Date(rent.request.endDate) - new Date(rent.request.startDate)) / (1000 * 60 * 60 * 24)) || 1;
                     
                     let imageUrl = '/images/gaming-collage.svg';
@@ -496,6 +502,8 @@
         </div>
       </div>
     </div>
+
+    <form id="completeRentalForm" method="POST" style="display: none;"></form>
 
     <footer>
       <div class="container">

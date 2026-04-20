@@ -22,15 +22,12 @@ const LenderController = {
       const activeListingsCount = await Listing.count({
         where: { lenderId, status: "Active" },
       });
-
       const activeRentalsCount = await Rental.count({
         where: { lenderId, status: "Active" },
       });
-
       const earningsSum = await Rental.sum("actualTotal", {
         where: { lenderId, status: "Completed" },
       });
-
       const pendingRequestsCount = await RentalRequest.count({
         include: [{ model: Listing, as: "listing", where: { lenderId } }],
         where: { status: "Pending" },
@@ -58,18 +55,26 @@ const LenderController = {
         order: [["createdAt", "DESC"]],
       });
 
-      const pendingReqs = rawRequests.map((req) => ({
-        id: req.id,
-        title: req.listing.title,
-        image:
-          req.listing.images && req.listing.images.length > 0
-            ? req.listing.images[0].imageUrl
-            : "/images/gaming-collage.svg",
-        borrower: req.borrower.firstName || req.borrower.email.split("@")[0],
-        dates: `${new Date(req.startDate).toLocaleDateString()} - ${new Date(req.endDate).toLocaleDateString()}`,
-        price: `$${req.listing.dailyRate}`,
-        duration: "Requested",
-      }));
+      const pendingReqs = rawRequests.map((req) => {
+        // Correctly find the primary image for the request
+        let imageUrl = "/images/gaming-collage.svg";
+        if (req.listing.images && req.listing.images.length > 0) {
+          const primary = req.listing.images.find((img) => img.isPrimary);
+          imageUrl = primary
+            ? primary.imageUrl
+            : req.listing.images[0].imageUrl;
+        }
+
+        return {
+          id: req.id,
+          title: req.listing.title,
+          image: imageUrl,
+          borrower: req.borrower.firstName || req.borrower.email.split("@")[0],
+          dates: `${new Date(req.startDate).toLocaleDateString()} - ${new Date(req.endDate).toLocaleDateString()}`,
+          price: `$${parseFloat(req.listing.dailyRate).toFixed(2)}`,
+          duration: "Requested",
+        };
+      });
 
       // 3. Fetch Active Rentals for the UI
       const rawRentals = await Rental.findAll({
@@ -91,25 +96,132 @@ const LenderController = {
         limit: 5,
       });
 
-      const activeRents = rawRentals.map((rent) => ({
-        id: rent.id,
-        title: rent.request.listing.title,
-        image:
-          rent.request.listing.images && rent.request.listing.images.length > 0
-            ? rent.request.listing.images[0].imageUrl
-            : "/images/gaming-collage.svg",
-        borrower:
-          rent.request.borrower.firstName ||
-          rent.request.borrower.email.split("@")[0],
-        returnDate: new Date(rent.request.endDate).toLocaleDateString(),
-        status: rent.status,
-      }));
+      const activeRents = rawRentals.map((rent) => {
+        // Correctly find the primary image for the active rental
+        let imageUrl = "/images/gaming-collage.svg";
+        if (
+          rent.request.listing.images &&
+          rent.request.listing.images.length > 0
+        ) {
+          const primary = rent.request.listing.images.find(
+            (img) => img.isPrimary,
+          );
+          imageUrl = primary
+            ? primary.imageUrl
+            : rent.request.listing.images[0].imageUrl;
+        }
+
+        return {
+          id: rent.id,
+          title: rent.request.listing.title,
+          image: imageUrl,
+          borrower:
+            rent.request.borrower.firstName ||
+            rent.request.borrower.email.split("@")[0],
+          returnDate: new Date(rent.request.endDate).toLocaleDateString(),
+          status: rent.status,
+        };
+      });
+
+      // 4. Build the Recent Activity Feed dynamically
+      const activities = [];
+
+      // A. Fetch recent requests (Pending, Accepted, Rejected)
+      const recentRequests = await RentalRequest.findAll({
+        include: [
+          { model: Listing, as: "listing", where: { lenderId } },
+          { model: User, as: "borrower" },
+        ],
+        order: [["updatedAt", "DESC"]],
+        limit: 5,
+      });
+
+      recentRequests.forEach((req) => {
+        const borrowerName =
+          req.borrower.firstName || req.borrower.email.split("@")[0];
+        let icon, type, label, text;
+
+        if (req.status === "Pending") {
+          icon = "bi-envelope-paper";
+          type = "info";
+          label = "New Request";
+          text = `${borrowerName} requested to borrow ${req.listing.title}`;
+        } else if (req.status === "Accepted") {
+          icon = "bi-check-circle";
+          type = "success";
+          label = "Request Accepted";
+          text = `You accepted a rental for ${req.listing.title}`;
+        } else if (req.status === "Rejected") {
+          icon = "bi-x-circle";
+          type = "danger";
+          label = "Request Rejected";
+          text = `You declined a request for ${req.listing.title}`;
+        } else if (req.status === "Cancelled") {
+          icon = "bi-slash-circle";
+          type = "warning";
+          label = "Request Cancelled";
+          text = `${borrowerName} cancelled their request`;
+        }
+
+        if (icon) {
+          activities.push({
+            icon,
+            type,
+            label,
+            text,
+            dateObj: req.updatedAt,
+            time: new Date(req.updatedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            }),
+          });
+        }
+      });
+
+      // B. Fetch recently created or updated listings
+      const recentListings = await Listing.findAll({
+        where: { lenderId },
+        order: [["updatedAt", "DESC"]],
+        limit: 3,
+      });
+
+      recentListings.forEach((listing) => {
+        let icon = "bi-tags",
+          type = "primary",
+          label = "Listing Updated",
+          text = `You updated ${listing.title}`;
+        // If created and updated are identical, it's a brand new listing
+        if (listing.createdAt.getTime() === listing.updatedAt.getTime()) {
+          label = "New Listing Created";
+          icon = "bi-plus-circle";
+          text = `You published ${listing.title}`;
+        }
+        activities.push({
+          icon,
+          type,
+          label,
+          text,
+          dateObj: listing.updatedAt,
+          time: new Date(listing.updatedAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          }),
+        });
+      });
+
+      // C. Sort everything chronologically (newest first) and take the top 6
+      activities.sort((a, b) => b.dateObj - a.dateObj);
+      const recentActivity = activities.slice(0, 6);
 
       res.render("lender/dashboard", {
         dashboardStats,
         pendingReqs,
         activeRents,
-        recentActivity: [],
+        recentActivity,
       });
     } catch (error) {
       console.error("Dashboard Error:", error);
@@ -636,6 +748,31 @@ const LenderController = {
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
       res.status(500).send("Error loading history");
+    }
+  },
+
+  // --- UC-L07: Confirm Item Return ---
+  completeRental: async (req, res) => {
+    try {
+      // Find the specific active rental that belongs to this lender
+      const rental = await Rental.findOne({
+        where: {
+          id: req.params.id,
+          lenderId: req.session.user.id,
+          status: "Active",
+        },
+      });
+
+      if (rental) {
+        // Update the rental status to Completed
+        await rental.update({ status: "Completed" });
+      }
+
+      // Redirect back to the active rentals page
+      res.redirect("/lender/history");
+    } catch (error) {
+      console.error("Error completing rental:", error);
+      res.status(500).send("Error completing rental");
     }
   },
 };

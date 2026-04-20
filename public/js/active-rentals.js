@@ -57,11 +57,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const returnBtns = document.querySelectorAll(".btn-confirm-return");
     const returnListingTitle = document.getElementById("returnListingTitle");
     const confirmReturnBtn = document.getElementById("confirmReturnBtn");
+    const completeRentalForm = document.getElementById("completeRentalForm"); // Grab the hidden form
 
     returnBtns.forEach((btn) => {
       btn.addEventListener("click", function () {
         const title = this.getAttribute("data-listing-title");
+        const rentalId = this.getAttribute("data-rental-id"); // Extract the ID
+
         if (returnListingTitle) returnListingTitle.textContent = title;
+
+        // Dynamically set the action URL for the hidden form to target this specific rental
+        if (completeRentalForm) {
+          completeRentalForm.action = `/lender/rentals/${rentalId}/complete?_method=PUT`;
+        }
+
         returnModal.show();
       });
     });
@@ -72,16 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
           '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
         this.disabled = true;
 
-        // Note: To fully implement this, you would wrap this button in a form
-        // that posts to a /lender/rentals/:id/complete endpoint on your Express backend.
-        // For now, it provides a realistic UI simulation.
-        setTimeout(() => {
-          returnModal.hide();
-          this.innerHTML =
-            '<i class="bi bi-check-circle me-2"></i>Confirm Return';
-          this.disabled = false;
-          location.reload(); // Refresh the page to reflect changes
-        }, 1000);
+        // Submit the hidden form to the Express backend!
+        if (completeRentalForm) {
+          completeRentalForm.submit();
+        }
       });
     }
   }
