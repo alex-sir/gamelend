@@ -192,6 +192,26 @@ const AdminController = {
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
       const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
 
+      // Data for charts
+      const listingsByCategoryRaw = await Listing.findAll({
+        attributes: ['category', [Listing.sequelize.fn('COUNT', Listing.sequelize.col('id')), 'count']],
+        where: { status: 'Active' },
+        group: ['category']
+      });
+      const listingsByCategory = listingsByCategoryRaw.map(l => ({
+        category: l.category,
+        count: parseInt(l.dataValues.count, 10)
+      }));
+
+      const rentalsByStatusRaw = await Rental.findAll({
+        attributes: ['status', [Rental.sequelize.fn('COUNT', Rental.sequelize.col('id')), 'count']],
+        group: ['status']
+      });
+      const rentalsByStatus = rentalsByStatusRaw.map(r => ({
+        status: r.status,
+        count: parseInt(r.dataValues.count, 10)
+      }));
+
       res.render('admin/analytics', {
         metrics: {
           activeRenters: activeRentersCount,
@@ -199,6 +219,10 @@ const AdminController = {
           activeListings: activeListingsCount,
           completedRentals: completedRentalsCount,
           totalRevenue: totalRevenue || 0
+        },
+        chartData: {
+          listingsByCategory,
+          rentalsByStatus
         }
       });
     } catch (error) {
