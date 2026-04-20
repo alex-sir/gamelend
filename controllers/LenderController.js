@@ -717,13 +717,18 @@ const LenderController = {
             as: "request",
             include: [
               { model: User, as: "borrower" },
-              { model: Listing, as: "listing" },
+              {
+                model: Listing,
+                as: "listing",
+                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+              },
             ],
           },
         ],
       });
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
+      console.error("Active Rentals Error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   },
@@ -739,7 +744,11 @@ const LenderController = {
             as: "request",
             include: [
               { model: User, as: "borrower" },
-              { model: Listing, as: "listing" },
+              {
+                model: Listing,
+                as: "listing",
+                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+              },
             ],
           },
         ],
@@ -747,6 +756,7 @@ const LenderController = {
       });
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
+      console.error("Lending History Error:", error);
       res.status(500).send("Error loading history: " + error.message);
     }
   },

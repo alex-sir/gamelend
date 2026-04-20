@@ -3,7 +3,6 @@
     ? currentUser.firstName 
     : 'Lender';
     
-  // Categorize the listings from the database
   const activeListings = [];
   const suspendedListings = [];
   const draftListings = [];
@@ -16,7 +15,6 @@
     });
   }
 
-  // Ensure searchQuery is defined to prevent reference errors
   const currentSearch = (typeof searchQuery !== 'undefined') ? searchQuery : '';
 
   function getPrimaryImage(listing) {
@@ -104,14 +102,19 @@
     <main class="flex-grow-1 py-4">
       <div class="container">
         
-        <div class="lender-header d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-          <div>
-            <h1>My Listings</h1>
-            <p>Manage your inventory and availability</p>
-          </div>
-          <a href="/lender/listings/new" class="btn btn-main mt-3 mt-md-0">
-            <i class="bi bi-plus-lg me-2"></i>Create New Listing
+        <div class="lender-header mb-4">
+          <a href="/lender/dashboard" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
           </a>
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+              <h1>My Listings</h1>
+              <p>Manage your inventory and availability</p>
+            </div>
+            <a href="/lender/listings/new" class="btn btn-main mt-3 mt-md-0">
+              <i class="bi bi-plus-lg me-2"></i>Create New Listing
+            </a>
+          </div>
         </div>
 
         <div class="section-card">
@@ -134,7 +137,6 @@
           </ul>
 
           <div class="tab-content">
-            
             <div class="tab-pane fade show active" id="active" role="tabpanel">
               <% if (activeListings.length === 0) { %>
                 <div class="text-center py-5 bg-dark rounded border border-secondary">
@@ -152,17 +154,26 @@
                   <% activeListings.forEach(function(item) { %>
                     <div class="col">
                       <div class="card h-100 bg-dark border-secondary listing-card shadow-sm hover-lift">
-                        <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover" alt="<%= item.title %>" style="height: 200px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <div class="card-body d-flex flex-column p-4">
-                          <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title text-light mb-0 text-truncate" style="max-width: 80%;" title="<%= item.title %>"><%= item.title %></h5>
-                            <span class="fs-5 fw-bold text-orange">$<%= parseFloat(item.dailyRate).toFixed(2) %></span>
+                        <a href="/lender/listings/<%= item.id %>" class="text-decoration-none">
+                          <div class="position-relative">
+                            <span class="badge bg-success position-absolute top-0 start-0 m-2 shadow"><i class="bi bi-check-circle me-1"></i>Active</span>
+                            <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover" alt="<%= item.title %>" style="height: 200px; border-bottom: 1px solid rgba(255,255,255,0.1);">
                           </div>
+                        </a>
+                        <div class="card-body d-flex flex-column p-4">
+                          
+                          <div class="d-flex justify-content-between align-items-start mb-2">
+                            <a href="/lender/listings/<%= item.id %>" class="text-decoration-none text-light pe-2" style="min-width: 0; flex: 1;">
+                              <h5 class="card-title mb-0 text-truncate" title="<%= item.title %>"><%= item.title %></h5>
+                            </a>
+                            <span class="fs-5 fw-bold text-orange flex-shrink-0">$<%= parseFloat(item.dailyRate).toFixed(2) %></span>
+                          </div>
+
                           <p class="card-text text-muted small mb-4">
                             <i class="bi bi-tag me-1"></i><%= item.category %> &middot; <%= item.condition %>
                           </p>
                           <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
-                            <a href="/lender/listings/<%= item.id %>" class="btn btn-sm btn-outline-light">Manage</a>
+                            <a href="/lender/listings/<%= item.id %>" class="btn btn-sm btn-outline-light">Manage Details</a>
                             <div class="dropdown">
                               <button class="btn btn-sm btn-alternate px-2 py-1" type="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-three-dots-vertical"></i>
@@ -199,24 +210,24 @@
                   <% draftListings.forEach(function(item) { %>
                     <div class="col">
                       <div class="card h-100 bg-dark border-secondary listing-card shadow-sm hover-lift">
-                        <div class="position-relative">
-                          <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover opacity-50" alt="<%= item.title %>" style="height: 200px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                          <div class="position-absolute top-50 start-50 translate-middle">
-                            <span class="badge bg-secondary fs-6 shadow">DRAFT</span>
+                        <a href="/lender/listings/<%= item.id %>" class="text-decoration-none">
+                          <div class="position-relative">
+                            <span class="badge bg-secondary position-absolute top-0 start-0 m-2 shadow"><i class="bi bi-pencil me-1"></i>Draft</span>
+                            <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover opacity-50" alt="<%= item.title %>" style="height: 200px; border-bottom: 1px solid rgba(255,255,255,0.1);">
                           </div>
-                        </div>
+                        </a>
                         <div class="card-body d-flex flex-column p-4">
-                          <h5 class="card-title text-light mb-2"><%= item.title %></h5>
+                          <a href="/lender/listings/<%= item.id %>" class="text-decoration-none text-light pe-2" style="min-width: 0;">
+                            <h5 class="card-title mb-2 text-truncate" title="<%= item.title %>"><%= item.title %></h5>
+                          </a>
                           <p class="card-text text-muted small mb-4">
                             <i class="bi bi-tag me-1"></i><%= item.category %> &middot; <%= item.condition %>
                           </p>
-                          <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
-                            <a href="/lender/listings/<%= item.id %>" class="btn btn-sm btn-outline-light">Review Draft</a>
-                            
-                            <form action="/lender/listings/<%= item.id %>/publish?_method=PUT" method="POST" class="m-0">
-                              <button type="submit" class="btn btn-sm btn-success">Publish Now</button>
+                          <div class="mt-auto d-flex gap-2 pt-3 border-top border-secondary">
+                            <a href="/lender/listings/<%= item.id %>" class="btn btn-sm btn-outline-light flex-fill">Review</a>
+                            <form action="/lender/listings/<%= item.id %>/publish?_method=PUT" method="POST" class="m-0 flex-fill">
+                              <button type="submit" class="btn btn-sm btn-success w-100">Publish</button>
                             </form>
-
                           </div>
                         </div>
                       </div>
@@ -239,14 +250,11 @@
                     <div class="col">
                       <div class="card h-100 bg-dark border-danger border-opacity-50 listing-card shadow-sm hover-lift">
                         <div class="position-relative">
+                          <span class="badge bg-danger position-absolute top-0 start-0 m-2 shadow"><i class="bi bi-exclamation-triangle me-1"></i>Suspended</span>
                           <img src="<%= getPrimaryImage(item) %>" class="card-img-top object-fit-cover opacity-25" alt="<%= item.title %>" style="height: 200px; filter: grayscale(100%);">
-                          <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
-                            <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-2 d-block shadow-sm"></i>
-                            <span class="badge bg-danger fs-6 shadow">SUSPENDED</span>
-                          </div>
                         </div>
                         <div class="card-body d-flex flex-column p-4">
-                          <h5 class="card-title text-light mb-2"><%= item.title %></h5>
+                          <h5 class="card-title text-light mb-2 text-truncate" title="<%= item.title %>"><%= item.title %></h5>
                           <p class="card-text text-muted small mb-4">
                             Please contact support to resolve the issue with this listing.
                           </p>
@@ -325,7 +333,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      // Quick inline script to handle the global delete modal form submissions
       document.addEventListener("DOMContentLoaded", () => {
         const deleteForms = document.querySelectorAll('.delete-listing-form');
         const deleteModalEl = document.getElementById('deleteListingModal');
