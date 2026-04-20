@@ -2,24 +2,22 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs"); // Imported File System module
+const fs = require("fs");
 const { requireRole } = require("../middleware/auth");
 const { listingValidationRules } = require("../middleware/listingValidation");
 const LenderController = require("../controllers/LenderController");
 
 // --- Ensure Upload Directory Exists ---
-// Creates an absolute path to the uploads folder
 const uploadDir = path.join(__dirname, "../public/images/uploads");
 
-// Check if the directory exists, and if not, create it recursively
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// --- Multer Configuration for Image Uploads (UC-L02) ---
+// --- Multer Configuration for Image Uploads ---
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir); // Use the absolute path we guaranteed exists above
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -40,9 +38,9 @@ router.use(requireRole("lender"));
 
 // --- Lender Dashboard & Listings ---
 router.get("/dashboard", LenderController.getDashboard);
-router.get("/listings", LenderController.getMyListings);
+router.get("/listings", LenderController.getListings);
 
-// UC-L01: Create Equipment Listing
+// UC-L02: Create New Listing
 router.get("/listings/new", LenderController.renderCreateForm);
 router.post(
   "/listings",
@@ -51,7 +49,7 @@ router.post(
 );
 
 // UC-L02: Upload Item Images
-router.get("/listings/:id/images", LenderController.renderUploadForm);
+router.get("/listings/:id/images", LenderController.renderImageManager);
 router.post(
   "/listings/:id/images",
   upload.array("listingImages", 8),
@@ -69,24 +67,32 @@ router.put(
 );
 router.delete("/listings/:id", LenderController.deleteListing);
 
-// UC-L04: View Listing (Public perspective + Lender stats)
-router.get("/listings/:id", LenderController.viewListing);
+// UC-L04: View Listing Details
+router.get("/listings/:id", LenderController.viewListingDetails);
 
 // --- Rental Requests ---
 router.get("/requests", LenderController.getPendingRequests);
 
-// UC-L05: Accept Borrow Request
-router.post("/requests/:id/accept", LenderController.acceptRequest);
+// UC-L05: Process Borrow Request (Accept)
+router.post("/requests/:id/accept", (req, res, next) => {
+  req.body.action = "accept";
+  LenderController.processRequest(req, res, next);
+});
 
-// UC-L06: Reject Borrow Request
-router.post("/requests/:id/reject", LenderController.rejectRequest);
+// UC-L05: Process Borrow Request (Reject)
+router.post("/requests/:id/reject", (req, res, next) => {
+  req.body.action = "reject";
+  LenderController.processRequest(req, res, next);
+});
 
-// UC-L08: Complete Rental
-router.post("/rentals/:id/complete", LenderController.completeRental);
+// --- Active Rentals & History ---
+// UC-L06: Manage Active Rentals
+router.get("/rentals", LenderController.getActiveRentals);
 
-// --- Rental History ---
 // UC-L07: View Lending History
 router.get("/history", LenderController.getLendingHistory);
+
+// UC-L08: Complete Rental
 router.put("/rentals/:id/complete", LenderController.completeRental);
 
 module.exports = router;
