@@ -50,14 +50,25 @@ const { PlatformSettings } = require("./models");
 // Global Maintenance Mode Middleware
 app.use(async (req, res, next) => {
   // Allow admins and auth routes to bypass maintenance mode
-  if (req.path.startsWith('/admin') || req.path.startsWith('/auth') || req.path.startsWith('/css') || req.path.startsWith('/images')) {
+  if (
+    req.path.startsWith("/admin") ||
+    req.path.startsWith("/auth") ||
+    req.path.startsWith("/css") ||
+    req.path.startsWith("/images")
+  ) {
     return next();
   }
 
   try {
-    const maintenanceSetting = await PlatformSettings.findOne({ where: { settingKey: 'maintenanceMode' } });
-    if (maintenanceSetting && maintenanceSetting.settingValue === 'true') {
-      if (req.session && req.session.user && req.session.user.role === 'admin') {
+    const maintenanceSetting = await PlatformSettings.findOne({
+      where: { settingKey: "maintenanceMode" },
+    });
+    if (maintenanceSetting && maintenanceSetting.settingValue === "true") {
+      if (
+        req.session &&
+        req.session.user &&
+        req.session.user.role === "admin"
+      ) {
         return next(); // Admins bypass
       }
       return res.status(503).send(`
@@ -86,7 +97,7 @@ app.use("/lender", requireAuth, lenderRoutes);
 app.use("/borrower", requireAuth, borrowerRoutes);
 
 //Mount the admin routes
-app.use("/admin", adminRoutes)
+app.use("/admin", adminRoutes);
 
 // Mount the profile routes
 app.use("/profile", profileRoutes);
@@ -99,8 +110,18 @@ app.get("/browse", HomeController.browseMarketplace);
 app.get("/listing/:id", HomeController.viewPublicListing);
 
 // Public About Page
-app.get("/about", (req, res) => {
-  res.render("about");
+app.get("/about", async (req, res) => {
+  const { Listing, Image } = require("./models");
+  try {
+    const featuredListings = await Listing.findAll({
+      where: { status: "Active" },
+      include: [{ model: Image, as: "images" }],
+      limit: 10,
+    });
+    res.render("about", { featuredListings });
+  } catch (error) {
+    res.render("about", { featuredListings: [] });
+  }
 });
 
 // --- Database Sync and Server Start ---
@@ -117,3 +138,4 @@ sequelize
   .catch((err) => {
     console.error("Unable to connect to the database:", err);
   });
+
