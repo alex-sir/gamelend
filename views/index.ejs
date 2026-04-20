@@ -1,18 +1,8 @@
 <%
-  // 1. Establish the core database categories and their exact database Enum values
-  const coreNav = [
-    { label: 'Video Games', val: 'Video Game' },
-    { label: 'Consoles', val: 'Console' },
-    { label: 'Accessories', val: 'Accessory' }
-  ];
-
-  // 2. Map any dynamically added categories from the admin
-  const dynamicNav = (typeof categories !== 'undefined' && categories.length > 0)
-    ? categories.map(c => ({ label: c.name, val: c.name }))
+  // The controller now provides a unified list of categories (core + dynamic)
+  const allNavCategories = (typeof categories !== 'undefined' && categories.length > 0)
+    ? categories
     : [];
-
-  // 3. Combine them into one array for the navigation bar
-  const allNavCategories = [...coreNav, ...dynamicNav];
 
   // Helper to safely extract the primary image from a database listing
   function getPrimaryImage(listing) {
@@ -188,7 +178,7 @@
         <ul class="nav flex-nowrap overflow-auto">
           <% allNavCategories.forEach(function(cat) { %>
             <li class="nav-item">
-              <a class="nav-link px-3" href="/browse?category=<%= encodeURIComponent(cat.val) %>"><%= cat.label %></a>
+              <a class="nav-link px-3" href="/browse?category=<%= encodeURIComponent(cat.name) %>"><%= cat.label %></a>
             </li>
           <% }); %>
         </ul>

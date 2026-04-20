@@ -20,10 +20,8 @@ const HomeController = {
         limit: 6,
       });
 
-      // Fetch dynamic categories created by the admin
-      const categories = await Category.findAll({
-        where: { status: "Active" },
-      });
+      // Fetch all categories (core + dynamic)
+      const categories = await Category.getAllWithCore();
 
       res.render("index", {
         title: "GameLend - Rent and Lend Physical Games",
@@ -44,10 +42,8 @@ const HomeController = {
     const { q, category } = req.query;
 
     try {
-      // Fetch dynamic categories so we can check against them AND pass them to the view
-      const categories = await Category.findAll({
-        where: { status: "Active" },
-      });
+      // Fetch all categories (core + dynamic)
+      const categories = await Category.getAllWithCore();
       const dynamicCategoryNames = categories.map((c) => c.name);
 
       const coreCategories = ["Video Game", "Console", "Accessory"];
