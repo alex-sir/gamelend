@@ -10,7 +10,9 @@ const AdminController = {
   // --- Main Dashboard ---
   getDashboard: async (req, res) => {
     try {
-      const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
+      const activeListingsCount = await Listing.count({ 
+        where: { status: { [Op.ne]: 'Deleted' } } 
+      });
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
 
       // Fetch data for charts
@@ -199,8 +201,7 @@ const AdminController = {
         },
         userReports: userReports,
         listingReports: listingReports,
-        categories: categories,
-        recentActions: []
+        categories: categories
       });
     } catch (error) {
       console.error("Moderation Hub Error:", error);
