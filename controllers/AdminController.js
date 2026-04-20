@@ -112,7 +112,7 @@ const AdminController = {
             as: 'listing',
             include: [{ model: User, as: 'lender' }] 
           },
-          { model: User, as: 'borrower' }
+          { model: User, as: 'reporter' }
         ],
         limit: 100,
         order: [['createdAt', 'DESC']]

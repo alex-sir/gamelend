@@ -98,4 +98,7 @@ router.get("/history", LenderController.getLendingHistory);
 // UC-L08: Complete Rental
 router.put("/rentals/:id/complete", LenderController.completeRental);
 
+// UC-L09: Report Borrower/Issue
+router.post("/reports", LenderController.submitReport);
+
 module.exports = router;

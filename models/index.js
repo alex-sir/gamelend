@@ -78,9 +78,13 @@ Listing.hasMany(Report, {
 });
 Report.belongsTo(Listing, { foreignKey: "listingId", as: "listing" });
 
-// User -> Report (Borrower files many reports)
-User.hasMany(Report, { foreignKey: "borrowerId", as: "reports" });
-Report.belongsTo(User, { foreignKey: "borrowerId", as: "borrower" });
+// User -> Report (Reporter)
+User.hasMany(Report, { foreignKey: "reporterId", as: "filedReports" });
+Report.belongsTo(User, { foreignKey: "reporterId", as: "reporter" });
+
+// User -> Report (Reported User)
+User.hasMany(Report, { foreignKey: "reportedUserId", as: "receivedReports" });
+Report.belongsTo(User, { foreignKey: "reportedUserId", as: "reportedUser" });
 
 // User -> AuditLog (Admin performs many actions)
 User.hasMany(AuditLog, { foreignKey: "adminId", as: "auditLogs" });

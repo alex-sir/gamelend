@@ -23,31 +23,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const reportModal = new bootstrap.Modal(reportModalEl);
     const reportBtns = document.querySelectorAll(".btn-report-issue");
     const reportListingTitle = document.getElementById("reportListingTitle");
-    const confirmReportBtn = document.getElementById("confirmReportBtn");
+    const reportListingId = document.getElementById("reportListingId");
 
     reportBtns.forEach((btn) => {
       btn.addEventListener("click", function () {
         const title = this.getAttribute("data-listing-title");
+        const id = this.getAttribute("data-listing-id");
         if (reportListingTitle) reportListingTitle.textContent = title;
+        if (reportListingId) reportListingId.value = id;
         reportModal.show();
       });
     });
-
-    if (confirmReportBtn) {
-      confirmReportBtn.addEventListener("click", function () {
-        this.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
-        this.disabled = true;
-
-        // Simulate an API call delay for UI feedback
-        setTimeout(() => {
-          reportModal.hide();
-          this.innerHTML = '<i class="bi bi-flag me-2"></i>Submit Report';
-          this.disabled = false;
-          alert("Your report has been submitted to the admin team for review.");
-        }, 1000);
-      });
-    }
   }
 
   // --- 3. Confirm Return Modal Logic ---

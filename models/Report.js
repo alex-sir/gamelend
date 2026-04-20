@@ -11,14 +11,18 @@ const Report = sequelize.define(
     },
     listingId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
-    borrowerId: {
+    reporterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    reportedUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     reason: {
-      type: DataTypes.ENUM("fraud", "misleading", "safety", "abuse", "other"),
+      type: DataTypes.ENUM("fraud", "misleading", "safety", "abuse", "damage", "missing_item", "other"),
       allowNull: false,
     },
     details: {

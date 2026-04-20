@@ -11,6 +11,7 @@ const {
   Listing_Accessory,
   Category,
   PlatformSettings,
+  Report,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -806,6 +807,46 @@ const LenderController = {
       res.redirect("/lender/history");
     } catch (error) {
       res.status(500).send("Error completing rental");
+    }
+  },
+  submitReport: async (req, res) => {
+    try {
+      const lenderId = req.session.user.id;
+      const { listingId, reason, details } = req.body;
+
+      if (!listingId || !reason || !details) {
+        return res.status(400).send("Missing report details");
+      }
+
+      // Find the most recent rental for this listing to identify the borrower
+      const rental = await Rental.findOne({
+        include: [{
+          model: RentalRequest,
+          as: 'request',
+          where: { listingId }
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+
+      if (!rental) {
+        return res.status(404).send("No rental history found for this listing to report.");
+      }
+
+      const borrowerId = rental.request.borrowerId;
+
+      await Report.create({
+        listingId,
+        reporterId: lenderId,
+        reportedUserId: borrowerId,
+        reason,
+        details,
+        status: "Submitted",
+      });
+
+      res.redirect('/lender/rentals');
+    } catch (error) {
+      console.error("Lender Report Error:", error);
+      res.status(500).send("Failed to submit report.");
     }
   },
 };

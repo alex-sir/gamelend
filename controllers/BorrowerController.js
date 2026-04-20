@@ -528,8 +528,9 @@ const BorrowerController = {
       }
 
       await Report.create({
-        listingId: listing.id,
-        borrowerId,
+        listingId,
+        reporterId: borrowerId,
+        reportedUserId: listing.lenderId,
         reason,
         details,
         referenceUrl: referenceUrl || null,
