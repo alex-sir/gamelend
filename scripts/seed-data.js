@@ -35,7 +35,7 @@ async function seedTylerData() {
         category: 'Console',
         condition: 'Like New',
         dailyRate: 15.00,
-        description: 'Hardly used PS5 with two controllers. 4K gaming ready!',
+        description: 'Hardly used PS5 with two controllers. 4K gaming ready and in perfect condition!',
         status: 'Active',
         imageUrl: '/images/ps5.jpg'
       },
@@ -44,7 +44,7 @@ async function seedTylerData() {
         category: 'Video Game',
         condition: 'New',
         dailyRate: 5.00,
-        description: 'The full masterpiece including the DLC. Prepare to die!',
+        description: 'The full masterpiece including the DLC. Prepare to die in the incredible land of shadow!',
         status: 'Active',
         imageUrl: '/images/gaming-collage.svg'
       },
@@ -53,7 +53,7 @@ async function seedTylerData() {
         category: 'Accessory',
         condition: 'Very Good',
         dailyRate: 4.50,
-        description: 'Black wireless controller, works perfectly with Xbox and PC.',
+        description: 'Black wireless controller, works perfectly with Xbox and PC. Includes fresh batteries.',
         status: 'Active',
         imageUrl: '/images/xbox-wireless-controller.jpg'
       },
@@ -62,7 +62,7 @@ async function seedTylerData() {
         category: 'Video Game',
         condition: 'Good',
         dailyRate: 3.50,
-        description: 'Classic platformer, great for kids and families.',
+        description: 'Classic platformer, great for kids and families. Cartridge is clean and fully tested.',
         status: 'Active',
         imageUrl: '/images/donkey-kong-bananza.jpg'
       },
@@ -80,7 +80,7 @@ async function seedTylerData() {
         category: 'Accessory',
         condition: 'Like New',
         dailyRate: 6.00,
-        description: 'Extra controller for the PS5. Used twice.',
+        description: 'Extra controller for the PlayStation 5. Used twice, practically brand new without drift.',
         status: 'Active',
         imageUrl: '/images/gaming-collage.svg'
       }
@@ -123,7 +123,7 @@ async function seedTylerData() {
         await Listing_VideoGame.create({
           listingId: newList.id,
           platform: item.title.includes('Donkey') ? 'Nintendo Switch' : 'PlayStation 5',
-          genre: item.title.includes('Donkey') ? 'Platformer' : 'RPG',
+          genre: item.title.includes('Donkey') ? 'Adventure' : 'RPG',
           esrbRating: item.title.includes('Donkey') ? 'E' : 'M'
         });
       }
@@ -197,24 +197,16 @@ async function seedTylerData() {
       status: 'Rejected'
     });
 
-    // Rental 5: CANCELLED RENTAL (Accepted but then cancelled)
+    // Rental 5: CANCELLED REQUEST
     const cancStart = new Date(); cancStart.setDate(now.getDate() - 20);
     const cancEnd = new Date(); cancEnd.setDate(now.getDate() - 18);
     
-    const req5 = await RentalRequest.create({
+    await RentalRequest.create({
       listingId: listings[4].id,
       borrowerId: borrower.id,
       startDate: cancStart,
       endDate: cancEnd,
-      status: 'Accepted'
-    });
-
-    await Rental.create({
-      requestId: req5.id,
-      lenderId: lender.id,
-      actualTotal: 0.00,
-      status: 'Cancelled',
-      createdAt: cancStart
+      status: 'Cancelled'
     });
 
     console.log('--- Seeding Completed Successfully! ---');
