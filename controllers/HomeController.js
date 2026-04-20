@@ -1,63 +1,48 @@
 // controllers/HomeController.js
-const { Listing, Image, User, Listing_VideoGame, Listing_Console, Listing_Accessory } = require("../models");
+const { Listing, Image, User, Listing_VideoGame, Listing_Console, Listing_Accessory, Category } = require("../models");
 const { Op } = require("sequelize");
-
-/** Display labels on the homepage / browse nav → DB enum values */
-const CATEGORY_LABEL_TO_ENUM = {
-  "Video Games": "Video Game",
-  Consoles: "Console",
-  Accessories: "Accessory",
-};
-
-function resolveCategoryFilter(raw) {
-  if (!raw || typeof raw !== "string") return null;
-  const trimmed = raw.trim();
-  if (CATEGORY_LABEL_TO_ENUM[trimmed]) return CATEGORY_LABEL_TO_ENUM[trimmed];
-  if (["Video Game", "Console", "Accessory"].includes(trimmed)) return trimmed;
-  return null;
-}
 
 const HomeController = {
   getHomePage: async (req, res) => {
     try {
-      // Fetch the latest active listings to feature on the homepage
       const featuredListings = await Listing.findAll({
         where: { status: "Active" },
-        include: [
-          {
-            model: Image,
-            as: "images",
-          },
-        ],
-        order: [["createdAt", "DESC"]], // Newest items first
-        limit: 6, // Limit to 6 items so the carousel doesn't get overwhelmingly large
+        include: [{ model: Image, as: "images" }],
+        order: [["createdAt", "DESC"]],
+        limit: 6,
       });
 
-      // Render the homepage and pass the database items to the EJS template
+      const categories = await Category.findAll({ where: { status: "Active" } });
+
       res.render("index", {
         title: "GameLend - Rent and Lend Physical Games",
         featuredListings,
+        categories
       });
     } catch (error) {
       console.error("Error loading homepage data:", error);
-
-      // Graceful fallback: If the database query fails, still load the homepage
-      // but pass an empty array so the EJS file triggers its placeholder logic.
       res.render("index", {
         title: "GameLend - Rent and Lend Physical Games",
         featuredListings: [],
+        categories: []
       });
     }
   },
 
-  /** Public marketplace search & category filter (no login required) */
   browseMarketplace: async (req, res) => {
     const { q, category } = req.query;
-    const categoryEnum = resolveCategoryFilter(category);
 
     try {
+      const categories = await Category.findAll({ where: { status: "Active" } });
+      const categoryNames = categories.map(c => c.name);
+
       const where = { status: "Active" };
-      if (categoryEnum) where.category = categoryEnum;
+      
+      // If the requested category is valid, filter by it
+      if (category && categoryNames.includes(category)) {
+        where.category = category;
+      }
+
       if (q && String(q).trim()) {
         const term = `%${String(q).trim()}%`;
         where[Op.or] = [
@@ -79,10 +64,8 @@ const HomeController = {
         title: "Browse Listings - GameLend",
         listings,
         searchQuery: q ? String(q).trim() : "",
-        activeCategoryLabel: categoryEnum
-          ? Object.keys(CATEGORY_LABEL_TO_ENUM).find((k) => CATEGORY_LABEL_TO_ENUM[k] === categoryEnum) || category
-          : "",
-        categoryLabels: Object.keys(CATEGORY_LABEL_TO_ENUM),
+        activeCategoryLabel: category,
+        categoryLabels: categoryNames,
       });
     } catch (error) {
       console.error("Browse marketplace error:", error);

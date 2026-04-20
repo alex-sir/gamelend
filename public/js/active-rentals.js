@@ -62,28 +62,42 @@ document.addEventListener("DOMContentLoaded", () => {
     returnBtns.forEach((btn) => {
       btn.addEventListener("click", function () {
         const title = this.getAttribute("data-listing-title");
-        const rentalId = this.getAttribute("data-rental-id"); // Extract the ID
-
+        const id = this.getAttribute("data-rental-id");
         if (returnListingTitle) returnListingTitle.textContent = title;
-
-        // Dynamically set the action URL for the hidden form to target this specific rental
-        if (completeRentalForm) {
-          completeRentalForm.action = `/lender/rentals/${rentalId}/complete?_method=PUT`;
-        }
-
+        if (confirmReturnBtn) confirmReturnBtn.setAttribute("data-active-id", id);
         returnModal.show();
       });
     });
 
     if (confirmReturnBtn) {
-      confirmReturnBtn.addEventListener("click", function () {
+      confirmReturnBtn.addEventListener("click", async function () {
+        const rentalId = this.getAttribute("data-active-id");
+
         this.innerHTML =
           '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
         this.disabled = true;
 
-        // Submit the hidden form to the Express backend!
-        if (completeRentalForm) {
-          completeRentalForm.submit();
+        try {
+          const response = await fetch(`/lender/rentals/${rentalId}/complete`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            returnModal.hide();
+            location.reload(); // Refresh to show the rental in the "Completed" tab
+          } else {
+            alert("Failed to complete rental. Please try again.");
+            this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Confirm Return';
+            this.disabled = false;
+          }
+        } catch (error) {
+          console.error("Error completing rental:", error);
+          alert("An error occurred. Please check your connection.");
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Confirm Return';
+          this.disabled = false;
         }
       });
     }

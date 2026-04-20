@@ -105,6 +105,9 @@
         background-color: #dc3545;
         border-color: #dc3545;
       }
+      .text-on-time {
+        color: var(--color-orange);
+      }
     </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
@@ -276,7 +279,7 @@
                         <div class="col-md-6">
                           <p class="mb-1"><strong>Return Date:</strong></p>
                           <p>
-                            <strong style="color: <%= isOverdue ? '#dc3545' : 'var(--color-orange)' %>"><%= endStr %></strong>
+                            <strong class="<%= isOverdue ? 'text-danger' : 'text-on-time' %>"><%= endStr %></strong>
                             <span class="<%= isOverdue ? 'text-danger fw-bold' : 'text-muted' %>">
                               (<%= isOverdue ? Math.abs(daysRemaining) + ' days overdue' : daysRemaining + ' days remaining' %>)
                             </span>

@@ -8,21 +8,12 @@ const {
   Listing_VideoGame,
   Listing_Console,
   Listing_Accessory,
+  PlatformSettings,
+  Category,
 } = require("../models");
 const { Op } = require("sequelize");
 
-function resolveCategoryFilter(raw) {
-  if (!raw || typeof raw !== "string") return null;
-  const trimmed = raw.trim();
-  const map = {
-    "Video Games": "Video Game",
-    Consoles: "Console",
-    Accessories: "Accessory",
-  };
-  if (map[trimmed]) return map[trimmed];
-  if (["Video Game", "Console", "Accessory"].includes(trimmed)) return trimmed;
-  return null;
-}
+
 
 function toDateOnly(value) {
   // value from <input type="date"> is already YYYY-MM-DD
@@ -55,9 +46,13 @@ const BorrowerController = {
     const { q, category } = req.query;
 
     try {
+      const categories = await Category.findAll({ where: { status: 'Active' } });
+      const categoryNames = categories.map(c => c.name);
+
       const where = { status: "Active" };
-      const categoryEnum = resolveCategoryFilter(category);
-      if (categoryEnum) where.category = categoryEnum;
+      if (category && categoryNames.includes(category)) {
+        where.category = category;
+      }
 
       if (q && String(q).trim()) {
         const term = `%${String(q).trim()}%`;
@@ -80,9 +75,8 @@ const BorrowerController = {
       res.render("borrower/dashboard", {
         listings,
         searchQuery: q ? String(q).trim() : "",
-        activeCategoryLabel: categoryEnum
-          ? { "Video Game": "Video Games", Console: "Consoles", Accessory: "Accessories" }[categoryEnum] || ""
-          : "",
+        activeCategoryLabel: category || "",
+        categories
       });
     } catch (error) {
       console.error("Borrower dashboard error:", error);
@@ -155,6 +149,18 @@ const BorrowerController = {
       });
       if (!listing) return res.redirect("/borrower/dashboard");
 
+      // Enforce Max Active Rentals Platform Setting
+      const maxRentalsSetting = await PlatformSettings.findOne({ where: { settingKey: 'maxActiveRentals' } });
+      const maxRentals = maxRentalsSetting ? parseInt(maxRentalsSetting.settingValue, 10) : 5;
+      
+      const activeRentalsCount = await Rental.count({ where: { borrowerId, status: "Active" } });
+      if (activeRentalsCount >= maxRentals) {
+        return res.render("borrower/rental-request", {
+          listing,
+          error: `You have reached the platform maximum of ${maxRentals} active rentals. Please return items before requesting more.`,
+        });
+      }
+
       if (!startDate || !endDate) {
         return res.render("borrower/rental-request", {
           listing,
@@ -217,7 +223,12 @@ const BorrowerController = {
       const durationDays = daysBetween(request.startDate, request.endDate);
       const subtotal = durationDays * Number(request.listing.dailyRate);
       const deposit = 0;
-      const serviceFee = subtotal * 0.125;
+      
+      // Calculate dynamic platform service fee
+      const feeSetting = await PlatformSettings.findOne({ where: { settingKey: 'platformFeePercent' } });
+      const feePercent = feeSetting ? parseFloat(feeSetting.settingValue) : 10;
+      const serviceFee = subtotal * (feePercent / 100);
+      
       const total = subtotal + serviceFee + deposit;
 
       res.render("borrower/rental-confirmation", {
@@ -369,7 +380,11 @@ const BorrowerController = {
       const durationDays = daysBetween(rental.request.startDate, rental.request.endDate);
       const subtotal = durationDays * Number(rental.request.listing.dailyRate);
       const deposit = 0;
-      const serviceFee = subtotal * 0.125;
+      
+      const feeSetting = await PlatformSettings.findOne({ where: { settingKey: 'platformFeePercent' } });
+      const feePercent = feeSetting ? parseFloat(feeSetting.settingValue) : 10;
+      const serviceFee = subtotal * (feePercent / 100);
+      
       const total = rental.actualTotal + serviceFee + deposit;
 
       res.render("borrower/rental-details", {
@@ -468,9 +483,8 @@ const BorrowerController = {
   // UC-B06
   renderReportForm: async (req, res) => {
     try {
-      const listing = await Listing.findOne({
-        where: { id: req.params.id, status: "Active" },
-        include: [{ model: User, as: "lender" }],
+      const listing = await Listing.findByPk(req.params.id, {
+        include: [{ model: User, as: 'lender' }]
       });
       if (!listing) return res.redirect("/borrower/dashboard");
 
@@ -487,17 +501,13 @@ const BorrowerController = {
     const { reason, details, referenceUrl } = req.body;
 
     try {
-      const listing = await Listing.findOne({ where: { id: listingId, status: "Active" } });
-      if (!listing) return res.redirect("/borrower/dashboard");
-
-      const dup = await Report.count({ where: { listingId, borrowerId } });
-      if (dup > 0) {
-        return res.redirect(`/borrower/listings/${listingId}`);
+      const listing = await Listing.findByPk(listingId);
+      if (!listing) {
+        return res.redirect("/borrower/dashboard");
       }
 
       if (!reason || !details) {
-        const fullListing = await Listing.findOne({
-          where: { id: listingId, status: "Active" },
+        const fullListing = await Listing.findByPk(listingId, {
           include: [{ model: User, as: "lender" }],
         });
         return res.render("borrower/report-listing", {
@@ -517,7 +527,7 @@ const BorrowerController = {
 
       res.redirect(`/borrower/listings/${listingId}`);
     } catch (error) {
-      console.error("Submit report error:", error);
+      console.error("Submit report error details:", error);
       res.status(500).send("Error submitting report");
     }
   },

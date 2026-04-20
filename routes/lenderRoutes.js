@@ -81,6 +81,9 @@ router.post("/requests/:id/accept", LenderController.acceptRequest);
 // UC-L06: Reject Borrow Request
 router.post("/requests/:id/reject", LenderController.rejectRequest);
 
+// UC-L08: Complete Rental
+router.post("/rentals/:id/complete", LenderController.completeRental);
+
 // --- Rental History ---
 // UC-L07: View Lending History
 router.get("/history", LenderController.getLendingHistory);

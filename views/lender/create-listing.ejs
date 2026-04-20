@@ -112,24 +112,18 @@
                 <div class="mb-4">
                   <label class="form-label">Equipment Category <span class="text-danger">*</span></label>
                   <div class="row g-3">
-                    <div class="col-md-4">
-                      <input type="radio" class="btn-check" name="category" id="categoryGame" value="Video Game" required <%= form.category === 'Video Game' ? 'checked' : '' %> />
-                      <label class="btn btn-outline-primary w-100 py-3" for="categoryGame">
-                        <i class="bi bi-disc fs-3 d-block mb-2"></i>Video Game
-                      </label>
-                    </div>
-                    <div class="col-md-4">
-                      <input type="radio" class="btn-check" name="category" id="categoryConsole" value="Console" <%= form.category === 'Console' ? 'checked' : '' %> />
-                      <label class="btn btn-outline-primary w-100 py-3" for="categoryConsole">
-                        <i class="bi bi-tv fs-3 d-block mb-2"></i>Console
-                      </label>
-                    </div>
-                    <div class="col-md-4">
-                      <input type="radio" class="btn-check" name="category" id="categoryAccessory" value="Accessory" <%= form.category === 'Accessory' ? 'checked' : '' %> />
-                      <label class="btn btn-outline-primary w-100 py-3" for="categoryAccessory">
-                        <i class="bi bi-controller fs-3 d-block mb-2"></i>Accessory
-                      </label>
-                    </div>
+                    <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                      <% categories.forEach((cat, idx) => { %>
+                        <div class="col-md-4">
+                          <input type="radio" class="btn-check category-radio" name="category" id="category<%= idx %>" value="<%= cat.name %>" required <%= form.category === cat.name ? 'checked' : '' %> />
+                          <label class="btn btn-outline-primary w-100 py-3" for="category<%= idx %>">
+                            <i class="bi bi-tag fs-3 d-block mb-2"></i><%= cat.name %>
+                          </label>
+                        </div>
+                      <% }) %>
+                    <% } else { %>
+                      <div class="col-12 text-muted">No categories available. Please contact admin.</div>
+                    <% } %>
                   </div>
                 </div>
 
@@ -178,7 +172,7 @@
 
                 <hr class="border-secondary my-4" />
 
-                <div id="gameFields" class="category-fields" style="display: <%= form.category === 'Video Game' ? 'block' : 'none' %>">
+                <div id="gameFields" class="category-fields" style="display: none;">
                   <h3 class="h5 mb-3">Video Game Specifics</h3>
                   <div class="row">
                     <div class="col-md-6 mb-3">
@@ -234,7 +228,7 @@
                   </div>
                 </div>
 
-                <div id="consoleFields" class="category-fields" style="display: <%= form.category === 'Console' ? 'block' : 'none' %>">
+                <div id="consoleFields" class="category-fields" style="display: none;">
                   <h3 class="h5 mb-3">Console Specifics</h3>
                   <div class="row">
                     <div class="col-md-6 mb-3">
@@ -283,7 +277,7 @@
                   </div>
                 </div>
 
-                <div id="accessoryFields" class="category-fields" style="display: <%= form.category === 'Accessory' ? 'block' : 'none' %>">
+                <div id="accessoryFields" class="category-fields" style="display: none;">
                   <h3 class="h5 mb-3">Accessory Specifics</h3>
                   <div class="row">
                     <div class="col-md-6 mb-3">

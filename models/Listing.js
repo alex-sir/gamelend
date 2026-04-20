@@ -21,7 +21,7 @@ const Listing = sequelize.define(
       },
     },
     category: {
-      type: DataTypes.ENUM("Video Game", "Console", "Accessory"),
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
     condition: {

@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GameLend · Moderation Hub</title>
+    <title><%= title || 'GameLend · Moderation Hub' %></title>
 
-    <link rel="icon" href="/icons/controller.svg" type="image/svg+xml" />
-
+    <link rel="icon" href="/assets/icons/controller.png" type="image/png" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -24,13 +23,13 @@
     />
 
     <link rel="stylesheet" href="/css/app.css" />
-    <link rel="stylesheet" href="styles/admin.css" />
+    <link rel="stylesheet" href="/css/admin/admin.css" />
   </head>
 
   <body class="admin-page d-flex flex-column min-vh-100">
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
-        <a class="navbar-brand" href="admin-dashboard.html">
+        <a class="navbar-brand" href="/admin/dashboard">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1" style="font-size: 0.85rem; font-weight: 400">
             Admin
@@ -47,10 +46,11 @@
         </button>
 
         <div class="mx-lg-4 mt-2 mb-0 search-bar">
-          <form class="d-flex">
+          <form class="d-flex" action="/admin/search" method="GET">
             <input
               class="form-control"
               type="search"
+              name="q"
               placeholder="Search reports, users, or listings"
               aria-label="Search moderation"
             />
@@ -60,7 +60,6 @@
           </form>
         </div>
 
-        <!-- Right-side navbar buttons -->
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
             <h5 class="offcanvas-title">Admin Menu</h5>
@@ -80,30 +79,14 @@
                 >
                   <i class="bi bi-person-circle me-1"></i>Admin Dashboard
                 </button>
-
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../borrower/borrower-dashboard.html"
-                      >Borrower Dashboard</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="../lender/lender-dashboard.html"
-                      >Lender Dashboard</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                  <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../index.html">Home</a>
-                  </li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
-              <!-- Account dropdown -->
               <div class="dropdown">
                 <button
                   class="btn btn-alternate dropdown-toggle"
@@ -113,17 +96,9 @@
                   <i class="bi bi-person-circle me-1"></i>Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="lender-profile.html"
-                      >Profile Settings</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/admin/profile">Profile Settings</a></li>
                   <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a class="dropdown-item" href="../auth/logout.html"
-                      >Log Out</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                 </ul>
               </div>
             </div>
@@ -134,428 +109,341 @@
 
     <main class="py-4">
       <div class="container">
-        <!-- Header -->
-         <div class="admin-header mb-3">
-      <a href="admin-dashboard.html" class="btn btn-alternate mb-3">
-        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-      </a>
-
+        <div class="admin-header mb-3">
+          <a href="/admin/dashboard" class="btn btn-alternate mb-3">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+          </a>
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h1>Moderation Hub</h1>
-              <p>
-                Track reports, flagged content, and recent moderation actions.
-              </p>
+              <p>Track reports, flagged content, and recent moderation actions.</p>
             </div>
           </div>
         </div>
 
-        <!-- Top moderation metrics -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Moderation Overview</h2>
           </div>
-
           <div class="row g-3">
             <div class="col-md-3">
               <div class="metric-card">
                 <div class="metric-label">Open user reports</div>
-                <div class="metric-value">3</div>
+                <div class="metric-value"><%= metrics.openReports %></div>
                 <div class="metric-trend">
                   <i class="bi bi-exclamation-triangle text-warning me-1"></i>
-                  1 high severity
+                  <%= metrics.highSeverityReports %> high severity
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="metric-card">
                 <div class="metric-label">Flagged listings</div>
-                <div class="metric-value">5</div>
+                <div class="metric-value"><%= metrics.flaggedListings %></div>
                 <div class="metric-trend">
                   <i class="bi bi-controller text-info me-1"></i>
-                  2 awaiting review
+                  <%= metrics.awaitingReview %> awaiting review
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="metric-card">
                 <div class="metric-label">Suspensions (30d)</div>
-                <div class="metric-value">4</div>
+                <div class="metric-value"><%= metrics.suspensions %></div>
                 <div class="metric-trend">
                   <i class="bi bi-slash-circle text-danger me-1"></i>
-                  2 users, 2 listings
+                  <%= metrics.suspendedUsers %> users, <%= metrics.suspendedListings %> listings
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="metric-card">
                 <div class="metric-label">Avg. response time</div>
-                <div class="metric-value">6h</div>
+                <div class="metric-value"><%= metrics.avgResponseTime %></div>
                 <div class="metric-trend">
                   <i class="bi bi-arrow-up-right text-success me-1"></i>
-                  Faster than last week
+                  <%= metrics.responseTimeTrend %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <section class="admin-section mb-4">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="metric-card h-100">
+                <h5 class="mb-3">Account Health</h5>
+                <div style="height: 250px;">
+                  <canvas id="userStatusChart"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="metric-card h-100">
+                <h5 class="mb-3">Listing Safety Overview</h5>
+                <div style="height: 250px;">
+                  <canvas id="listingStatusChart"></canvas>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- User reports preview -->
+        <!-- Chart.js and Moderation Script -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            // --- User Status Chart (Pie) ---
+            const userCtx = document.getElementById('userStatusChart').getContext('2d');
+            const userData = JSON.parse('<%- JSON.stringify(chartData.users) %>');
+            
+            new Chart(userCtx, {
+              type: 'pie',
+              data: {
+                labels: ['Active', 'Suspended'],
+                datasets: [{
+                  data: [userData.active, userData.suspended],
+                  backgroundColor: ['#28a745', '#dc3545'],
+                  borderWidth: 0,
+                  hoverOffset: 10
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'right',
+                    labels: { color: '#CCC' }
+                  }
+                }
+              }
+            });
+
+            // --- Listing Status Chart (Bar) ---
+            const listCtx = document.getElementById('listingStatusChart').getContext('2d');
+            const listData = JSON.parse('<%- JSON.stringify(chartData.listings) %>');
+            
+            new Chart(listCtx, {
+              type: 'bar',
+              data: {
+                labels: ['Active', 'Suspended', 'Draft'],
+                datasets: [{
+                  label: 'Listing Count',
+                  data: [listData.active, listData.suspended, listData.draft],
+                  backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                  borderRadius: 6
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false }
+                },
+                scales: {
+                  y: { 
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#888' }
+                  },
+                  x: { 
+                    grid: { display: false },
+                    ticks: { color: '#888' }
+                  }
+                }
+              }
+            });
+          });
+        </script>
+
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>User reports</h2>
-            <a href="moderation-users.html" class="section-footer-link">
+            <a href="/admin/users" class="section-footer-link">
               View all user reports <i class="bi bi-arrow-right"></i>
             </a>
           </div>
 
           <div class="table-responsive">
-            <table
-              class="table table-dark table-striped table-sm align-middle mb-0"
-            >
+            <table class="table table-dark table-striped table-sm align-middle mb-0">
               <thead>
                 <tr>
-                  <th scope="col">Reported user</th>
-                  <th scope="col">Reporter</th>
+                  <th scope="col">Reported User</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Severity</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Created</th>
-                  <th scope="col" class="text-end">Action</th>
+                  <th scope="col">Last Reported</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div>Riley Moore</div>
-                    <small class="text-muted">@riley</small>
-                  </td>
-                  <td>
-                    <div>Alyssa Lee</div>
-                    <small class="text-muted">@alyssa</small>
-                  </td>
-                  <td>Harassment in messages</td>
-                  <td>
-                    <span class="badge bg-danger">High</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-warning text-dark">Pending</span>
-                  </td>
-                  <td>Mar 1, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-users.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div>Jordan Diaz</div>
-                    <small class="text-muted">@jordand</small>
-                  </td>
-                  <td>
-                    <div>System</div>
-                    <small class="text-muted">Automated</small>
-                  </td>
-                  <td>Multiple no‑shows</td>
-                  <td>
-                    <span class="badge bg-warning text-dark">Medium</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary">In review</span>
-                  </td>
-                  <td>Feb 26, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-users.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div>Alyssa Lee</div>
-                    <small class="text-muted">@alyssa</small>
-                  </td>
-                  <td>
-                    <div>Jordan Diaz</div>
-                    <small class="text-muted">@jordand</small>
-                  </td>
-                  <td>Suspicious payment behavior</td>
-                  <td>
-                    <span class="badge bg-info text-dark">Low</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-success">Resolved</span>
-                  </td>
-                  <td>Feb 20, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-users.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
+                <% userReports.forEach(report => { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold"><%= report.reportedUser.name %></div>
+                      <small class="text-muted"><%= report.reportedUser.handle %></small>
+                    </td>
+                    <td><%= report.reason %></td>
+                    <td>
+                      <span class="badge bg-<%= report.severityColor %> <%= report.severityColor === 'warning' || report.severityColor === 'info' ? 'text-dark' : '' %>">
+                        <%= report.severity %>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= report.statusColor %> <%= report.statusColor === 'warning' || report.statusColor === 'info' ? 'text-dark' : '' %>">
+                        <%= report.status %>
+                      </span>
+                    </td>
+                    <td><%= report.createdDate %></td>
+                  </tr>
+                <% }) %>
+                <% if(userReports.length === 0) { %>
+                  <tr><td colspan="5" class="text-center py-3">No pending user reports.</td></tr>
+                <% } %>
               </tbody>
             </table>
           </div>
         </section>
 
-        <!-- Listing reports preview -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Listing reports</h2>
-            <a href="moderation-listings.html" class="section-footer-link">
+            <a href="/admin/listings" class="section-footer-link">
               View all listing reports <i class="bi bi-arrow-right"></i>
             </a>
           </div>
 
           <div class="table-responsive">
-            <table
-              class="table table-dark table-striped table-sm align-middle mb-0"
-            >
+            <table class="table table-dark table-striped table-sm align-middle mb-0">
               <thead>
                 <tr>
                   <th scope="col">Listing</th>
-                  <th scope="col">Owner</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Severity</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Created</th>
-                  <th scope="col" class="text-end">Action</th>
+                  <th scope="col">Reported</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div>“Elden Ring” (PS5)</div>
-                    <small class="text-muted">ID: LST‑1023</small>
-                  </td>
-                  <td>
-                    <div>Jordan Diaz</div>
-                    <small class="text-muted">@jordand</small>
-                  </td>
-                  <td>Inappropriate description</td>
-                  <td>
-                    <span class="badge bg-warning text-dark">Medium</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-warning text-dark">Pending</span>
-                  </td>
-                  <td>Mar 2, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-listings.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div>“Zelda: TOTK” (Switch)</div>
-                    <small class="text-muted">ID: LST‑0894</small>
-                  </td>
-                  <td>
-                    <div>Alyssa Lee</div>
-                    <small class="text-muted">@alyssa</small>
-                  </td>
-                  <td>Possible duplicate listing</td>
-                  <td>
-                    <span class="badge bg-info text-dark">Low</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary">In review</span>
-                  </td>
-                  <td>Feb 27, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-listings.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div>“Spider‑Man 2” (PS5)</div>
-                    <small class="text-muted">ID: LST‑0761</small>
-                  </td>
-                  <td>
-                    <div>Riley Moore</div>
-                    <small class="text-muted">@riley</small>
-                  </td>
-                  <td>Misleading condition</td>
-                  <td>
-                    <span class="badge bg-danger">High</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-success">Resolved</span>
-                  </td>
-                  <td>Feb 18, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-listings.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </td>
-                </tr>
+                <% listingReports.forEach(report => { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold">“<%= report.listing.name %>”</div>
+                      <small class="text-muted">Owner: <%= report.owner.name %></small>
+                    </td>
+                    <td><%= report.reason %></td>
+                    <td>
+                      <span class="badge bg-<%= report.severityColor %> <%= report.severityColor === 'warning' || report.severityColor === 'info' ? 'text-dark' : '' %>">
+                        <%= report.severity %>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= report.statusColor %> <%= report.statusColor === 'warning' || report.statusColor === 'info' ? 'text-dark' : '' %>">
+                        <%= report.status %>
+                      </span>
+                    </td>
+                    <td><%= report.createdDate %></td>
+                  </tr>
+                <% }) %>
+                <% if(listingReports.length === 0) { %>
+                  <tr><td colspan="5" class="text-center py-3">No pending listing reports.</td></tr>
+                <% } %>
               </tbody>
             </table>
           </div>
         </section>
 
-                <!-- Category moderation preview -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Category moderation</h2>
-            <a href="moderation-categories.html" class="section-footer-link">
+            <a href="/admin/categories" class="section-footer-link">
               Manage all categories <i class="bi bi-arrow-right"></i>
             </a>
           </div>
 
           <div class="table-responsive">
-            <table
-              class="table table-dark table-striped table-sm align-middle mb-0"
-            >
+            <table class="table table-dark table-striped table-sm align-middle mb-0">
               <thead>
                 <tr>
                   <th scope="col">Category</th>
                   <th scope="col">Status</th>
                   <th scope="col">Listings</th>
                   <th scope="col">Last updated</th>
-                  <th scope="col" class="text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>Consoles</td>
-                  <td><span class="badge bg-success">Active</span></td>
-                  <td>42</td>
-                  <td>Mar 3, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-categories.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Accessories</td>
-                  <td><span class="badge bg-warning text-dark">Review</span></td>
-                  <td>18</td>
-                  <td>Mar 1, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-categories.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Board games</td>
-                  <td><span class="badge bg-secondary">Hidden</span></td>
-                  <td>7</td>
-                  <td>Feb 20, 2026</td>
-                  <td class="text-end">
-                    <a
-                      href="moderation-categories.html"
-                      class="btn btn-sm btn-outline-light"
-                    >
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                  </td>
-                </tr>
+                <% categories.forEach(category => { %>
+                  <tr>
+                    <td><%= category.name %></td>
+                    <td>
+                      <span class="badge bg-<%= category.statusColor %> <%= category.statusColor === 'warning' ? 'text-dark' : '' %>">
+                        <%= category.status %>
+                      </span>
+                    </td>
+                    <td><%= category.listingsCount %></td>
+                    <td><%= category.lastUpdated %></td>
+                  </tr>
+                <% }) %>
+                <% if(categories.length === 0) { %>
+                  <tr><td colspan="5" class="text-center py-3">No categories have been created yet.</td></tr>
+                <% } %>
               </tbody>
             </table>
           </div>
         </section>
 
-
-        <!-- Recent moderator actions -->
         <section class="admin-section mb-4">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2>Recent moderator actions</h2>
           </div>
 
           <ul class="list-group moderation-links">
-            <li class="list-group-item">
-              <span>
-                <i class="bi bi-shield-check me-2"></i>
-                <strong>@admin</strong> suspended user
-                <strong>@riley</strong> for repeated harassment
-              </span>
-              <small class="text-muted">2 hours ago</small>
-            </li>
-            <li class="list-group-item">
-              <span>
-                <i class="bi bi-check2-circle me-2"></i>
-                <strong>@moderator1</strong> cleared listing
-                <strong>LST‑0894</strong> after review
-              </span>
-              <small class="text-muted">Yesterday</small>
-            </li>
-            <li class="list-group-item">
-              <span>
-                <i class="bi bi-flag me-2"></i>
-                Automated system flagged 2 new listings for review
-              </span>
-              <small class="text-muted">2 days ago</small>
-            </li>
+            <% recentActions.forEach(action => { %>
+              <li class="list-group-item">
+                <span>
+                  <i class="bi <%= action.icon %> me-2"></i>
+                  <%- action.messageHTML %>
+                </span>
+                <small class="text-muted"><%= action.timeAgo %></small>
+              </li>
+            <% }) %>
+            <% if(recentActions.length === 0) { %>
+              <li class="list-group-item text-center text-muted">No recent actions recorded.</li>
+            <% } %>
           </ul>
         </section>
       </div>
     </main>
 
-    <!-- Footer -->
     <footer>
       <div class="container">
         <div class="row justify-content-center mx-auto">
           <div class="col-md-3 mb-4">
             <h5>About</h5>
             <ul>
-              <li><a href="about.html">About GameLend</a></li>
-              <li><a href="about.html#team">Our Team</a></li>
+              <li><a href="/about">About GameLend</a></li>
+              <li><a href="/about#team">Our Team</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Support</h5>
             <ul>
-              <li><a href="about.html#faq">FAQ</a></li>
-              <li><a href="about.html#contact">Contact Us</a></li>
+              <li><a href="/about#faq">FAQ</a></li>
+              <li><a href="/about#contact">Contact Us</a></li>
             </ul>
           </div>
           <div class="col-md-3 mb-4">
             <h5>Connect</h5>
             <ul>
               <li>
-                <a href="https://github.com/alex-sir/gamelend"
-                  ><i class="bi bi-github me-2"></i>GitHub</a
-                >
+                <a href="https://github.com/alex-sir/gamelend" target="_blank">
+                  <i class="bi bi-github me-2"></i>GitHub
+                </a>
               </li>
             </ul>
           </div>
         </div>
         <div class="copyright">
-          <p>
-            &copy; 2026 GameLend. A WSU CPT_S 489 Course Project. All rights
-            reserved.
-          </p>
+          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPT_S 489 Course Project. All rights reserved.</p>
         </div>
       </div>
     </footer>

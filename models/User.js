@@ -43,6 +43,10 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    suspensionReason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     hooks: {

@@ -11,6 +11,7 @@ require("dotenv").config();
 const { sequelize } = require("./models");
 const lenderRoutes = require("./routes/lenderRoutes");
 const borrowerRoutes = require("./routes/borrowerRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -44,6 +45,36 @@ app.use((req, res, next) => {
   next();
 });
 
+const { PlatformSettings } = require("./models");
+
+// Global Maintenance Mode Middleware
+app.use(async (req, res, next) => {
+  // Allow admins and auth routes to bypass maintenance mode
+  if (req.path.startsWith('/admin') || req.path.startsWith('/auth') || req.path.startsWith('/css') || req.path.startsWith('/images')) {
+    return next();
+  }
+
+  try {
+    const maintenanceSetting = await PlatformSettings.findOne({ where: { settingKey: 'maintenanceMode' } });
+    if (maintenanceSetting && maintenanceSetting.settingValue === 'true') {
+      if (req.session && req.session.user && req.session.user.role === 'admin') {
+        return next(); // Admins bypass
+      }
+      return res.status(503).send(`
+        <div style="font-family: sans-serif; text-align: center; margin-top: 20%; color: #333;">
+          <h1>🛠️ GameLend is currently down for maintenance.</h1>
+          <p>We are making some upgrades. Please check back shortly.</p>
+          <a href="/auth/login">Admin Login</a>
+        </div>
+      `);
+    }
+  } catch (error) {
+    console.error("Maintenance check error:", error);
+  }
+
+  next();
+});
+
 // --- Routes ---
 // Mount the auth routes FIRST (so they are not protected by requireAuth)
 app.use("/auth", authRoutes);
@@ -53,6 +84,9 @@ app.use("/lender", requireAuth, lenderRoutes);
 
 // Mount the borrower routes
 app.use("/borrower", requireAuth, borrowerRoutes);
+
+//Mount the admin routes
+app.use("/admin", adminRoutes)
 
 // Mount the profile routes
 app.use("/profile", profileRoutes);

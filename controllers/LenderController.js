@@ -9,6 +9,7 @@ const {
   Listing_VideoGame,
   Listing_Console,
   Listing_Accessory,
+  Category,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -260,8 +261,14 @@ const LenderController = {
     }
   },
 
-  renderCreateForm: (req, res) => {
-    res.render("lender/create-listing", { error: null, formData: {} });
+  renderCreateForm: async (req, res) => {
+    try {
+      const categories = await Category.findAll({ where: { status: 'Active' } });
+      res.render("lender/create-listing", { error: null, formData: {}, categories });
+    } catch (error) {
+      console.error(error);
+      res.render("lender/create-listing", { error: "Failed to load categories", formData: {}, categories: [] });
+    }
   },
 
   createListing: async (req, res) => {
@@ -319,29 +326,29 @@ const LenderController = {
         await Listing_VideoGame.create({
           listingId: newListing.id,
           platform,
-          genre,
-          esrbRating,
-          publisher,
-          releaseYear,
+          genre: genre || null,
+          esrbRating: esrbRating || null,
+          publisher: publisher || null,
+          releaseYear: releaseYear || null,
         });
       } else if (category === "Console") {
         await Listing_Console.create({
           listingId: newListing.id,
-          consoleType,
-          storageCapacity,
+          consoleType: consoleType || null,
+          storageCapacity: storageCapacity || null,
           controllersIncluded: controllersIncluded === "on",
           controllerQuantity: controllerQuantity || 0,
           cablesIncluded: cablesIncluded === "on",
-          serialNumber,
+          serialNumber: serialNumber || null,
         });
       } else if (category === "Accessory") {
         await Listing_Accessory.create({
           listingId: newListing.id,
-          accessoryType,
-          compatiblePlatforms,
+          accessoryType: accessoryType || null,
+          compatiblePlatforms: compatiblePlatforms || null,
           isWireless: isWireless === "on",
-          brand,
-          modelNumber,
+          brand: brand || null,
+          modelNumber: modelNumber || null,
         });
       }
 
@@ -505,7 +512,9 @@ const LenderController = {
       });
       if (!listing) return res.status(404).send("Listing not found");
 
-      res.render("lender/edit-listing", { listing, error: null });
+      const categories = await Category.findAll({ where: { status: 'Active' } });
+
+      res.render("lender/edit-listing", { listing, error: null, categories });
     } catch (error) {
       res.status(500).send("Error loading edit form");
     }
@@ -722,6 +731,25 @@ const LenderController = {
     }
   },
 
+  // UC-L08: Complete Rental (Mark as Returned)
+  completeRental: async (req, res) => {
+    try {
+      const rental = await Rental.findOne({
+        where: { id: req.params.id, lenderId: req.session.user.id },
+      });
+
+      if (rental) {
+        await rental.update({ status: "Completed" });
+        return res.status(200).json({ success: true });
+      }
+
+      res.status(404).json({ error: "Rental not found" });
+    } catch (error) {
+      console.error("Complete Rental Error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+
   // --- UC-L07: View Lending History ---
   getLendingHistory: async (req, res) => {
     try {
@@ -731,15 +759,7 @@ const LenderController = {
           {
             model: RentalRequest,
             as: "request",
-            include: [
-              { model: User, as: "borrower" },
-              {
-                model: Listing,
-                as: "listing",
-                // ---> HERE IS THE FIX! Instructing Sequelize to fetch images for the rentals <---
-                include: [{ model: Image, as: "images" }],
-              },
-            ],
+            include: [{ model: User, as: "borrower" }, { model: Listing, as: "listing" }],
           },
         ],
         order: [["createdAt", "DESC"]],
@@ -747,7 +767,8 @@ const LenderController = {
 
       res.render("lender/active-rentals", { rentals });
     } catch (error) {
-      res.status(500).send("Error loading history");
+      console.error("Lending History Error:", error);
+      res.status(500).send("Error loading history: " + error.message);
     }
   },
 

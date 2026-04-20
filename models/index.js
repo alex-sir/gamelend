@@ -11,6 +11,8 @@ const Report = require("./Report");
 const Listing_VideoGame = require("./Listing_VideoGame");
 const Listing_Console = require("./Listing_Console");
 const Listing_Accessory = require("./Listing_Accessory");
+const Category = require("./Category");           // Ensure these files exist!
+const PlatformSettings = require("./PlatformSettings");
 
 // --- Define Relationships (ER Diagram Mapping) ---
 
@@ -90,4 +92,6 @@ module.exports = {
   Listing_VideoGame,
   Listing_Console,
   Listing_Accessory,
+  Category,
+  PlatformSettings,
 };
