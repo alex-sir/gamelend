@@ -318,6 +318,43 @@
       </section>
 
       <section class="admin-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2>Moderator Activity</h2>
+          <span class="badge bg-secondary">Last 10 actions</span>
+        </div>
+
+        <% if (locals.auditLogs && auditLogs.length > 0) { %>
+          <div class="list-group">
+            <% auditLogs.forEach(log => { %>
+              <div class="list-group-item list-group-item-action bg-dark text-light border-secondary mb-2 rounded shadow-sm">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div>
+                    <span class="badge bg-primary mb-1"><%= log.action %></span>
+                    <h6 class="mb-1 text-white"><%= log.details %></h6>
+                    <small class="text-muted">
+                      Target: <span class="text-info"><%= log.targetType %></span> <%= log.targetId ? '(ID: ' + log.targetId + ')' : '' %>
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <small class="text-muted d-block mb-1"><%= new Date(log.createdAt).toLocaleString() %></small>
+                    <small class="text-white-50">
+                      <i class="bi bi-person-fill me-1"></i>
+                      <%= log.admin ? (log.admin.firstName + ' ' + log.admin.lastName) : 'Admin' %>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-5 border border-secondary rounded border-dashed">
+            <i class="bi bi-journal-text fs-1 text-muted mb-3 d-block"></i>
+            <p class="text-muted mb-0">No moderator activity logged yet.</p>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="admin-section mb-4">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2>Configuration</h2>
           <a href="/admin/settings" class="section-footer-link">

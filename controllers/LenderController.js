@@ -10,6 +10,7 @@ const {
   Listing_Console,
   Listing_Accessory,
   Category,
+  PlatformSettings,
 } = require("../models");
 const { Op } = require("sequelize");
 
@@ -302,15 +303,26 @@ const LenderController = {
     } = req.body;
 
     try {
+      let finalCategory = category;
+      let finalDynamicId = null;
+
+      if (category === "Other" && dynamicCategoryId) {
+        const dynamicCat = await Category.findByPk(dynamicCategoryId);
+        if (dynamicCat) {
+          finalCategory = dynamicCat.name;
+          finalDynamicId = dynamicCategoryId;
+        }
+      }
+
       const newListing = await Listing.create({
         lenderId,
         title,
         description,
-        category,
+        category: finalCategory,
         condition,
         quantity: quantity || 1,
         dailyRate,
-        dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
+        dynamicCategoryId: finalDynamicId,
         status: "Draft",
       });
 
@@ -455,14 +467,25 @@ const LenderController = {
         modelNumber,
       } = req.body;
 
+      let finalCategory = category;
+      let finalDynamicId = null;
+
+      if (category === "Other" && dynamicCategoryId) {
+        const dynamicCat = await Category.findByPk(dynamicCategoryId);
+        if (dynamicCat) {
+          finalCategory = dynamicCat.name;
+          finalDynamicId = dynamicCategoryId;
+        }
+      }
+
       await listing.update({
         title,
         description,
-        category,
+        category: finalCategory,
         condition,
         quantity: quantity || 1,
         dailyRate,
-        dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
+        dynamicCategoryId: finalDynamicId,
       });
 
       await Listing_VideoGame.destroy({ where: { listingId: listing.id } });

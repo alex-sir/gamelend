@@ -1,4 +1,4 @@
-const { User, Listing, Rental, PlatformSettings, Category, Report } = require('../models');
+const { User, Listing, Rental, PlatformSettings, Category, Report, AuditLog } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -60,7 +60,12 @@ const AdminController = {
         chartData: {
           categories: categoriesData,
           revenue: revenueHistory
-        }
+        },
+        auditLogs: await AuditLog.findAll({
+          limit: 10,
+          order: [['createdAt', 'DESC']],
+          include: [{ model: User, as: 'admin', attributes: ['firstName', 'lastName'] }]
+        })
       });
     } catch (error) {
       console.error("Dashboard Loading Error:", error);
@@ -430,6 +435,13 @@ const AdminController = {
         }
       }
 
+      await AuditLog.create({
+        adminId,
+        action: 'Update Settings',
+        targetType: 'PlatformSettings',
+        details: `Updated settings for category: ${settingCategory}`
+      });
+
       res.redirect('/admin/settings');
     } catch (error) {
       console.error("Update Settings Error:", error);
@@ -443,7 +455,12 @@ const AdminController = {
       const rawCategories = await Category.findAll();
       
       const categories = await Promise.all(rawCategories.map(async (cat) => {
-        const count = await Listing.count({ where: { category: cat.name, status: 'Active' } });
+        const count = await Listing.count({ 
+          where: { 
+            category: cat.name, 
+            status: { [Op.ne]: 'Deleted' } 
+          } 
+        });
         return {
           ...cat.toJSON(),
           listingsCount: count
@@ -460,12 +477,23 @@ const AdminController = {
   createCategory: async (req, res) => {
     try {
       const { name, description, parentId } = req.body;
-      await Category.create({
+      const adminId = req.session.user ? req.session.user.id : 1;
+      
+      const newCat = await Category.create({
         name,
         description,
         parentId: parentId || null,
         status: 'Active'
       });
+
+      await AuditLog.create({
+        adminId,
+        action: 'Create Category',
+        targetType: 'Category',
+        targetId: newCat.id,
+        details: `Created category: ${name}`
+      });
+
       res.redirect('/admin/categories');
     } catch (error) {
       console.error("Create Category Error:", error);
@@ -475,11 +503,36 @@ const AdminController = {
 
   deleteCategory: async (req, res) => {
     try {
-      await Category.destroy({ where: { id: req.params.id } });
+      const adminId = req.session.user ? req.session.user.id : 1;
+      const categoryId = req.params.id;
+      
+      const category = await Category.findByPk(categoryId);
+      if (!category) return res.redirect('/admin/categories');
+
+      // Cascade delete listings associated with this category
+      await Listing.destroy({
+        where: { 
+          [Op.or]: [
+            { dynamicCategoryId: categoryId },
+            { category: category.name }
+          ]
+        }
+      });
+
+      await Category.destroy({ where: { id: categoryId } });
+
+      await AuditLog.create({
+        adminId,
+        action: 'Delete Category',
+        targetType: 'Category',
+        targetId: categoryId,
+        details: `Deleted category: ${category.name}`
+      });
+
       res.redirect('/admin/categories');
     } catch (error) {
       console.error("Delete Category Error:", error);
-      res.status(500).send("Failed to delete category.");
+      res.status(500).send(`Failed to delete category: ${error.message}`);
     }
   },
 
@@ -534,6 +587,17 @@ const AdminController = {
           { where: { listingId: { [Op.in]: listingIds }, status: 'Submitted' } }
         );
       }
+
+      const adminId = req.session.user ? req.session.user.id : 1;
+      const user = await User.findByPk(userId);
+
+      await AuditLog.create({
+        adminId,
+        action: 'Suspend User',
+        targetType: 'User',
+        targetId: userId,
+        details: `Suspended user: ${user ? user.email : 'ID ' + userId}. Reason: ${reason || 'None'}`
+      });
 
       res.redirect('/admin/users');
     } catch (error) {

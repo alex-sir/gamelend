@@ -13,6 +13,7 @@ const Listing_Console = require("./Listing_Console");
 const Listing_Accessory = require("./Listing_Accessory");
 const Category = require("./Category");           // Ensure these files exist!
 const PlatformSettings = require("./PlatformSettings");
+const AuditLog = require("./AuditLog");
 
 // --- Define Relationships (ER Diagram Mapping) ---
 
@@ -81,6 +82,10 @@ Report.belongsTo(Listing, { foreignKey: "listingId", as: "listing" });
 User.hasMany(Report, { foreignKey: "borrowerId", as: "reports" });
 Report.belongsTo(User, { foreignKey: "borrowerId", as: "borrower" });
 
+// User -> AuditLog (Admin performs many actions)
+User.hasMany(AuditLog, { foreignKey: "adminId", as: "auditLogs" });
+AuditLog.belongsTo(User, { foreignKey: "adminId", as: "admin" });
+
 module.exports = {
   sequelize,
   User,
@@ -94,4 +99,5 @@ module.exports = {
   Listing_Accessory,
   Category,
   PlatformSettings,
+  AuditLog,
 };
