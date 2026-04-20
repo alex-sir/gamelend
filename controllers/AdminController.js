@@ -12,7 +12,6 @@ const AdminController = {
     try {
       const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
-      const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
 
       // Fetch data for charts
       const categoryDistribution = await Listing.findAll({
@@ -20,25 +19,46 @@ const AdminController = {
         group: ['category']
       });
 
-      const revenueHistory = await Rental.findAll({
-        where: { status: 'Completed' },
+      // Fetch Platform Settings for fee calculation
+      const settings = await PlatformSettings.findAll();
+      const sMap = {};
+      settings.forEach(s => sMap[s.settingKey] = s.settingValue);
+      const feePercent = parseFloat(sMap['platformFeePercent'] || '10') / 100;
+
+      const grossRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } }) || 0;
+      const totalRevenue = grossRevenue * feePercent;
+
+      const rawRevenueHistory = await Rental.findAll({
         attributes: [
-          [Rental.sequelize.fn('DATE_FORMAT', Rental.sequelize.col('createdAt'), '%Y-%m'), 'month'],
-          [Rental.sequelize.fn('SUM', Rental.sequelize.col('actualTotal')), 'total']
+          [Rental.sequelize.fn('DATE', Rental.sequelize.col('Rental.createdAt')), 'date'],
+          [Rental.sequelize.fn('SUM', Rental.sequelize.col('actualTotal')), 'dailyGross']
         ],
-        group: ['month'],
-        order: [[Rental.sequelize.col('month'), 'ASC']],
-        limit: 6
+        where: { status: 'Completed' },
+        group: [Rental.sequelize.fn('DATE', Rental.sequelize.col('Rental.createdAt'))],
+        order: [[Rental.sequelize.fn('DATE', Rental.sequelize.col('Rental.createdAt')), 'ASC']],
+        limit: 30,
+        raw: true
       });
+
+      const revenueHistory = rawRevenueHistory.map(item => ({
+        label: item.date,
+        value: (parseFloat(item.dailyGross) * feePercent).toFixed(2)
+      }));
+
+      const categoriesData = categoryDistribution.map(c => ({
+        label: c.category,
+        value: parseInt(c.get('count'), 10)
+      }));
 
       res.render('admin/dashboard', {
         metrics: {
           activeListings: activeListingsCount,
           completedRentals: completedRentalsCount,
-          totalRevenue: totalRevenue || 0
+          totalRevenue: parseFloat(totalRevenue).toFixed(2),
+          appliedFee: (feePercent * 100).toFixed(1) + '%'
         },
         chartData: {
-          categories: categoryDistribution,
+          categories: categoriesData,
           revenue: revenueHistory
         }
       });
@@ -190,7 +210,15 @@ const AdminController = {
       const activeOwnersCount = await User.count({ where: { role: 'lender', isSuspended: false } });
       const activeListingsCount = await Listing.count({ where: { status: 'Active' } });
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
-      const totalRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } });
+      
+      // Fetch Platform Settings for fee calculation
+      const settings = await PlatformSettings.findAll();
+      const sMap = {};
+      settings.forEach(s => sMap[s.settingKey] = s.settingValue);
+      const feePercent = parseFloat(sMap['platformFeePercent'] || '10') / 100;
+
+      const grossRevenue = await Rental.sum('actualTotal', { where: { status: 'Completed' } }) || 0;
+      const totalRevenue = grossRevenue * feePercent;
 
       // Data for charts
       const listingsByCategoryRaw = await Listing.findAll({
@@ -218,7 +246,8 @@ const AdminController = {
           activeOwners: activeOwnersCount,
           activeListings: activeListingsCount,
           completedRentals: completedRentalsCount,
-          totalRevenue: totalRevenue || 0
+          totalRevenue: parseFloat(totalRevenue).toFixed(2),
+          appliedFee: (feePercent * 100).toFixed(1) + '%'
         },
         chartData: {
           listingsByCategory,
@@ -564,6 +593,47 @@ const AdminController = {
     } catch (error) {
       console.error("Dismiss Listing Reports Error:", error);
       res.status(500).send("Failed to dismiss listing reports.");
+    }
+  },
+
+  // --- Global Admin Search ---
+  search: async (req, res) => {
+    const query = req.query.query || '';
+    if (!query) return res.redirect('/admin/dashboard');
+
+    try {
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { firstName: { [Op.like]: `%${query}%` } },
+            { lastName: { [Op.like]: `%${query}%` } },
+            { email: { [Op.like]: `%${query}%` } }
+          ]
+        },
+        limit: 10
+      });
+
+      const listings = await Listing.findAll({
+        where: {
+          title: { [Op.like]: `%${query}%` }
+        },
+        limit: 10
+      });
+
+      const categories = await Category.findAll({
+        where: {
+          name: { [Op.like]: `%${query}%` }
+        },
+        limit: 10
+      });
+
+      res.render('admin/search-results', {
+        query,
+        results: { users, listings, categories }
+      });
+    } catch (error) {
+      console.error("Admin Search Error:", error);
+      res.status(500).send("Search failed.");
     }
   }
 };

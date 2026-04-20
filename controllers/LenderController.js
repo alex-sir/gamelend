@@ -25,9 +25,18 @@ const LenderController = {
       const activeRentalsCount = await Rental.count({
         where: { lenderId, status: "Active" },
       });
-      const earningsSum = await Rental.sum("actualTotal", {
+
+      // Calculate Net Earnings (Gross - Platform Fee)
+      const settings = await PlatformSettings.findAll();
+      const sMap = {};
+      settings.forEach(s => sMap[s.settingKey] = s.settingValue);
+      const feePercent = parseFloat(sMap['platformFeePercent'] || '10') / 100;
+
+      const grossEarnings = await Rental.sum("actualTotal", {
         where: { lenderId, status: "Completed" },
-      });
+      }) || 0;
+      const netEarnings = grossEarnings * (1 - feePercent);
+
       const pendingRequestsCount = await RentalRequest.count({
         include: [{ model: Listing, as: "listing", where: { lenderId } }],
         where: { status: "Pending" },
@@ -37,7 +46,7 @@ const LenderController = {
         activeListings: activeListingsCount,
         pendingRequests: pendingRequestsCount,
         activeRentals: activeRentalsCount,
-        thisMonthEarnings: `$${earningsSum || 0}`,
+        thisMonthEarnings: `$${netEarnings.toFixed(2)}`,
       };
 
       const rawRequests = await RentalRequest.findAll({

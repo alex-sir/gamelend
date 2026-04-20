@@ -32,6 +32,9 @@ router.post('/users/:id/suspend', AdminController.suspendUser);
 router.post('/users/:id/unsuspend', AdminController.unsuspendUser); 
 router.post('/users/:id/role', AdminController.changeRole); 
 
+// Global Search
+router.get('/search', AdminController.search);
+
 // Reports
 router.post('/users/:id/dismiss-reports', AdminController.dismissUserReports);
 router.post('/listings/:id/dismiss-reports', AdminController.dismissListingReports); 
