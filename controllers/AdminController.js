@@ -317,13 +317,13 @@ const AdminController = {
           }
         );
 
-        // Auto-resolve reports if suspended or deleted
-        if (targetStatus === 'Suspended' || targetStatus === 'Deleted') {
-          await Report.update(
-            { status: 'Reviewed' },
-            { where: { listingId: { [Op.in]: idsToUpdate }, status: 'Submitted' } }
-          );
-        }
+        const adminId = req.session.user ? req.session.user.id : 1;
+        await AuditLog.create({
+          adminId,
+          action: 'Bulk Action',
+          targetType: 'Listing',
+          details: `Performed ${bulkAction} on ${idsToUpdate.length} listings`
+        });
       }
 
       res.redirect('/admin/listings');
@@ -343,6 +343,16 @@ const AdminController = {
         { where: { listingId: req.params.id, status: 'Submitted' } }
       );
 
+      const adminId = req.session.user ? req.session.user.id : 1;
+      const listing = await Listing.findByPk(req.params.id);
+      await AuditLog.create({
+        adminId,
+        action: 'Suspend Listing',
+        targetType: 'Listing',
+        targetId: req.params.id,
+        details: `Suspended listing: ${listing ? listing.title : 'ID ' + req.params.id}`
+      });
+
       res.redirect('/admin/listings');
     } catch (error) {
       console.error("Suspend Listing Error:", error);
@@ -353,6 +363,17 @@ const AdminController = {
   unsuspendListing: async (req, res) => {
     try {
       await Listing.update({ status: 'Active' }, { where: { id: req.params.id } });
+      
+      const adminId = req.session.user ? req.session.user.id : 1;
+      const listing = await Listing.findByPk(req.params.id);
+      await AuditLog.create({
+        adminId,
+        action: 'Restore Listing',
+        targetType: 'Listing',
+        targetId: req.params.id,
+        details: `Restored listing: ${listing ? listing.title : 'ID ' + req.params.id}`
+      });
+
       res.redirect('/admin/listings');
     } catch (error) {
       console.error("Unsuspend Listing Error:", error);
@@ -369,6 +390,16 @@ const AdminController = {
         { status: 'Reviewed' },
         { where: { listingId: req.params.id, status: 'Submitted' } }
       );
+
+      const adminId = req.session.user ? req.session.user.id : 1;
+      const listing = await Listing.findByPk(req.params.id);
+      await AuditLog.create({
+        adminId,
+        action: 'Delete Listing',
+        targetType: 'Listing',
+        targetId: req.params.id,
+        details: `Deleted listing: ${listing ? listing.title : 'ID ' + req.params.id}`
+      });
 
       res.redirect('/admin/listings');
     } catch (error) {

@@ -7,6 +7,10 @@ const {
   Listing_Console,
   Listing_Accessory,
   Image,
+  Category,
+  PlatformSettings,
+  Report,
+  AuditLog
 } = require("../models");
 const { sequelize } = require("../models");
 
@@ -18,8 +22,6 @@ async function seedDatabase() {
     // 0. SYNC DATABASE (Create Tables)
     // ----------------------------------------------------------------------
     console.log("🔄 Syncing database tables...");
-    // CAUTION: { force: true } drops all existing tables before recreating them!
-    // This is perfect for a seed script, but never use { force: true } in production.
     await sequelize.sync({ force: true });
     console.log("✅ Tables created successfully!");
 
@@ -27,34 +29,28 @@ async function seedDatabase() {
     // 1. CREATE USERS (Admin, Lender, Borrower)
     // ----------------------------------------------------------------------
     console.log("👥 Seeding Users...");
-    const [admin] = await User.findOrCreate({
-      where: { email: "peach@admin.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Princess",
-        lastName: "Peach",
-        role: "admin",
-      },
+    const admin = await User.create({
+      email: "peach@admin.com",
+      password: "password123",
+      firstName: "Princess",
+      lastName: "Peach",
+      role: "admin",
     });
 
-    const [lender] = await User.findOrCreate({
-      where: { email: "mario@lender.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Mario",
-        lastName: "Bros",
-        role: "lender",
-      },
+    const lender = await User.create({
+      email: "mario@lender.com",
+      password: "password123",
+      firstName: "Mario",
+      lastName: "Bros",
+      role: "lender",
     });
 
-    const [borrower] = await User.findOrCreate({
-      where: { email: "luigi@borrower.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Luigi",
-        lastName: "Bros",
-        role: "borrower",
-      },
+    const borrower = await User.create({
+      email: "luigi@borrower.com",
+      password: "password123",
+      firstName: "Luigi",
+      lastName: "Bros",
+      role: "borrower",
     });
 
     console.log(
@@ -62,7 +58,24 @@ async function seedDatabase() {
     );
 
     // ----------------------------------------------------------------------
-    // 2. CREATE EXHAUSTIVE LISTINGS WITH SUB-TYPES & IMAGES
+    // 2. SEED PLATFORM SETTINGS & CATEGORIES
+    // ----------------------------------------------------------------------
+    console.log("⚙️ Seeding Platform Settings...");
+    await PlatformSettings.bulkCreate([
+      { settingCategory: "Payments", settingKey: "platformFeePercent", settingValue: "10", updatedBy: admin.id },
+      { settingCategory: "Rentals", settingKey: "maintenanceMode", settingValue: "false", updatedBy: admin.id },
+      { settingCategory: "Listings", settingKey: "maxImagesPerListing", settingValue: "8", updatedBy: admin.id }
+    ]);
+
+    console.log("🏷️ Seeding Default Categories...");
+    await Category.bulkCreate([
+      { name: "Console", status: "Active" },
+      { name: "Video Game", status: "Active" },
+      { name: "Accessory", status: "Active" }
+    ]);
+
+    // ----------------------------------------------------------------------
+    // 3. CREATE EXHAUSTIVE LISTINGS WITH SUB-TYPES & IMAGES
     // ----------------------------------------------------------------------
     console.log("📦 Seeding Exhaustive Listings & Images...");
 
@@ -102,12 +115,6 @@ async function seedDatabase() {
           "https://media.wired.com/photos/5fa9dbb7ed97b6b30c266262/master/pass/games_gear_ps5-disc.jpg",
         isPrimary: false,
       },
-      {
-        listingId: ps5.id,
-        imageUrl:
-          "https://i5.walmartimages.com/asr/fe290a26-8640-4f5f-8027-e608a1b549ad.69c307a933c0fae8e8ea8246d89664ff.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
-        isPrimary: false,
-      },
     ]);
 
     // LISTING 2: VIDEO GAME
@@ -138,24 +145,6 @@ async function seedDatabase() {
         imageUrl:
           "https://thesunflower.com/wp-content/uploads/2024/02/Tears-of-the-Kingdom-wallpaper-1170x720-1.jpg",
         isPrimary: true,
-      },
-      {
-        listingId: zelda.id,
-        imageUrl:
-          "https://static0.pocketlintimages.com/wordpress/wp-content/uploads/2023/05/legend-of-zelda-tears-of-the-kingdom-9.jpg?w=1600&h=900&fit=crop",
-        isPrimary: false,
-      },
-      {
-        listingId: zelda.id,
-        imageUrl:
-          "https://www.videogameschronicle.com/files/2023/03/TLOZ_TearsOfTheKingdom_28032023_scrn_12.jpg",
-        isPrimary: false,
-      },
-      {
-        listingId: zelda.id,
-        imageUrl:
-          "https://kotaku.com/app/uploads/2023/04/fbc3178a6ed86ba04193fe22571ff0dd.jpg",
-        isPrimary: false,
       },
     ]);
 
@@ -188,49 +177,25 @@ async function seedDatabase() {
           "https://m.media-amazon.com/images/I/717XTm0moDL._AC_UF1000,1000_QL80_.jpg",
         isPrimary: true,
       },
-      {
-        listingId: controller.id,
-        imageUrl:
-          "https://i.extremetech.com/imagery/content-types/04K176NzQ8xAqEfIXArLIHe/hero-image.fit_lim.v1678673188.jpg",
-        isPrimary: false,
-      },
     ]);
 
-    // LISTING 4: RETRO CONSOLE (Draft Status)
-    const n64 = await Listing.create({
-      title: "Nintendo 64 - Original Charcoal",
-      category: "Console",
-      condition: "Acceptable",
-      dailyRate: 10.0,
-      quantity: 1,
-      description:
-        "Classic N64 console. Works great, but missing the expansion pak cover. Comes with one gray controller and AV cables.",
-      status: "Draft",
-      lenderId: lender.id,
-    });
-    await Listing_Console.create({
-      listingId: n64.id,
-      consoleType: "Nintendo Switch", // Mapping to closest enum
-      storageCapacity: "N/A",
-      controllersIncluded: true,
-      controllerQuantity: 1,
-      cablesIncluded: true,
-    });
-    await Image.bulkCreate([
-      {
-        listingId: n64.id,
-        imageUrl: "https://m.media-amazon.com/images/I/81-6ZsysglL.jpg",
-        isPrimary: true,
-      },
-    ]);
-
-    console.log("✅ 4 Exhaustive Listings Created.");
+    console.log("✅ 3 Exhaustive Listings Created.");
 
     // ----------------------------------------------------------------------
-    // 3. CREATE RENTAL HISTORY (Simulating time passing)
+    // 4. CREATE RENTAL HISTORY (Simulating time passing)
     // ----------------------------------------------------------------------
     console.log("📅 Simulating Rental History...");
     const now = new Date();
+
+    // ----------------------------------------------------------------------
+    // 3.5 SEED INITIAL AUDIT LOGS
+    // ----------------------------------------------------------------------
+    console.log("📝 Seeding Initial Audit Logs...");
+    await AuditLog.bulkCreate([
+      { adminId: admin.id, action: 'Platform Setup', targetType: 'System', details: 'Initial system seeding and platform configuration completed.' },
+      { adminId: admin.id, action: 'Category Creation', targetType: 'Category', details: 'Standard categories (Console, Video Game, Accessory) initialized.' },
+      { adminId: admin.id, action: 'Security Policy', targetType: 'User', details: 'Admin and test accounts secured with default credentials.' }
+    ]);
 
     // Rental 1: COMPLETED RENTAL (Zelda)
     const compStart = new Date();
@@ -268,45 +233,6 @@ async function seedDatabase() {
       lenderId: lender.id,
       actualTotal: 21.0,
       status: "Active",
-    });
-
-    // Rental 3: PENDING REQUEST (Xbox Controller)
-    const pendStart = new Date();
-    pendStart.setDate(now.getDate() + 2);
-    const pendEnd = new Date();
-    pendEnd.setDate(now.getDate() + 5);
-    await RentalRequest.create({
-      listingId: controller.id,
-      borrowerId: borrower.id,
-      startDate: pendStart,
-      endDate: pendEnd,
-      status: "Pending",
-    });
-
-    // Rental 4: REJECTED REQUEST (Zelda)
-    const rejStart = new Date();
-    rejStart.setDate(now.getDate() + 7);
-    const rejEnd = new Date();
-    rejEnd.setDate(now.getDate() + 10);
-    await RentalRequest.create({
-      listingId: zelda.id,
-      borrowerId: borrower.id,
-      startDate: rejStart,
-      endDate: rejEnd,
-      status: "Rejected",
-    });
-
-    // Rental 5: CANCELLED RENTAL (PS5)
-    const cancStart = new Date();
-    cancStart.setDate(now.getDate() - 30);
-    const cancEnd = new Date();
-    cancEnd.setDate(now.getDate() - 28);
-    await RentalRequest.create({
-      listingId: ps5.id,
-      borrowerId: borrower.id,
-      startDate: cancStart,
-      endDate: cancEnd,
-      status: "Cancelled",
     });
 
     console.log("✅ Rental History Generated.");
