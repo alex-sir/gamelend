@@ -3,6 +3,29 @@
     min-height: 100vh;
 }
 
+/* Borrower top nav: keep search + action buttons on one horizontal row at lg+ */
+@media (min-width: 992px) {
+    .borrower-page .navbar-primary .search-bar {
+        width: auto;
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 32rem;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+}
+
+.borrower-page .borrower-nav-toolbar {
+    flex-shrink: 0;
+}
+
+@media (max-width: 991.98px) {
+    .borrower-page #navbarNav .offcanvas-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 .catalog-section {
     background: transparent;
     min-height: 80vh;
