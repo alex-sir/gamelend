@@ -29,7 +29,58 @@
         justify-content: center;
         flex-shrink: 0;
       }
-      .btn-action { width: 100%; margin-bottom: 0.5rem; }
+      
+      /* --- Elevated Dashboard Stat Cards --- */
+      .stat-widget {
+        background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.3) 100%);
+        border: 1px solid rgba(255,255,255,0.15); /* Increased border prominence */
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        height: 100%;
+      }
+      .stat-widget:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        border-color: rgba(255,255,255,0.3);
+      }
+      .stat-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+      }
+      .letter-spacing-1 {
+        letter-spacing: 1px;
+      }
+
+      /* --- Quick Action Enhancements --- */
+      .quick-action-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 16px !important;
+      }
+      .quick-action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
+      }
+      .qa-icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Ensure list groups maintain dark theme */
+      .list-group-item {
+        background-color: var(--color-gray);
+        border-color: var(--color-gray-hover);
+        color: var(--color-light-gray);
+      }
     </style>
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
@@ -95,120 +146,155 @@
       <div class="container">
         
         <div class="lender-header mb-4">
-          <h1>Welcome back, <%= userName %>!</h1>
-          <p>Manage your lending activity and track your earnings</p>
+          <h1 class="mb-1">Welcome back, <%= userName %>!</h1>
+          <p class="text-muted">Here is an overview of your lending activity.</p>
         </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-md-3 col-6">
-            <div class="stats-card">
-              <div class="stat-value"><%= dashboardStats.activeListings %></div>
-              <div class="stat-label">Active Listings</div>
+        <div class="row g-4 mb-5">
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-widget">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-info small text-uppercase fw-bold mb-1 letter-spacing-1">Active Listings</p>
+                  <h2 class="display-6 fw-bold text-white mb-0"><%= dashboardStats.activeListings %></h2>
+                </div>
+                <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info border border-info border-opacity-25 shadow-sm">
+                  <i class="bi bi-collection"></i>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="stats-card">
-              <div class="stat-value"><%= dashboardStats.pendingRequests %></div>
-              <div class="stat-label">Pending Requests</div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-widget" style="<%= dashboardStats.pendingRequests > 0 ? 'border-color: rgba(255, 193, 7, 0.6); background: linear-gradient(145deg, rgba(255, 193, 7, 0.08) 0%, rgba(0,0,0,0.3) 100%);' : '' %>">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-warning small text-uppercase fw-bold mb-1 letter-spacing-1">Pending Requests</p>
+                  <h2 class="display-6 fw-bold <%= dashboardStats.pendingRequests > 0 ? 'text-warning' : 'text-white' %> mb-0"><%= dashboardStats.pendingRequests %></h2>
+                </div>
+                <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 shadow-sm">
+                  <i class="bi bi-inbox"></i>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="stats-card">
-              <div class="stat-value"><%= dashboardStats.activeRentals %></div>
-              <div class="stat-label">Active Rentals</div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-widget">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-primary small text-uppercase fw-bold mb-1 letter-spacing-1">Active Rentals</p>
+                  <h2 class="display-6 fw-bold text-white mb-0"><%= dashboardStats.activeRentals %></h2>
+                </div>
+                <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 shadow-sm">
+                  <i class="bi bi-arrow-left-right"></i>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
-            <div class="stats-card">
-              <div class="stat-value"><%= dashboardStats.thisMonthEarnings %></div>
-              <div class="stat-label">Total Earnings</div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-widget">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-success small text-uppercase fw-bold mb-1 letter-spacing-1">Total Earnings</p>
+                  <h2 class="display-6 fw-bold text-success mb-0"><%= dashboardStats.thisMonthEarnings %></h2>
+                </div>
+                <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success border border-success border-opacity-25 shadow-sm">
+                  <i class="bi bi-wallet2"></i>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div class="row mb-4">
-          <div class="col-12 d-flex gap-3 flex-wrap">
-            <a href="/lender/listings" class="btn btn-main btn-lg flex-grow-1 flex-md-grow-0">
-              <i class="bi bi-list-ul me-2"></i>My Listings
-            </a>
-            <a href="/lender/listings/new" class="btn btn-main btn-lg flex-grow-1 flex-md-grow-0">
-              <i class="bi bi-plus-circle me-2"></i>Create New Listing
-            </a>
           </div>
         </div>
 
         <div class="row g-4">
+          
           <div class="col-lg-8">
             
             <div class="section-card mb-4">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2><i class="bi bi-inbox me-2"></i>Pending Requests</h2>
-                <a href="/lender/requests" class="text-decoration-none view-all">View All <i class="bi bi-arrow-right"></i></a>
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="h5 mb-0"><i class="bi bi-inbox me-2 text-warning"></i>Pending Requests</h3>
+                <a href="/lender/requests" class="btn btn-sm btn-outline-light">View All</a>
               </div>
-
-              <% if (typeof pendingReqs !== 'undefined' && pendingReqs.length > 0) { %>
-                <% pendingReqs.forEach(function(req) { %>
-                  <div class="request-item bg-dark p-3 rounded border border-secondary mb-3">
-                    <div class="row align-items-center">
-                      <div class="col-md-8">
-                        <div class="d-flex align-items-center">
-                          <img src="<%= req.image %>" alt="<%= req.title %>" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;" />
+              
+              <% if (pendingReqs && pendingReqs.length > 0) { %>
+                <div class="list-group list-group-flush border border-secondary rounded">
+                  <% pendingReqs.forEach(req => { %>
+                    <div class="list-group-item p-3">
+                      <div class="row align-items-center">
+                        <div class="col-md-7 d-flex align-items-center mb-2 mb-md-0">
+                          <img src="<%= req.image %>" class="rounded object-fit-cover border border-secondary me-3" style="width: 50px; height: 50px;" alt="Item">
                           <div>
-                            <h4 class="h5 mb-1"><%= req.title %></h4>
-                            <div class="text-muted small mb-1">
-                              <i class="bi bi-person me-1"></i><%= req.borrower %> 
-                              <span class="mx-2">|</span> 
-                              <i class="bi bi-calendar me-1"></i><%= req.dates %>
-                            </div>
-                            <div class="text-orange fw-bold"><%= req.price %> <span class="text-muted fw-normal">/ day</span></div>
+                            <h6 class="mb-1 text-light"><%= req.title %></h6>
+                            <small class="text-muted"><i class="bi bi-person me-1"></i><%= req.borrower %> | <i class="bi bi-calendar me-1"></i><%= req.dates %></small>
                           </div>
                         </div>
-                      </div>
-                      <div class="col-md-4 mt-3 mt-md-0">
-                        <div class="d-flex flex-column gap-2">
-                          <form action="/lender/requests/<%= req.id %>/accept" method="POST" class="m-0">
-                            <button type="submit" class="btn btn-success btn-sm w-100"><i class="bi bi-check-circle me-1"></i>Accept</button>
-                          </form>
-                          <form action="/lender/requests/<%= req.id %>/reject" method="POST" class="m-0">
-                            <button type="submit" class="btn btn-danger btn-sm w-100"><i class="bi bi-x-circle me-1"></i>Reject</button>
-                          </form>
+                        <div class="col-md-5 d-flex justify-content-md-end gap-2">
+                          <button type="button" class="btn btn-sm btn-success fw-bold rounded-pill shadow-sm btn-accept-request px-3" 
+                            data-request-id="<%= req.id %>" 
+                            data-listing-title="<%= req.title %>"
+                            data-borrower-name="<%= req.borrower %>"
+                            data-dates="<%= req.dates %>"
+                            data-earnings="<%= req.price.replace('$', '') %>">
+                            <i class="bi bi-check-circle me-1"></i> Accept
+                          </button>
+                          <button type="button" class="btn btn-sm btn-danger fw-bold rounded-pill shadow-sm btn-reject-request px-3" 
+                            data-request-id="<%= req.id %>" 
+                            data-listing-title="<%= req.title %>"
+                            data-borrower-name="<%= req.borrower %>">
+                            <i class="bi bi-x-circle me-1"></i> Reject
+                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                <% }); %>
+                  <% }) %>
+                </div>
               <% } else { %>
-                <div class="p-4 text-center border border-secondary rounded text-muted">
-                  <p class="mb-0">No pending requests right now.</p>
+                <div class="text-center py-4 bg-dark rounded border border-secondary">
+                  <i class="bi bi-check-circle display-4 text-muted mb-2 d-block"></i>
+                  <p class="text-muted mb-0">No pending requests to review.</p>
                 </div>
               <% } %>
             </div>
 
-            <div class="section-card">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2><i class="bi bi-clock-history me-2"></i>Active Rentals</h2>
-                <a href="/lender/history" class="text-decoration-none view-all">View All <i class="bi bi-arrow-right"></i></a>
+            <div class="section-card mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="h5 mb-0"><i class="bi bi-arrow-left-right me-2 text-primary"></i>Currently Out</h3>
+                <a href="/lender/rentals" class="btn btn-sm btn-outline-light">Manage Rentals</a>
               </div>
 
-              <% if (typeof activeRents !== 'undefined' && activeRents.length > 0) { %>
-                <% activeRents.forEach(function(rent) { %>
-                  <div class="listing-item d-flex align-items-center p-3 border border-secondary rounded mb-2 bg-dark">
-                    <img src="<%= rent.image %>" alt="<%= rent.title %>" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" />
-                    <div class="flex-grow-1">
-                      <div class="fw-bold"><%= rent.title %></div>
-                      <div class="text-muted small">
-                        <i class="bi bi-person me-1"></i><%= rent.borrower %> &bull; Return by: <span class="text-light"><%= rent.returnDate %></span>
-                      </div>
-                    </div>
-                    <div class="text-end ms-3">
-                      <span class="badge bg-success bg-opacity-25 text-success border border-success px-2 py-1"><%= rent.status %></span>
-                      <a href="/lender/history" class="btn btn-alternate btn-sm d-block mt-2">Manage</a>
-                    </div>
-                  </div>
-                <% }); %>
+              <% if (activeRents && activeRents.length > 0) { %>
+                <div class="table-responsive bg-dark rounded border border-secondary">
+                  <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead>
+                      <tr>
+                        <th class="ps-3 border-secondary">Item</th>
+                        <th class="border-secondary">Borrower</th>
+                        <th class="border-secondary">Return Due</th>
+                        <th class="border-secondary text-end pe-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% activeRents.forEach(rent => { %>
+                        <tr>
+                          <td class="ps-3 border-secondary">
+                            <div class="d-flex align-items-center">
+                              <img src="<%= rent.image %>" class="rounded object-fit-cover border border-secondary me-2" style="width: 35px; height: 35px;" alt="Item">
+                              <span class="text-truncate d-inline-block" style="max-width: 150px;"><%= rent.title %></span>
+                            </div>
+                          </td>
+                          <td class="border-secondary text-muted"><%= rent.borrower %></td>
+                          <td class="border-secondary text-muted"><%= rent.returnDate %></td>
+                          <td class="border-secondary text-end pe-3">
+                            <a href="/lender/rentals" class="btn btn-sm btn-outline-info rounded-pill px-3">View</a>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
               <% } else { %>
-                <div class="p-4 text-center border border-secondary rounded text-muted">
-                  <p class="mb-0">No active rentals.</p>
+                <div class="text-center py-4 bg-dark rounded border border-secondary">
+                  <i class="bi bi-box-seam display-4 text-muted mb-2 d-block"></i>
+                  <p class="text-muted mb-0">You don't have any items currently rented out.</p>
                 </div>
               <% } %>
             </div>
@@ -216,32 +302,57 @@
           </div>
 
           <div class="col-lg-4">
-            <div class="section-card h-100">
-              <h2 class="h5 mb-4"><i class="bi bi-activity me-2"></i>Recent Activity</h2>
-              <div class="list-group list-group-flush border border-secondary rounded bg-dark overflow-hidden">
+            
+            <div class="section-card mb-4" style="border: 2px solid rgba(255, 107, 0, 0.6); background: linear-gradient(180deg, rgba(255, 107, 0, 0.15) 0%, rgba(30, 30, 30, 0.9) 100%); box-shadow: 0 8px 32px rgba(255, 107, 0, 0.15);">
+              <h3 class="h5 mb-4 text-white"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Quick Actions</h3>
+              <div class="d-grid gap-3">
                 
-                <% if (typeof recentActivity !== 'undefined' && recentActivity && recentActivity.length > 0) { %>
-                  <% recentActivity.forEach(function(activity) { %>
-                    <div class="list-group-item bg-transparent border-secondary p-3">
-                      <div class="d-flex align-items-start">
-                        <div class="activity-icon-container bg-<%= activity.type %> bg-opacity-25 me-3">
-                          <i class="bi <%= activity.icon %> text-<%= activity.type %> fs-5"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                          <div class="fw-bold text-light mb-1"><%= activity.label %></div>
-                          <div class="text-muted small mb-2"><%= activity.text %></div>
-                          <div class="text-secondary" style="font-size: 0.75rem;"><%= activity.time %></div>
-                        </div>
+                <a href="/lender/listings/new" class="btn btn-main w-100 text-start p-3 quick-action-card d-flex align-items-center border-0 shadow-lg">
+                  <div class="qa-icon-circle bg-white bg-opacity-25 text-white me-3 flex-shrink-0 shadow-sm">
+                    <i class="bi bi-plus-lg fs-4"></i>
+                  </div>
+                  <div class="w-100">
+                    <h5 class="mb-1 fw-bold text-white">Create New Listing</h5>
+                    <small class="text-white opacity-75">Add an item to your inventory</small>
+                  </div>
+                </a>
+                
+                <a href="/lender/listings" class="btn bg-dark w-100 text-light border border-secondary text-start p-3 quick-action-card d-flex align-items-center shadow-sm">
+                  <div class="qa-icon-circle bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-3 flex-shrink-0">
+                    <i class="bi bi-collection fs-5"></i>
+                  </div>
+                  <div class="w-100">
+                    <h5 class="mb-1 fw-bold">Manage Inventory</h5>
+                    <small class="text-muted">Edit or remove existing items</small>
+                  </div>
+                </a>
+
+              </div>
+            </div>
+
+            <div class="section-card mb-4">
+              <h3 class="h5 mb-4"><i class="bi bi-clock-history me-2 text-secondary"></i>Recent Activity</h3>
+              
+              <div class="activity-feed">
+                <% if (recentActivity && recentActivity.length > 0) { %>
+                  <% recentActivity.forEach(act => { %>
+                    <div class="d-flex mb-3 border-bottom border-secondary pb-3">
+                      <div class="activity-icon-container bg-<%= act.type %> bg-opacity-25 text-<%= act.type %> me-3 border border-<%= act.type %> border-opacity-50 shadow-sm">
+                        <i class="bi <%= act.icon %> fs-5"></i>
+                      </div>
+                      <div>
+                        <h6 class="mb-1 text-light"><%= act.label %></h6>
+                        <p class="small text-muted mb-1"><%= act.text %></p>
+                        <small class="text-secondary" style="font-size: 0.75rem;"><%= act.time %></small>
                       </div>
                     </div>
-                  <% }); %>
+                  <% }) %>
                 <% } else { %>
-                  <div class="list-group-item bg-transparent text-center p-5 text-muted border-0">
-                    <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
-                    No recent activity.
+                  <div class="text-center py-4 bg-dark rounded border border-secondary">
+                    <i class="bi bi-bell-slash fs-1 d-block mb-2 text-muted"></i>
+                    <p class="text-muted mb-0 small">No recent activity found.</p>
                   </div>
                 <% } %>
-
               </div>
             </div>
           </div>
@@ -249,6 +360,70 @@
 
       </div>
     </main>
+
+    <div class="modal fade" id="acceptModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-success shadow-lg rounded-4">
+          <div class="modal-header border-secondary p-4 pb-3">
+            <h5 class="modal-title text-white fw-bold">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>Accept Rental Request
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light p-4 pt-2">
+            <p>You are about to accept a rental request from <strong id="acceptBorrowerName" class="text-info"></strong> for <strong id="acceptListingTitle" class="text-white"></strong>.</p>
+            <div class="bg-black p-3 rounded-3 border border-secondary mb-3 shadow-sm">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Rental Period:</span>
+                <strong id="acceptDates" class="text-light"></strong>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Expected Earnings:</span>
+                <strong id="acceptEarnings" class="text-success fs-5"></strong>
+              </div>
+            </div>
+            <p class="small text-muted mb-0"><i class="bi bi-info-circle me-1"></i>By accepting, this item will be marked as "Active" and blocked from other requests for these dates.</p>
+          </div>
+          <div class="modal-footer border-secondary p-3">
+            <button type="button" class="btn btn-alternate rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <form id="acceptRequestForm" method="POST" class="m-0">
+              <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-check-circle me-1"></i> Confirm Acceptance
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-danger shadow-lg rounded-4">
+          <div class="modal-header border-secondary p-4 pb-3">
+            <h5 class="modal-title text-white fw-bold">
+              <i class="bi bi-x-circle-fill text-danger me-2"></i>Decline Rental Request
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light p-4 pt-2">
+            <p>You are declining the request from <strong id="rejectBorrowerName" class="text-info"></strong> for <strong id="rejectListingTitle" class="text-white"></strong>.</p>
+            <form id="rejectRequestForm" method="POST">
+              <div class="mb-3">
+                <label for="rejectReason" class="form-label text-muted small text-uppercase fw-bold">Reason for declining (Optional)</label>
+                <textarea class="form-control bg-black text-white border-secondary" id="rejectReason" name="reason" rows="3" placeholder="Let the borrower know why..."></textarea>
+              </div>
+            </form>
+            <p class="small text-muted mb-0"><i class="bi bi-exclamation-circle me-1"></i>This action cannot be undone. The borrower will be notified.</p>
+          </div>
+          <div class="modal-footer border-secondary p-3">
+            <button type="button" class="btn btn-alternate rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="rejectRequestForm" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+              <i class="bi bi-x-circle me-1"></i> Confirm Decline
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer>
       <div class="container">
@@ -285,5 +460,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pending-requests.js"></script>
   </body>
 </html>

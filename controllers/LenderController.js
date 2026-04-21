@@ -31,12 +31,13 @@ const LenderController = {
       // Calculate Net Earnings (Gross - Platform Fee)
       const settings = await PlatformSettings.findAll();
       const sMap = {};
-      settings.forEach(s => sMap[s.settingKey] = s.settingValue);
-      const feePercent = parseFloat(sMap['platformFeePercent'] || '10') / 100;
+      settings.forEach((s) => (sMap[s.settingKey] = s.settingValue));
+      const feePercent = parseFloat(sMap["platformFeePercent"] || "10") / 100;
 
-      const grossEarnings = await Rental.sum("actualTotal", {
-        where: { lenderId, status: "Completed" },
-      }) || 0;
+      const grossEarnings =
+        (await Rental.sum("actualTotal", {
+          where: { lenderId, status: "Completed" },
+        })) || 0;
       const netEarnings = grossEarnings * (1 - feePercent);
 
       const pendingRequestsCount = await RentalRequest.count({
@@ -234,15 +235,24 @@ const LenderController = {
   getListings: async (req, res) => {
     try {
       let whereClause = { lenderId: req.session.user.id };
-      if (req.query.q) whereClause.title = { [Op.iLike]: `%${req.query.q}%` };
+
+      // FIX: Changed Op.iLike to Op.like for MariaDB compatibility
+      if (req.query.q) {
+        whereClause.title = { [Op.like]: `%${req.query.q}%` };
+      }
 
       const listings = await Listing.findAll({
         where: whereClause,
         include: [{ model: Image, as: "images" }],
         order: [["createdAt", "DESC"]],
       });
-      res.render("lender/my-listings", { listings });
+
+      res.render("lender/my-listings", {
+        listings,
+        searchQuery: req.query.q || "",
+      });
     } catch (error) {
+      console.error("Get Listings Error:", error);
       res.status(500).send("Server Error");
     }
   },
@@ -304,26 +314,15 @@ const LenderController = {
     } = req.body;
 
     try {
-      let finalCategory = category;
-      let finalDynamicId = null;
-
-      if (category === "Other" && dynamicCategoryId) {
-        const dynamicCat = await Category.findByPk(dynamicCategoryId);
-        if (dynamicCat) {
-          finalCategory = dynamicCat.name;
-          finalDynamicId = dynamicCategoryId;
-        }
-      }
-
       const newListing = await Listing.create({
         lenderId,
         title,
         description,
-        category: finalCategory,
+        category,
         condition,
         quantity: quantity || 1,
         dailyRate,
-        dynamicCategoryId: finalDynamicId,
+        dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
         status: "Draft",
       });
 
@@ -378,7 +377,7 @@ const LenderController = {
       const listing = await Listing.findOne({
         where: { id: req.params.id, lenderId: req.session.user.id },
         include: [
-          { model: Image, as: "images" }, // Ensure images are grabbed for the sidebar
+          { model: Image, as: "images" },
           { model: Listing_VideoGame, as: "videoGameDetails" },
           { model: Listing_Console, as: "consoleDetails" },
           { model: Listing_Accessory, as: "accessoryDetails" },
@@ -442,13 +441,11 @@ const LenderController = {
         });
       }
 
+      // DO NOT extract category, condition, or dailyRate from req.body
       const {
         title,
         description,
-        category,
-        condition,
         quantity,
-        dailyRate,
         dynamicCategoryId,
         platform,
         genre,
@@ -468,27 +465,22 @@ const LenderController = {
         modelNumber,
       } = req.body;
 
-      let finalCategory = category;
-      let finalDynamicId = null;
+      // SERVER-SIDE SECURITY LOCK:
+      // Force these variables to explicitly use the original values from the database
+      const category = listing.category;
+      const condition = listing.condition;
+      const dailyRate = listing.dailyRate;
 
-      if (category === "Other" && dynamicCategoryId) {
-        const dynamicCat = await Category.findByPk(dynamicCategoryId);
-        if (dynamicCat) {
-          finalCategory = dynamicCat.name;
-          finalDynamicId = dynamicCategoryId;
-        }
-      }
-
+      // Update the main listing wrapper
       await listing.update({
         title,
         description,
-        category: finalCategory,
-        condition,
         quantity: quantity || 1,
-        dailyRate,
-        dynamicCategoryId: finalDynamicId,
+        // Notice we do NOT pass category, condition, or dailyRate into this update object
+        dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
       });
 
+      // Clear and re-populate the sub-tables to allow them to fix typos in the specific attributes
       await Listing_VideoGame.destroy({ where: { listingId: listing.id } });
       await Listing_Console.destroy({ where: { listingId: listing.id } });
       await Listing_Accessory.destroy({ where: { listingId: listing.id } });
@@ -527,6 +519,7 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${listing.id}`);
     } catch (error) {
+      console.error(error);
       res.status(500).send("Database error updating listing.");
     }
   },
@@ -545,7 +538,6 @@ const LenderController = {
         await listing.update({ status: "Active" });
         res.redirect(`/lender/listings/${listing.id}`);
       } else {
-        // Redirect back to the images page with an error if no images exist
         res.redirect(
           `/lender/listings/${listing.id}/images?error=${encodeURIComponent("You must upload at least one image before publishing.")}`,
         );
@@ -632,10 +624,71 @@ const LenderController = {
   deleteImage: async (req, res) => {
     try {
       const image = await Image.findByPk(req.params.imageId);
-      if (image) await image.destroy();
+      if (image) {
+        const listingId = image.listingId;
+        const wasPrimary = image.isPrimary;
+
+        // Safety Check: Do not delete the last available image
+        const currentCount = await Image.count({ where: { listingId } });
+        if (currentCount <= 1) {
+          return res.redirect(
+            `/lender/listings/${listingId}/images?error=Cannot+delete+the+last+remaining+image.`,
+          );
+        }
+
+        await image.destroy();
+
+        // Automatically set the next remaining image as primary if the old primary was deleted
+        if (wasPrimary) {
+          const nextImage = await Image.findOne({
+            where: { listingId },
+            order: [["createdAt", "ASC"]], // Sort chronologically to get the top image
+          });
+          if (nextImage) {
+            await nextImage.update({ isPrimary: true });
+          }
+        }
+
+        return res.redirect(
+          `/lender/listings/${listingId}/images?success=Image+successfully+deleted.`,
+        );
+      }
       res.redirect("back");
     } catch (error) {
+      console.error("Error deleting image:", error);
       res.status(500).send("Error deleting image");
+    }
+  },
+
+  // Processes the drag-and-drop reordering
+  reorderImages: async (req, res) => {
+    try {
+      const listingId = req.params.id;
+      const { imageIds } = req.body;
+
+      // Use the current time as a baseline and increment by 1 second for each position
+      // This enforces chronological order without needing a schema migration for an 'orderIndex' column
+      let baseTime = new Date().getTime();
+
+      for (let i = 0; i < imageIds.length; i++) {
+        const imgId = imageIds[i];
+
+        // Automatically make the item dragged to the first slot the new Primary
+        const isPrimary = i === 0;
+
+        await Image.update(
+          {
+            createdAt: new Date(baseTime + i * 1000),
+            isPrimary: isPrimary,
+          },
+          { where: { id: imgId, listingId: listingId } },
+        );
+      }
+
+      res.status(200).json({ message: "Reordered successfully" });
+    } catch (error) {
+      console.error("Error reordering images:", error);
+      res.status(500).json({ error: "Server error" });
     }
   },
 
@@ -643,14 +696,40 @@ const LenderController = {
     try {
       const image = await Image.findByPk(req.params.imageId);
       if (image) {
+        const listingId = image.listingId;
+
+        // 1. Remove primary status from all other images
         await Image.update(
           { isPrimary: false },
-          { where: { listingId: image.listingId } },
+          { where: { listingId: listingId } },
         );
-        await image.update({ isPrimary: true });
+
+        // 2. Find the current oldest image in the list
+        const oldestImage = await Image.findOne({
+          where: { listingId: listingId },
+          order: [["createdAt", "ASC"]],
+        });
+
+        // 3. Calculate a new timestamp 1 second older than the current oldest
+        let newTime = new Date().getTime();
+        if (oldestImage) {
+          newTime = new Date(oldestImage.createdAt).getTime() - 1000;
+        }
+
+        // 4. Set the selected image as primary AND move it to the front
+        await image.update({
+          isPrimary: true,
+          createdAt: new Date(newTime),
+        });
+
+        // 5. Explicitly redirect back with a success message
+        return res.redirect(
+          `/lender/listings/${listingId}/images?success=Primary+image+successfully+updated.`,
+        );
       }
-      res.redirect("back");
+      res.redirect("/lender/listings");
     } catch (error) {
+      console.error("Error setting primary image:", error);
       res.status(500).send("Error setting primary image");
     }
   },
@@ -670,8 +749,95 @@ const LenderController = {
 
       if (!listing) return res.status(404).send("Listing not found");
 
-      res.render("lender/listing-detail", { listing });
+      // Fetch Pending Requests for this specific listing
+      const pendingRequests = await RentalRequest.findAll({
+        where: { listingId: listing.id, status: "Pending" },
+        include: [{ model: User, as: "borrower" }],
+        order: [["createdAt", "DESC"]],
+      });
+
+      // Fetch all Rentals (Active & Completed) for this listing
+      const allRentals = await Rental.findAll({
+        include: [
+          {
+            model: RentalRequest,
+            as: "request",
+            where: { listingId: listing.id },
+            include: [{ model: User, as: "borrower" }],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      // Calculate Listing Analytics
+      const totalRentals = allRentals.length;
+      const totalEarnings = allRentals.reduce(
+        (sum, rental) => sum + (parseFloat(rental.actualTotal) || 0),
+        0,
+      );
+      const isCurrentlyRented = allRentals.some((r) => r.status === "Active");
+
+      // Build a specific Activity Feed for this listing
+      let activities = [];
+
+      // Add creation event
+      activities.push({
+        type: "created",
+        text: "Listing was created",
+        date: listing.createdAt,
+        icon: "bi-stars",
+        color: "text-warning",
+      });
+
+      // Add request events
+      pendingRequests.forEach((req) => {
+        activities.push({
+          type: "request",
+          text: `${req.borrower.firstName || req.borrower.email.split("@")[0]} requested to borrow this`,
+          date: req.createdAt,
+          icon: "bi-envelope",
+          color: "text-info",
+        });
+      });
+
+      // Add rental events
+      allRentals.forEach((rent) => {
+        const borrowerName =
+          rent.request.borrower.firstName ||
+          rent.request.borrower.email.split("@")[0];
+        activities.push({
+          type: "rental_started",
+          text: `Rental started with ${borrowerName}`,
+          date: rent.createdAt,
+          icon: "bi-play-circle",
+          color: "text-primary",
+        });
+        if (rent.status === "Completed") {
+          activities.push({
+            type: "rental_completed",
+            text: `Rental completed safely`,
+            date: rent.updatedAt,
+            icon: "bi-check-circle",
+            color: "text-success",
+          });
+        }
+      });
+
+      // Sort newest to oldest and limit to the 5 most recent events
+      activities.sort((a, b) => b.date - a.date);
+      const recentActivity = activities.slice(0, 5);
+
+      res.render("lender/listing-detail", {
+        listing,
+        pendingRequests,
+        allRentals,
+        totalRentals,
+        totalEarnings,
+        isCurrentlyRented,
+        recentActivity,
+      });
     } catch (error) {
+      console.error(error);
       res.status(500).send("Server Error");
     }
   },
@@ -753,7 +919,7 @@ const LenderController = {
               {
                 model: Listing,
                 as: "listing",
-                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+                include: [{ model: Image, as: "images" }],
               },
             ],
           },
@@ -780,7 +946,7 @@ const LenderController = {
               {
                 model: Listing,
                 as: "listing",
-                include: [{ model: Image, as: "images" }], // <-- FIX: Added Images
+                include: [{ model: Image, as: "images" }],
               },
             ],
           },
@@ -820,16 +986,20 @@ const LenderController = {
 
       // Find the most recent rental for this listing to identify the borrower
       const rental = await Rental.findOne({
-        include: [{
-          model: RentalRequest,
-          as: 'request',
-          where: { listingId }
-        }],
-        order: [['createdAt', 'DESC']]
+        include: [
+          {
+            model: RentalRequest,
+            as: "request",
+            where: { listingId },
+          },
+        ],
+        order: [["createdAt", "DESC"]],
       });
 
       if (!rental) {
-        return res.status(404).send("No rental history found for this listing to report.");
+        return res
+          .status(404)
+          .send("No rental history found for this listing to report.");
       }
 
       const borrowerId = rental.request.borrowerId;
@@ -843,10 +1013,10 @@ const LenderController = {
         status: "Submitted",
       });
 
-      res.redirect('/lender/rentals');
+      res.redirect("/lender/rentals");
     } catch (error) {
       console.error("Lender Report Error:", error);
-      res.status(500).send("Failed to submit report.");
+      res.status(500).send("Error submitting report");
     }
   },
 };

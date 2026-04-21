@@ -3,7 +3,6 @@
     ? currentUser.firstName 
     : 'Lender';
 
-  // Extract primary image safely by ensuring listing object is defined
   const safeListing = typeof listing !== 'undefined' ? listing : null;
   const form = typeof formData !== 'undefined' ? formData : safeListing || {};
 
@@ -30,13 +29,13 @@
     <link rel="stylesheet" href="/css/lender/lender.css" />
   </head>
   <body class="lender-page d-flex flex-column min-vh-100">
-    
     <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Lender</span>
         </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -96,305 +95,265 @@
             <i class="bi bi-arrow-left me-2"></i>Back to Listing
           </a>
           <h1>Edit Listing</h1>
-          <p>Update your listing information</p>
+          <p>Update the details and specifics for this item</p>
         </div>
 
         <div class="row">
           <div class="col-lg-8">
+            
+            <div class="alert alert-danger d-none align-items-center mb-4 shadow-sm" id="generalErrorAlert" role="alert">
+              <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+              <div>Please correct the highlighted fields below before submitting.</div>
+            </div>
 
             <% if (typeof error !== 'undefined' && error) { %>
-              <div class="alert alert-danger d-flex align-items-center" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <div class="alert alert-danger d-flex align-items-center mb-4 shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
                 <div><%= error %></div>
               </div>
             <% } %>
 
-            <div id="generalErrorAlert" class="alert alert-danger d-none align-items-center" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <div>Please fix the highlighted fields below before saving changes.</div>
-            </div>
-
-            <div class="alert alert-info d-flex align-items-center border-info mb-4" role="alert">
-              <i class="bi bi-info-circle-fill me-3 fs-5"></i>
-              <div>
-                <strong>Note:</strong> If this listing is currently being rented, certain critical fields (like Condition and Daily Rate) will be locked by the system to protect the active transaction.
-              </div>
-            </div>
-            
-            <form id="createListingForm" action="/lender/listings/<%= safeListing.id %>?_method=PUT" method="POST" novalidate>
+            <form action="/lender/listings/<%= safeListing.id %>?_method=PUT" method="POST" id="editListingForm" class="needs-validation" novalidate>
               
               <div class="section-card mb-4">
-                <label class="form-label">Equipment Category <span class="text-danger">*</span></label>
-                <div class="row g-3">
-                  <div class="col-md-3">
-                    <input type="radio" class="btn-check" name="category" id="categoryGame" value="Video Game" required <%= form.category === 'Video Game' ? 'checked' : '' %> />
-                    <label class="btn btn-outline-primary w-100 py-3" for="categoryGame">
-                      <i class="bi bi-disc fs-3 d-block mb-2"></i>Video Game
-                    </label>
-                  </div>
-                  <div class="col-md-3">
-                    <input type="radio" class="btn-check" name="category" id="categoryConsole" value="Console" <%= form.category === 'Console' ? 'checked' : '' %> />
-                    <label class="btn btn-outline-primary w-100 py-3" for="categoryConsole">
-                      <i class="bi bi-tv fs-3 d-block mb-2"></i>Console
-                    </label>
-                  </div>
-                  <div class="col-md-3">
-                    <input type="radio" class="btn-check" name="category" id="categoryAccessory" value="Accessory" <%= form.category === 'Accessory' ? 'checked' : '' %> />
-                    <label class="btn btn-outline-primary w-100 py-3" for="categoryAccessory">
-                      <i class="bi bi-controller fs-3 d-block mb-2"></i>Accessory
-                    </label>
-                  </div>
-                  <div class="col-md-3">
-                    <input type="radio" class="btn-check" name="category" id="categoryOther" value="Other" <%= form.category === 'Other' ? 'checked' : '' %> />
-                    <label class="btn btn-outline-primary w-100 py-3" for="categoryOther">
-                      <i class="bi bi-three-dots fs-3 d-block mb-2"></i>More...
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="section-card mb-4">
-                <h2 class="h5 mb-3"><i class="bi bi-info-circle me-2"></i>Core Details</h2>
-
-                <div class="mb-3">
-                  <label for="itemTitle" class="form-label">Item Title <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="itemTitle" name="title" value="<%= form.title || '' %>" required minlength="5" maxlength="100" />
-                  <div class="invalid-feedback">Title must be between 5 and 100 characters.</div>
+                <h2 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-info-circle me-2 text-info"></i>Core Details</h2>
+                
+                <div class="mb-4">
+                  <label for="listingTitle" class="form-label fw-bold">Listing Title</label>
+                  <input type="text" class="form-control bg-dark text-white border-secondary" id="listingTitle" name="title" value="<%= form.title %>" required minlength="10" maxlength="60">
+                  <div class="invalid-feedback">Title must be between 10 and 60 characters.</div>
                 </div>
 
                 <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="condition" class="form-label">Condition <span class="text-danger">*</span></label>
-                    <select class="form-select" id="condition" name="condition" required>
-                      <option value="New" <%= form.condition === 'New' ? 'selected' : '' %>>New</option>
-                      <option value="Like New" <%= form.condition === 'Like New' ? 'selected' : '' %>>Like New</option>
-                      <option value="Very Good" <%= form.condition === 'Very Good' ? 'selected' : '' %>>Very Good</option>
-                      <option value="Good" <%= form.condition === 'Good' ? 'selected' : '' %>>Good</option>
-                      <option value="Acceptable" <%= form.condition === 'Acceptable' ? 'selected' : '' %>>Acceptable</option>
-                    </select>
-                    <div class="invalid-feedback">Please select the item's condition.</div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="quantity" class="form-label">Quantity Available <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="quantity" name="quantity" value="<%= form.quantity || '1' %>" min="1" max="99" required />
-                    <div class="invalid-feedback">Quantity must be between 1 and 99.</div>
+                  <div class="col-12 mb-4">
+                    <label class="form-label fw-bold"><i class="bi bi-tag text-orange me-1"></i>Equipment Category</label>
+                    <p class="text-warning small mb-2"><i class="bi bi-lock-fill me-1"></i>Category cannot be changed after creation.</p>
+                    
+                    <input type="hidden" name="category" value="<%= form.category %>">
+                    <% if (form.category === 'Other') { %>
+                      <input type="hidden" name="dynamicCategoryId" value="<%= form.dynamicCategoryId %>">
+                    <% } %>
+
+                    <div class="d-flex flex-wrap gap-2 category-selector">
+                      <input type="radio" class="btn-check" id="catVG" value="Video Game" <%= form.category === 'Video Game' ? 'checked' : '' %> disabled>
+                      <label class="btn btn-outline-secondary" for="catVG"><i class="bi bi-controller me-2"></i>Video Game</label>
+                      
+                      <input type="radio" class="btn-check" id="catConsole" value="Console" <%= form.category === 'Console' ? 'checked' : '' %> disabled>
+                      <label class="btn btn-outline-secondary" for="catConsole"><i class="bi bi-pc-display me-2"></i>Console</label>
+                      
+                      <input type="radio" class="btn-check" id="catAccessory" value="Accessory" <%= form.category === 'Accessory' ? 'checked' : '' %> disabled>
+                      <label class="btn btn-outline-secondary" for="catAccessory"><i class="bi bi-headset me-2"></i>Accessory</label>
+                      
+                      <input type="radio" class="btn-check" id="catOther" value="Other" <%= form.category === 'Other' ? 'checked' : '' %> disabled>
+                      <label class="btn btn-outline-secondary" for="catOther"><i class="bi bi-three-dots me-2"></i>Other</label>
+                    </div>
                   </div>
                 </div>
 
-                <div class="mb-3">
-                  <label for="itemDescription" class="form-label">Description <span class="text-danger">*</span></label>
-                  <textarea class="form-control" id="itemDescription" name="description" rows="7" required minlength="50" maxlength="2000"><%= form.description || '' %></textarea>
-                  <div class="invalid-feedback">Description must be between 50 and 2000 characters.</div>
-                  <div class="form-text">
-                    <span id="charCount"><%= form.description ? form.description.length : 0 %></span>/2000 characters (minimum 50)
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <label for="itemCondition" class="form-label fw-bold"><i class="bi bi-star-half text-orange me-1"></i>Condition</label>
+                    <select class="form-select bg-dark border-secondary text-muted" id="itemCondition" disabled>
+                      <option value="New" <%= form.condition === 'New' ? 'selected' : '' %>>New (Sealed)</option>
+                      <option value="Like New" <%= form.condition === 'Like New' ? 'selected' : '' %>>Like New (Perfect condition)</option>
+                      <option value="Good" <%= form.condition === 'Good' ? 'selected' : '' %>>Good (Minor wear)</option>
+                      <option value="Fair" <%= form.condition === 'Fair' ? 'selected' : '' %>>Fair (Visible wear)</option>
+                    </select>
+                    <input type="hidden" name="condition" value="<%= form.condition %>">
+                    <div class="form-text text-warning"><i class="bi bi-lock-fill me-1"></i>Condition cannot be changed.</div>
+                  </div>
+
+                  <div class="col-md-6 mb-4">
+                    <label for="quantity" class="form-label fw-bold">Quantity Available</label>
+                    <input type="number" class="form-control bg-dark text-white border-secondary" id="quantity" name="quantity" min="1" max="50" value="<%= form.quantity || 1 %>" required>
+                    <div class="invalid-feedback">Please provide a valid quantity (1-50).</div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="itemDescription" class="form-label fw-bold">Description</label>
+                  <textarea class="form-control bg-dark text-white border-secondary" id="itemDescription" name="description" rows="5" required minlength="50"><%= form.description %></textarea>
+                  <div class="form-text text-muted d-flex justify-content-between">
+                    <span>Include details about included cables, game editions, or specific wear.</span>
+                    <span><span id="charCount">0</span> / 1000</span>
+                  </div>
+                  <div class="invalid-feedback">Description must be at least 50 characters long.</div>
+                </div>
+              </div>
+
+              <div class="section-card mb-4">
+                <h2 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-tag me-2 text-info"></i>Pricing</h2>
+                
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <label for="dailyRate" class="form-label fw-bold"><i class="bi bi-currency-dollar text-orange me-1"></i>Daily Rental Rate</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-dark border-secondary text-muted">$</span>
+                      <input type="number" class="form-control bg-dark border-secondary text-muted" id="dailyRate" name="dailyRate" step="0.01" min="1" max="100" value="<%= form.dailyRate %>" readonly required>
+                    </div>
+                    <div class="form-text text-warning"><i class="bi bi-lock-fill me-1"></i>Rate cannot be changed once listed.</div>
                   </div>
                 </div>
               </div>
 
               <div class="section-card mb-4">
-                <h2 class="h5 mb-3"><i class="bi bi-gear me-2"></i>Specifics</h2>
+                <h2 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-sliders me-2 text-info"></i>Item Specifics</h2>
                 
-                <div id="gameFields" class="category-fields" style="display: <%= form.category === 'Video Game' ? 'block' : 'none' %>">
+                <div id="gameFields" class="category-fields" style="display: none;">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label">Platform <span class="text-danger">*</span></label>
-                      <select class="form-select" id="platform" name="platform">
-                        <option value="PlayStation 5" <%= form.platform === 'PlayStation 5' ? 'selected' : '' %>>PlayStation 5</option>
-                        <option value="PlayStation 4" <%= form.platform === 'PlayStation 4' ? 'selected' : '' %>>PlayStation 4</option>
+                      <label for="platform" class="form-label">Platform *</label>
+                      <select class="form-select bg-dark text-white border-secondary" id="platform" name="platform">
+                        <option value="" disabled>Select platform...</option>
+                        <option value="PS5" <%= form.platform === 'PS5' ? 'selected' : '' %>>PlayStation 5</option>
+                        <option value="PS4" <%= form.platform === 'PS4' ? 'selected' : '' %>>PlayStation 4</option>
                         <option value="Xbox Series X/S" <%= form.platform === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
                         <option value="Xbox One" <%= form.platform === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
                         <option value="Nintendo Switch" <%= form.platform === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
-                        <option value="PC" <%= form.platform === 'PC' ? 'selected' : '' %>>PC</option>
+                        <option value="PC" <%= form.platform === 'PC' ? 'selected' : '' %>>PC (Physical Copy)</option>
+                        <option value="Retro/Other" <%= form.platform === 'Retro/Other' ? 'selected' : '' %>>Retro / Other</option>
                       </select>
+                      <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Genre <span class="text-danger">*</span></label>
-                      <select class="form-select" id="genre" name="genre">
-                        <option value="Action" <%= form.genre === 'Action' ? 'selected' : '' %>>Action</option>
-                        <option value="Adventure" <%= form.genre === 'Adventure' ? 'selected' : '' %>>Adventure</option>
-                        <option value="RPG" <%= form.genre === 'RPG' ? 'selected' : '' %>>RPG</option>
-                        <option value="Sports" <%= form.genre === 'Sports' ? 'selected' : '' %>>Sports</option>
-                        <option value="Racing" <%= form.genre === 'Racing' ? 'selected' : '' %>>Racing</option>
-                        <option value="Fighting" <%= form.genre === 'Fighting' ? 'selected' : '' %>>Fighting</option>
-                        <option value="Strategy" <%= form.genre === 'Strategy' ? 'selected' : '' %>>Strategy</option>
-                        <option value="Simulation" <%= form.genre === 'Simulation' ? 'selected' : '' %>>Simulation</option>
+                      <label for="genre" class="form-label">Genre *</label>
+                      <input type="text" class="form-control bg-dark text-white border-secondary" id="genre" name="genre" value="<%= form.genre %>" placeholder="e.g., Action RPG">
+                      <div class="invalid-feedback">Required.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label for="esrbRating" class="form-label">ESRB Rating</label>
+                      <select class="form-select bg-dark text-white border-secondary" id="esrbRating" name="esrbRating">
+                        <option value="" selected>Select...</option>
+                        <option value="E" <%= form.esrbRating === 'E' ? 'selected' : '' %>>Everyone (E)</option>
+                        <option value="E10+" <%= form.esrbRating === 'E10+' ? 'selected' : '' %>>Everyone 10+</option>
+                        <option value="T" <%= form.esrbRating === 'T' ? 'selected' : '' %>>Teen (T)</option>
+                        <option value="M" <%= form.esrbRating === 'M' ? 'selected' : '' %>>Mature (M)</option>
                       </select>
                     </div>
-                    <div class="col-md-4 mt-3">
-                      <label class="form-label">ESRB Rating</label>
-                      <select class="form-select" name="esrbRating">
-                        <option value="">Select rating...</option>
-                        <option value="E" <%= form.esrbRating === 'E' ? 'selected' : '' %>>E (Everyone)</option>
-                        <option value="E10+" <%= form.esrbRating === 'E10+' ? 'selected' : '' %>>E10+</option>
-                        <option value="T" <%= form.esrbRating === 'T' ? 'selected' : '' %>>T (Teen)</option>
-                        <option value="M" <%= form.esrbRating === 'M' ? 'selected' : '' %>>M (Mature)</option>
-                      </select>
+                    <div class="col-md-4">
+                      <label for="publisher" class="form-label">Publisher</label>
+                      <input type="text" class="form-control bg-dark text-white border-secondary" id="publisher" name="publisher" value="<%= form.publisher %>">
                     </div>
-                    <div class="col-md-4 mt-3">
-                      <label class="form-label">Publisher</label>
-                      <input type="text" class="form-control" name="publisher" value="<%= form.publisher || '' %>" />
-                    </div>
-                    <div class="col-md-4 mt-3">
-                      <label class="form-label">Release Year</label>
-                      <input type="number" class="form-control" name="releaseYear" min="1970" max="2030" value="<%= form.releaseYear || '' %>" />
+                    <div class="col-md-4">
+                      <label for="releaseYear" class="form-label">Release Year</label>
+                      <input type="number" class="form-control bg-dark text-white border-secondary" id="releaseYear" name="releaseYear" min="1970" max="2030" value="<%= form.releaseYear %>">
                     </div>
                   </div>
                 </div>
 
-                <div id="consoleFields" class="category-fields" style="display: <%= form.category === 'Console' ? 'block' : 'none' %>">
+                <div id="consoleFields" class="category-fields" style="display: none;">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label">Console Type <span class="text-danger">*</span></label>
-                      <select class="form-select" id="consoleType" name="consoleType">
-                        <option value="PlayStation 5" <%= form.consoleType === 'PlayStation 5' ? 'selected' : '' %>>PlayStation 5</option>
-                        <option value="PlayStation 4" <%= form.consoleType === 'PlayStation 4' ? 'selected' : '' %>>PlayStation 4</option>
-                        <option value="Xbox Series X/S" <%= form.consoleType === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
-                        <option value="Xbox One" <%= form.consoleType === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
-                        <option value="Nintendo Switch" <%= form.consoleType === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
+                      <label for="consoleType" class="form-label">Console Family *</label>
+                      <select class="form-select bg-dark text-white border-secondary" id="consoleType" name="consoleType">
+                        <option value="" disabled>Select console...</option>
+                        <option value="PlayStation" <%= form.consoleType === 'PlayStation' ? 'selected' : '' %>>PlayStation</option>
+                        <option value="Xbox" <%= form.consoleType === 'Xbox' ? 'selected' : '' %>>Xbox</option>
+                        <option value="Nintendo" <%= form.consoleType === 'Nintendo' ? 'selected' : '' %>>Nintendo</option>
+                        <option value="Handheld" <%= form.consoleType === 'Handheld' ? 'selected' : '' %>>SteamDeck / Handheld</option>
+                        <option value="VR" <%= form.consoleType === 'VR' ? 'selected' : '' %>>VR Headset</option>
+                        <option value="Retro" <%= form.consoleType === 'Retro' ? 'selected' : '' %>>Retro Console</option>
                       </select>
+                      <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Storage Capacity</label>
-                      <input type="text" class="form-control" name="storageCapacity" placeholder="e.g. 1TB" value="<%= form.storageCapacity || '' %>" />
+                      <label for="storageCapacity" class="form-label">Storage Capacity</label>
+                      <input type="text" class="form-control bg-dark text-white border-secondary" id="storageCapacity" name="storageCapacity" value="<%= form.storageCapacity %>" placeholder="e.g., 1TB">
                     </div>
-                    <div class="col-md-6 mt-4">
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="controllersIncluded" id="controllersIncluded" <%= form.controllersIncluded ? 'checked' : '' %>>
-                        <label class="form-check-label" for="controllersIncluded">Controllers Included?</label>
+                    <div class="col-md-12">
+                      <div class="bg-black p-3 rounded border border-secondary">
+                        <label class="form-label fw-bold mb-3">Included in Box</label>
+                        <div class="row g-3">
+                          <div class="col-md-4">
+                            <div class="form-check form-switch mb-2">
+                              <input class="form-check-input" type="checkbox" role="switch" id="controllersIncluded" name="controllersIncluded" <%= form.controllersIncluded ? 'checked' : '' %>>
+                              <label class="form-check-label" for="controllersIncluded">Controllers Included</label>
+                            </div>
+                            <input type="number" class="form-control bg-dark text-white border-secondary form-control-sm mt-2" id="controllerQuantity" name="controllerQuantity" placeholder="How many?" min="0" value="<%= form.controllerQuantity %>">
+                          </div>
+                          <div class="col-md-4">
+                            <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" role="switch" id="cablesIncluded" name="cablesIncluded" <%= form.cablesIncluded ? 'checked' : '' %>>
+                              <label class="form-check-label" for="cablesIncluded">Power/HDMI Cables</label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-md-6 mt-3">
-                      <label class="form-label">Controller Quantity</label>
-                      <input type="number" class="form-control" name="controllerQuantity" min="0" value="<%= form.controllerQuantity || 0 %>" />
-                    </div>
-                    <div class="col-md-6 mt-4">
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="cablesIncluded" id="cablesIncluded" <%= form.cablesIncluded ? 'checked' : '' %>>
-                        <label class="form-check-label" for="cablesIncluded">Power/HDMI Cables Included?</label>
-                      </div>
-                    </div>
-                    <div class="col-md-6 mt-3">
-                      <label class="form-label">Serial Number (Private)</label>
-                      <input type="text" class="form-control" name="serialNumber" placeholder="For tracking" value="<%= form.serialNumber || '' %>" />
                     </div>
                   </div>
                 </div>
 
-                <div id="accessoryFields" class="category-fields" style="display: <%= form.category === 'Accessory' ? 'block' : 'none' %>">
+                <div id="accessoryFields" class="category-fields" style="display: none;">
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label class="form-label">Accessory Type <span class="text-danger">*</span></label>
-                      <select class="form-select" id="accessoryType" name="accessoryType">
+                      <label for="accessoryType" class="form-label">Type of Accessory *</label>
+                      <select class="form-select bg-dark text-white border-secondary" id="accessoryType" name="accessoryType">
+                        <option value="" disabled>Select type...</option>
                         <option value="Controller" <%= form.accessoryType === 'Controller' ? 'selected' : '' %>>Controller</option>
                         <option value="Headset" <%= form.accessoryType === 'Headset' ? 'selected' : '' %>>Headset</option>
-                        <option value="VR Equipment" <%= form.accessoryType === 'VR Equipment' ? 'selected' : '' %>>VR Equipment</option>
                         <option value="Racing Wheel" <%= form.accessoryType === 'Racing Wheel' ? 'selected' : '' %>>Racing Wheel</option>
                         <option value="Flight Stick" <%= form.accessoryType === 'Flight Stick' ? 'selected' : '' %>>Flight Stick</option>
-                        <option value="Charging Station" <%= form.accessoryType === 'Charging Station' ? 'selected' : '' %>>Charging Station</option>
+                        <option value="Storage" <%= form.accessoryType === 'Storage' ? 'selected' : '' %>>Storage Expansion</option>
                         <option value="Other" <%= form.accessoryType === 'Other' ? 'selected' : '' %>>Other</option>
                       </select>
+                      <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Compatible Platforms</label>
-                      <input type="text" class="form-control" name="compatiblePlatforms" placeholder="e.g. PC, PS5" value="<%= form.compatiblePlatforms || '' %>" />
+                      <label for="compatiblePlatforms" class="form-label">Compatible Platforms</label>
+                      <input type="text" class="form-control bg-dark text-white border-secondary" id="compatiblePlatforms" name="compatiblePlatforms" value="<%= form.compatiblePlatforms %>" placeholder="e.g., PS5, PC">
                     </div>
-                    <div class="col-md-4 mt-4">
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="isWireless" id="isWireless" <%= form.isWireless ? 'checked' : '' %>>
-                        <label class="form-check-label" for="isWireless">Is Wireless?</label>
+                    <div class="col-md-6">
+                      <label for="brand" class="form-label">Brand / Manufacturer</label>
+                      <input type="text" class="form-control bg-dark text-white border-secondary" id="brand" name="brand" value="<%= form.brand %>">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                      <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="isWireless" name="isWireless" <%= form.isWireless ? 'checked' : '' %>>
+                        <label class="form-check-label" for="isWireless">Wireless Device</label>
                       </div>
                     </div>
-                    <div class="col-md-4 mt-3">
-                      <label class="form-label">Brand</label>
-                      <input type="text" class="form-control" name="brand" value="<%= form.brand || '' %>" />
-                    </div>
-                    <div class="col-md-4 mt-3">
-                      <label class="form-label">Model Number</label>
-                      <input type="text" class="form-control" name="modelNumber" value="<%= form.modelNumber || '' %>" />
-                    </div>
                   </div>
                 </div>
-
-                <div id="otherFields" class="category-fields" style="display: <%= form.category === 'Other' ? 'block' : 'none' %>">
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label for="dynamicCategoryId" class="form-label">Select Specific Category <span class="text-danger">*</span></label>
-                      <select class="form-select" id="dynamicCategoryId" name="dynamicCategoryId">
-                        <option value="">Choose a category...</option>
-                        <% if (typeof dynamicCategories !== 'undefined') { %>
-                          <% dynamicCategories.forEach(cat => { %>
-                            <option value="<%= cat.id %>" <%= form.dynamicCategoryId == cat.id ? 'selected' : '' %>><%= cat.name %></option>
-                          <% }) %>
-                        <% } %>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <div class="section-card mb-4">
-                <h2 class="h5 mb-3"><i class="bi bi-cash me-2"></i>Pricing</h2>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="dailyRate" class="form-label">Daily Rental Rate <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" id="dailyRate" name="dailyRate" value="<%= form.dailyRate %>" step="0.01" min="1.00" max="500.00" required />
-                      <div class="invalid-feedback">Rate must be between $1.00 and $500.00.</div>
-                    </div>
-                    <div class="form-text">Between $1.00 and $500.00 per day</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-flex gap-2 mb-4 align-items-center">
-                <button type="submit" class="btn btn-main">
-                  <i class="bi bi-save me-2"></i>Save Changes
-                </button>
-                <a href="/lender/listings/<%= safeListing.id %>" class="btn btn-alternate">Cancel</a>
                 
-                <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteListingModal">
+                <div id="otherFields" class="category-fields" style="display: none;">
+                   <div class="alert alert-info border-info text-light bg-dark">
+                      <i class="bi bi-info-circle me-2"></i> Because this category was added dynamically, specific form fields are not available. Please ensure your <strong>Description</strong> clearly outlines the specifications of this item.
+                   </div>
+                </div>
+
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-5 border-top border-secondary pt-4">
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteListingModal">
                   <i class="bi bi-trash me-2"></i>Delete Listing
                 </button>
+                <div class="d-flex gap-3">
+                  <a href="/lender/listings/<%= safeListing.id %>" class="btn btn-alternate px-4">Cancel</a>
+                  <button type="submit" class="btn btn-main px-5 fw-bold shadow-sm">Save Changes</button>
+                </div>
               </div>
             </form>
           </div>
 
           <div class="col-lg-4">
-            <div class="section-card mb-4">
-              <h2 class="h5 mb-3"><i class="bi bi-images me-2"></i>Photos</h2>
-              <div class="position-relative mb-3">
-                <img src="<%= primaryImage %>" class="img-fluid rounded w-100" style="aspect-ratio: 16/9; object-fit: contain; background-color: var(--color-black);" alt="Primary Listing Image" />
-              </div>
-              <p class="text-muted mb-3 small">To add, remove, or change your primary image, use the Image Manager.</p>
-              <a href="/lender/listings/<%= safeListing.id %>/images" class="btn btn-alternate w-100">
-                <i class="bi bi-images me-2"></i>Manage Images
-              </a>
-            </div>
-
-            <div class="section-card sticky-top" style="top: 90px">
-              <h3 class="h5 mb-3"><i class="bi bi-graph-up me-2"></i>Listing Stats</h3>
+            <div class="section-card sticky-top" style="top: 100px;">
+              <h3 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-images me-2 text-info"></i>Listing Photos</h3>
+              
               <div class="mb-3">
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Status</span>
-                  <strong><%= safeListing.status %></strong>
-                </div>
-              </div>
-              <hr class="border-secondary" />
-              <h3 class="h6 mb-2">View</h3>
-              <div class="d-grid gap-2">
-                <a href="/lender/listings/<%= safeListing.id %>" class="btn btn-alternate btn-sm">
-                  <i class="bi bi-eye me-1"></i>View Public Listing
+                <img src="<%= primaryImage %>" class="img-fluid rounded border border-secondary shadow-sm mb-3 w-100 object-fit-cover" style="aspect-ratio: 16/9;" alt="Listing Thumbnail">
+                <p class="small text-muted mb-3">You can manage, reorder, or upload additional photos in the Image Manager.</p>
+                <a href="/lender/listings/<%= safeListing.id %>/images" class="btn btn-alternate w-100">
+                  <i class="bi bi-camera me-2"></i>Manage Photos
                 </a>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </main>
 
-    <form id="deleteListingForm" action="/lender/listings/<%= safeListing.id %>?_method=DELETE" method="POST" style="display: none;"></form>
+    <form action="/lender/listings/<%= safeListing.id %>?_method=DELETE" method="POST" id="deleteListingForm" style="display: none;"></form>
 
     <div class="modal fade" id="deleteListingModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
       <div class="modal-dialog modal-dialog-centered">
@@ -421,6 +380,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/create-listing.js"></script>
+    <script src="/js/edit-listing.js"></script>
   </body>
 </html>

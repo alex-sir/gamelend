@@ -1,7 +1,55 @@
 // public/js/pending-requests.js
 
 document.addEventListener("DOMContentLoaded", () => {
-  // --- 1. Reject Request Modal Logic ---
+  // --- 1. Accept Request Modal Logic ---
+  const acceptModalEl = document.getElementById("acceptModal");
+  if (acceptModalEl) {
+    const acceptModal = new bootstrap.Modal(acceptModalEl);
+    const acceptBtns = document.querySelectorAll(".btn-accept-request");
+
+    const acceptForm = document.getElementById("acceptRequestForm");
+    const acceptListingTitle = document.getElementById("acceptListingTitle");
+    const acceptBorrowerName = document.getElementById("acceptBorrowerName");
+    const acceptDates = document.getElementById("acceptDates");
+    const acceptEarnings = document.getElementById("acceptEarnings");
+
+    acceptBtns.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const requestId = this.getAttribute("data-request-id");
+        const title = this.getAttribute("data-listing-title");
+        const borrower = this.getAttribute("data-borrower-name");
+        const dates = this.getAttribute("data-dates");
+        const earnings = this.getAttribute("data-earnings");
+
+        // Populate Modal Data
+        if (acceptListingTitle) acceptListingTitle.textContent = title;
+        if (acceptBorrowerName) acceptBorrowerName.textContent = borrower;
+        if (acceptDates) acceptDates.textContent = dates;
+        if (acceptEarnings) acceptEarnings.textContent = "$" + earnings;
+
+        // Set Form Action
+        if (acceptForm) {
+          acceptForm.action = `/lender/requests/${requestId}/accept`;
+        }
+
+        acceptModal.show();
+      });
+    });
+
+    // Handle Form Submission Loading State
+    if (acceptForm) {
+      acceptForm.addEventListener("submit", function () {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Confirming...';
+          submitBtn.disabled = true;
+        }
+      });
+    }
+  }
+
+  // --- 2. Reject Request Modal Logic ---
   const rejectModalEl = document.getElementById("rejectModal");
   if (rejectModalEl) {
     const rejectModal = new bootstrap.Modal(rejectModalEl);
@@ -17,46 +65,35 @@ document.addEventListener("DOMContentLoaded", () => {
         const title = this.getAttribute("data-listing-title");
         const borrower = this.getAttribute("data-borrower-name");
 
-        // Update modal text
+        // Populate Modal Data
         if (rejectListingTitle) rejectListingTitle.textContent = title;
         if (rejectBorrowerName) rejectBorrowerName.textContent = borrower;
 
-        // Update the form action to point to the correct Express route
+        // Set Form Action
         if (rejectForm) {
           rejectForm.action = `/lender/requests/${requestId}/reject`;
-          // Clear previous reason
-          rejectForm.querySelector("textarea").value = "";
+          rejectForm.querySelector("textarea").value = ""; // Clear old text
         }
 
         rejectModal.show();
       });
     });
 
-    // Handle Reject Form Submission (Add loading spinner)
+    // Handle Form Submission Loading State
     if (rejectForm) {
       rejectForm.addEventListener("submit", function () {
-        const submitBtn = this.querySelector('button[type="submit"]');
+        // Find the submit button attached to this form (it's outside the form tag in the modal footer)
+        const submitBtn = document.querySelector(
+          'button[form="rejectRequestForm"]',
+        );
         if (submitBtn) {
           submitBtn.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Rejecting...';
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Declining...';
           submitBtn.disabled = true;
         }
       });
     }
   }
-
-  // --- 2. Accept Request Form Logic (Loading State) ---
-  const acceptForms = document.querySelectorAll(".accept-request-form");
-  acceptForms.forEach((form) => {
-    form.addEventListener("submit", function () {
-      const submitBtn = this.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Accepting...';
-        submitBtn.disabled = true;
-      }
-    });
-  });
 
   // --- 3. Contact Borrower Modal Logic ---
   const contactModalEl = document.getElementById("contactModal");
