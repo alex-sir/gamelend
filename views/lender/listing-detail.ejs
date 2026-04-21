@@ -7,7 +7,20 @@
   if (listing.status === 'Suspended') { badgeClass = 'bg-danger'; statusIcon = 'bi-exclamation-triangle'; }
   if (listing.status === 'Deleted') { badgeClass = 'bg-danger'; statusIcon = 'bi-trash'; }
 
-  // FIXED: Images now respect the exact order set in the Image Manager
+  // Fallbacks for the new backend data variables
+  const pRequests = typeof pendingRequests !== 'undefined' ? pendingRequests : [];
+  const history = typeof allRentals !== 'undefined' ? allRentals : [];
+  const tRentals = typeof totalRentals !== 'undefined' ? totalRentals : 0;
+  const tEarnings = typeof totalEarnings !== 'undefined' ? totalEarnings : parseFloat(listing.totalEarnings || 0);
+  const currentlyOut = typeof isCurrentlyRented !== 'undefined' ? isCurrentlyRented : false;
+  const activities = typeof recentActivity !== 'undefined' ? recentActivity : [];
+
+  function formatDateSafe(dateInput) {
+    if (!dateInput) return 'N/A';
+    const d = new Date(dateInput);
+    return d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   if (listing && listing.images && listing.images.length > 0) {
     listing.images.sort((a, b) => {
       if (a.isPrimary && !b.isPrimary) return -1;
@@ -34,21 +47,32 @@
     <link rel="stylesheet" href="/css/app.css" />
     <link rel="stylesheet" href="/css/lender/lender.css" />
     <style>
-      .backdrop-blur {
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+      .backdrop-blur { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      .detail-box { transition: transform 0.2s ease; }
+      .detail-box:hover { transform: translateY(-2px); }
+      .action-btn-group .btn { transition: all 0.2s ease; }
+      .action-btn-group .btn:hover { transform: translateX(4px); }
+      
+      /* Activity Feed Styling */
+      .activity-timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 2px solid var(--color-secondary);
+        margin-left: 0.5rem;
       }
-      .detail-box {
-        transition: transform 0.2s ease;
-      }
-      .detail-box:hover {
-        transform: translateY(-2px);
-      }
-      .action-btn-group .btn {
-        transition: all 0.2s ease;
-      }
-      .action-btn-group .btn:hover {
-        transform: translateX(4px);
+      .activity-item { position: relative; margin-bottom: 1.5rem; }
+      .activity-item:last-child { margin-bottom: 0; }
+      .activity-icon {
+        position: absolute;
+        left: -2.35rem;
+        top: 0;
+        width: 24px;
+        height: 24px;
+        background-color: var(--color-dark);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     </style>
   </head>
@@ -306,11 +330,110 @@
               </div>
             </div>
 
+            <div class="section-card mb-4 lender-only-panel">
+              <h3 class="h5 mb-4"><i class="bi bi-inbox me-2 text-warning"></i>Pending Requests</h3>
+              <% if (pRequests.length === 0) { %>
+                <div class="alert alert-dark text-muted border-secondary mb-0">
+                  <i class="bi bi-info-circle me-2"></i>No pending rental requests for this item.
+                </div>
+              <% } else { %>
+                <div class="table-responsive">
+                  <table class="table table-dark table-hover align-middle mb-0 border-secondary">
+                    <thead class="text-muted small text-uppercase">
+                      <tr>
+                        <th>Borrower</th>
+                        <th>Requested Dates</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% pRequests.forEach(req => { %>
+                        <tr>
+                          <td><%= req.borrower.firstName || req.borrower.email.split('@')[0] %></td>
+                          <td class="small"><%= formatDateSafe(req.startDate) %> to <%= formatDateSafe(req.endDate) %></td>
+                          <td><span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span></td>
+                          <td class="text-end"><a href="/lender/requests" class="btn btn-sm btn-outline-info rounded-pill px-3">Review</a></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="section-card mb-4 lender-only-panel">
+              <h3 class="h5 mb-4"><i class="bi bi-journal-check me-2 text-success"></i>Rental History</h3>
+              <% if (history.length === 0) { %>
+                <div class="alert alert-dark text-muted border-secondary mb-0">
+                  <i class="bi bi-info-circle me-2"></i>This item hasn't been rented out yet.
+                </div>
+              <% } else { %>
+                <div class="table-responsive">
+                  <table class="table table-dark table-hover align-middle mb-0 border-secondary">
+                    <thead class="text-muted small text-uppercase">
+                      <tr>
+                        <th>Borrower</th>
+                        <th>Dates</th>
+                        <th>Earned</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% history.forEach(rent => { %>
+                        <tr>
+                          <td><%= rent.request.borrower.firstName || rent.request.borrower.email.split('@')[0] %></td>
+                          <td class="small text-muted"><%= formatDateSafe(rent.request.startDate) %> to <%= formatDateSafe(rent.request.endDate) %></td>
+                          <td class="text-success fw-bold">$<%= parseFloat(rent.actualTotal).toFixed(2) %></td>
+                          <td>
+                            <% if (rent.status === 'Active') { %>
+                              <span class="badge bg-primary rounded-pill">Active</span>
+                            <% } else { %>
+                              <span class="badge bg-secondary rounded-pill">Completed</span>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="section-card mb-4 lender-only-panel">
+              <h3 class="h6 text-uppercase text-muted fw-bold mb-4">Recent Activity</h3>
+              <% if (activities.length === 0) { %>
+                <p class="text-muted small mb-0">No recent activity.</p>
+              <% } else { %>
+                <div class="activity-timeline">
+                  <% activities.forEach(act => { %>
+                    <div class="activity-item">
+                      <div class="activity-icon border border-secondary shadow-sm"><i class="bi <%= act.icon %> <%= act.color %> small"></i></div>
+                      <div>
+                        <p class="mb-0 text-light small"><%= act.text %></p>
+                        <span class="text-muted" style="font-size: 0.75rem;"><%= formatDateSafe(act.date) %></span>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+
+            <% if (listing.status !== 'Deleted') { %>
+              <div class="section-card mb-4 border-danger lender-only-panel" style="background: rgba(220, 53, 69, 0.05);">
+                <h3 class="h6 text-uppercase text-danger fw-bold mb-3">Danger Zone</h3>
+                <p class="small text-muted mb-3">Permanently archive this listing. It will be removed from all public searches immediately.</p>
+                <button class="btn btn-outline-danger w-100 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#deleteListingModal">
+                  <i class="bi bi-trash me-2"></i>Delete Listing
+                </button>
+              </div>
+            <% } %>
+
           </div>
 
           <div class="col-lg-4">
             
-            <div class="section-card mb-4 sticky-top" style="top: 100px;">
+            <div class="section-card mb-4 sticky-top" style="top: 100px; z-index: 2;">
               <h3 class="h5 mb-4"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Pricing & Stats</h3>
               
               <div class="mb-4 text-center pb-4 border-bottom border-secondary">
@@ -319,14 +442,28 @@
               </div>
 
               <div class="d-flex justify-content-between align-items-center p-3 bg-dark border border-secondary rounded-3 mb-3 shadow-sm">
-                <span class="text-muted fw-semibold"><i class="bi bi-box-seam me-2"></i>Quantity Available:</span>
+                <span class="text-muted fw-semibold"><i class="bi bi-box-seam me-2"></i>Quantity:</span>
                 <span class="fw-bold fs-5"><%= listing.quantity %></span>
               </div>
               
               <div class="lender-only-panel">
+                
+                <div class="d-flex justify-content-between align-items-center p-3 bg-dark border border-secondary rounded-3 mb-3 shadow-sm">
+                  <span class="text-muted fw-semibold"><i class="bi bi-arrow-repeat me-2"></i>Times Rented:</span>
+                  <span class="fw-bold text-info fs-5"><%= tRentals %></span>
+                </div>
+
                 <div class="d-flex justify-content-between align-items-center p-3 bg-dark border border-secondary rounded-3 mb-4 shadow-sm">
                   <span class="text-muted fw-semibold"><i class="bi bi-cash-stack me-2"></i>Total Earnings:</span>
-                  <span class="fw-bold text-success fs-5">$<%= parseFloat(listing.totalEarnings || 0).toFixed(2) %></span>
+                  <span class="fw-bold text-success fs-5">$<%= tEarnings.toFixed(2) %></span>
+                </div>
+                
+                <div class="text-center mb-4">
+                  <% if (currentlyOut) { %>
+                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3 py-2 rounded-pill"><i class="bi bi-box-arrow-up-right me-2"></i>Currently Rented Out</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary px-3 py-2 rounded-pill"><i class="bi bi-box-arrow-in-down me-2"></i>Available in Inventory</span>
+                  <% } %>
                 </div>
               </div>
 
@@ -382,6 +519,34 @@
         </div>
       </div>
     </main>
+
+    <div class="modal fade" id="deleteListingModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg rounded-4">
+          <div class="modal-header border-secondary p-4">
+            <h5 class="modal-title text-white fw-bold">
+              <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Confirm Deletion
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light p-4">
+            Are you sure you want to delete <strong class="text-orange"><%= listing.title %></strong>?
+            <br><br>
+            <div class="alert alert-dark border-secondary mb-0">
+              <p class="small text-muted mb-0"><i class="bi bi-info-circle me-2"></i>This action will permanently archive your listing and remove it from public search results. This cannot be undone.</p>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary p-3">
+            <button type="button" class="btn btn-alternate rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <form action="/lender/listings/<%= listing.id %>?_method=DELETE" method="POST" class="m-0">
+              <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
+                <i class="bi bi-trash me-2"></i>Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer>
       <div class="container">

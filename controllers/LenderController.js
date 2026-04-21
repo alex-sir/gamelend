@@ -429,13 +429,11 @@ const LenderController = {
         });
       }
 
+      // DO NOT extract category, condition, or dailyRate from req.body
       const {
         title,
         description,
-        category,
-        condition,
         quantity,
-        dailyRate,
         dynamicCategoryId,
         platform,
         genre,
@@ -455,16 +453,22 @@ const LenderController = {
         modelNumber,
       } = req.body;
 
+      // SERVER-SIDE SECURITY LOCK:
+      // Force these variables to explicitly use the original values from the database
+      const category = listing.category;
+      const condition = listing.condition;
+      const dailyRate = listing.dailyRate;
+
+      // Update the main listing wrapper
       await listing.update({
         title,
         description,
-        category,
-        condition,
         quantity: quantity || 1,
-        dailyRate,
+        // Notice we do NOT pass category, condition, or dailyRate into this update object
         dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
       });
 
+      // Clear and re-populate the sub-tables to allow them to fix typos in the specific attributes
       await Listing_VideoGame.destroy({ where: { listingId: listing.id } });
       await Listing_Console.destroy({ where: { listingId: listing.id } });
       await Listing_Accessory.destroy({ where: { listingId: listing.id } });
@@ -503,6 +507,7 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${listing.id}`);
     } catch (error) {
+      console.error(error);
       res.status(500).send("Database error updating listing.");
     }
   },
@@ -732,8 +737,95 @@ const LenderController = {
 
       if (!listing) return res.status(404).send("Listing not found");
 
-      res.render("lender/listing-detail", { listing });
+      // Fetch Pending Requests for this specific listing
+      const pendingRequests = await RentalRequest.findAll({
+        where: { listingId: listing.id, status: "Pending" },
+        include: [{ model: User, as: "borrower" }],
+        order: [["createdAt", "DESC"]],
+      });
+
+      // Fetch all Rentals (Active & Completed) for this listing
+      const allRentals = await Rental.findAll({
+        include: [
+          {
+            model: RentalRequest,
+            as: "request",
+            where: { listingId: listing.id },
+            include: [{ model: User, as: "borrower" }],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      // Calculate Listing Analytics
+      const totalRentals = allRentals.length;
+      const totalEarnings = allRentals.reduce(
+        (sum, rental) => sum + (parseFloat(rental.actualTotal) || 0),
+        0,
+      );
+      const isCurrentlyRented = allRentals.some((r) => r.status === "Active");
+
+      // Build a specific Activity Feed for this listing
+      let activities = [];
+
+      // Add creation event
+      activities.push({
+        type: "created",
+        text: "Listing was created",
+        date: listing.createdAt,
+        icon: "bi-stars",
+        color: "text-warning",
+      });
+
+      // Add request events
+      pendingRequests.forEach((req) => {
+        activities.push({
+          type: "request",
+          text: `${req.borrower.firstName || req.borrower.email.split("@")[0]} requested to borrow this`,
+          date: req.createdAt,
+          icon: "bi-envelope",
+          color: "text-info",
+        });
+      });
+
+      // Add rental events
+      allRentals.forEach((rent) => {
+        const borrowerName =
+          rent.request.borrower.firstName ||
+          rent.request.borrower.email.split("@")[0];
+        activities.push({
+          type: "rental_started",
+          text: `Rental started with ${borrowerName}`,
+          date: rent.createdAt,
+          icon: "bi-play-circle",
+          color: "text-primary",
+        });
+        if (rent.status === "Completed") {
+          activities.push({
+            type: "rental_completed",
+            text: `Rental completed safely`,
+            date: rent.updatedAt,
+            icon: "bi-check-circle",
+            color: "text-success",
+          });
+        }
+      });
+
+      // Sort newest to oldest and limit to the 5 most recent events
+      activities.sort((a, b) => b.date - a.date);
+      const recentActivity = activities.slice(0, 5);
+
+      res.render("lender/listing-detail", {
+        listing,
+        pendingRequests,
+        allRentals,
+        totalRentals,
+        totalEarnings,
+        isCurrentlyRented,
+        recentActivity,
+      });
     } catch (error) {
+      console.error(error);
       res.status(500).send("Server Error");
     }
   },
