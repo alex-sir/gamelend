@@ -185,9 +185,9 @@
                   </div>
                   <div class="text-end">
                     <span class="badge bg-success mb-2">Active</span>
-                    <div class="d-flex flex-column gap-1">
-                      <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-alternate">View details</a>
-                      <a href="/borrower/rentals/<%= rental.id %>/extend" class="btn btn-sm btn-main">Extend rental</a>
+                    <div class="d-flex flex-column gap-2 my-rentals-card-actions">
+                      <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-myrentals-view">View details</a>
+                      <a href="/borrower/rentals/<%= rental.id %>/extend" class="btn btn-sm btn-myrentals-extend">Extend rental</a>
                     </div>
                   </div>
                 </div>
@@ -226,10 +226,10 @@
                   </div>
                   <div class="text-end">
                     <span class="badge bg-warning text-dark mb-2">Pending</span>
-                    <div class="d-flex flex-column gap-1">
-                      <a href="/borrower/requests/<%= req.id %>" class="btn btn-sm btn-alternate">View details</a>
-                      <form action="/borrower/requests/<%= req.id %>/cancel" method="POST">
-                        <button class="btn btn-sm btn-outline-danger" type="submit">Cancel request</button>
+                    <div class="d-flex flex-column gap-2 my-rentals-card-actions">
+                      <a href="/borrower/requests/<%= req.id %>" class="btn btn-sm btn-myrentals-view">View details</a>
+                      <form action="/borrower/requests/<%= req.id %>/cancel" method="POST" class="m-0">
+                        <button class="btn btn-sm btn-myrentals-cancel w-100" type="submit">Cancel request</button>
                       </form>
                     </div>
                   </div>
@@ -265,7 +265,9 @@
                   </div>
                   <div class="text-end">
                     <span class="badge bg-secondary mb-2">Completed</span>
-                    <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-alternate">View details</a>
+                    <div class="my-rentals-card-actions">
+                      <a href="/borrower/rentals/<%= rental.id %>" class="btn btn-sm btn-myrentals-view">View details</a>
+                    </div>
                   </div>
                 </div>
               </div>

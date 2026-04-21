@@ -27,8 +27,8 @@
   </head>
 
   <body class="borrower-page d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3 align-items-lg-center">
-      <div class="container-fluid flex-wrap flex-lg-nowrap gap-2">
+    <nav class="navbar navbar-primary navbar-expand-lg sticky-top p-lg-3">
+      <div class="container-fluid">
         <a class="navbar-brand" href="/">
           <i class="bi bi-controller me-2"></i>GameLend
           <span class="ms-1 role">Borrower</span>
@@ -59,40 +59,41 @@
 
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Borrower Menu</h5>
+            <h5 class="offcanvas-title">Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
-          <div class="offcanvas-body d-flex align-items-center py-lg-0">
-            <div
-              class="borrower-nav-toolbar d-flex flex-row flex-nowrap align-items-center gap-2 ms-lg-auto"
-              role="toolbar"
-              aria-label="Borrower navigation"
-            >
-              <a class="btn btn-alternate" href="/borrower/my-rentals">
-                <i class="bi bi-clock-history me-1"></i>My Rentals
-              </a>
+          <div class="offcanvas-body">
+            <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
+                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-house me-1"></i>Home
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="/">Home</a></li>
+                  <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                    <li>
+                      <a class="dropdown-item" href="/<%= currentUser.role %>/dashboard">My Dashboard</a>
+                    </li>
+                  <% } else { %>
+                    <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
+                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
+                  <% } %>
                 </ul>
               </div>
-              <div class="dropdown">
-                <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-person-circle me-1"></i>Profile
-                </button>
-                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                  <li><span class="dropdown-item-text small text-white-50"><%= userName %></span></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
-                </ul>
-              </div>
+
+              <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                <div class="dropdown">
+                  <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1"></i><%= currentUser.firstName || currentUser.username || 'Account' %>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
+                  </ul>
+                </div>
+              <% } else { %>
+                <a href="/auth/login" class="btn btn-main m-0"><i class="bi bi-box-arrow-in-right me-1"></i> Log In</a>
+              <% } %>
             </div>
           </div>
         </div>

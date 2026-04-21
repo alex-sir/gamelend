@@ -3,29 +3,6 @@
     min-height: 100vh;
 }
 
-/* Borrower top nav: keep search + action buttons on one horizontal row at lg+ */
-@media (min-width: 992px) {
-    .borrower-page .navbar-primary .search-bar {
-        width: auto;
-        flex: 1 1 auto;
-        min-width: 0;
-        max-width: 32rem;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-}
-
-.borrower-page .borrower-nav-toolbar {
-    flex-shrink: 0;
-}
-
-@media (max-width: 991.98px) {
-    .borrower-page #navbarNav .offcanvas-body {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
 .catalog-section {
     background: transparent;
     min-height: 80vh;
@@ -133,4 +110,54 @@
     color: var(--color-orange);
     font-size: 1.6rem;
     font-weight: 700;
+}
+
+/* My Rentals — uniform rectangular action buttons */
+.my-rentals-card-actions {
+    min-width: 10rem;
+}
+
+.my-rentals-card-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: 6px;
+    padding: 0.45rem 0.85rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    text-decoration: none;
+    line-height: 1.25;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.my-rentals-card-actions .btn-myrentals-view {
+    color: var(--color-white);
+    background-color: var(--color-orange);
+}
+
+.my-rentals-card-actions .btn-myrentals-view:hover {
+    color: var(--color-white);
+    background-color: var(--color-orange-hover);
+}
+
+.my-rentals-card-actions .btn-myrentals-extend {
+    color: var(--color-white);
+    background-color: var(--color-blue);
+}
+
+.my-rentals-card-actions .btn-myrentals-extend:hover {
+    color: var(--color-white);
+    background-color: var(--color-blue-hover);
+}
+
+.my-rentals-card-actions .btn-myrentals-cancel {
+    color: var(--color-white);
+    background-color: var(--color-gray-hover);
+}
+
+.my-rentals-card-actions .btn-myrentals-cancel:hover {
+    color: var(--color-white);
+    background-color: #5a5a5a;
 }
