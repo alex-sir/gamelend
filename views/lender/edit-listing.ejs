@@ -183,7 +183,6 @@
 
               <div class="section-card mb-4">
                 <h2 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-tag me-2 text-info"></i>Pricing</h2>
-                
                 <div class="row">
                   <div class="col-md-6 mb-4">
                     <label for="dailyRate" class="form-label fw-bold"><i class="bi bi-currency-dollar text-orange me-1"></i>Daily Rental Rate</label>
@@ -205,19 +204,28 @@
                       <label for="platform" class="form-label">Platform *</label>
                       <select class="form-select bg-dark text-white border-secondary" id="platform" name="platform">
                         <option value="" disabled>Select platform...</option>
-                        <option value="PS5" <%= form.platform === 'PS5' ? 'selected' : '' %>>PlayStation 5</option>
-                        <option value="PS4" <%= form.platform === 'PS4' ? 'selected' : '' %>>PlayStation 4</option>
+                        <option value="PlayStation 5" <%= form.platform === 'PlayStation 5' || form.platform === 'PS5' ? 'selected' : '' %>>PlayStation 5</option>
+                        <option value="PlayStation 4" <%= form.platform === 'PlayStation 4' || form.platform === 'PS4' ? 'selected' : '' %>>PlayStation 4</option>
                         <option value="Xbox Series X/S" <%= form.platform === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
                         <option value="Xbox One" <%= form.platform === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
                         <option value="Nintendo Switch" <%= form.platform === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
                         <option value="PC" <%= form.platform === 'PC' ? 'selected' : '' %>>PC (Physical Copy)</option>
-                        <option value="Retro/Other" <%= form.platform === 'Retro/Other' ? 'selected' : '' %>>Retro / Other</option>
                       </select>
                       <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="col-md-6">
                       <label for="genre" class="form-label">Genre *</label>
-                      <input type="text" class="form-control bg-dark text-white border-secondary" id="genre" name="genre" value="<%= form.genre %>" placeholder="e.g., Action RPG">
+                      <select class="form-select bg-dark text-white border-secondary" id="genre" name="genre">
+                        <option value="" disabled>Select genre...</option>
+                        <option value="Action" <%= form.genre === 'Action' ? 'selected' : '' %>>Action</option>
+                        <option value="Adventure" <%= form.genre === 'Adventure' ? 'selected' : '' %>>Adventure</option>
+                        <option value="RPG" <%= form.genre === 'RPG' || (form.genre && form.genre.includes('RPG')) ? 'selected' : '' %>>RPG</option>
+                        <option value="Sports" <%= form.genre === 'Sports' ? 'selected' : '' %>>Sports</option>
+                        <option value="Racing" <%= form.genre === 'Racing' ? 'selected' : '' %>>Racing</option>
+                        <option value="Fighting" <%= form.genre === 'Fighting' ? 'selected' : '' %>>Fighting</option>
+                        <option value="Strategy" <%= form.genre === 'Strategy' ? 'selected' : '' %>>Strategy</option>
+                        <option value="Simulation" <%= form.genre === 'Simulation' ? 'selected' : '' %>>Simulation</option>
+                      </select>
                       <div class="invalid-feedback">Required.</div>
                     </div>
                     <div class="col-md-4">
@@ -247,12 +255,11 @@
                       <label for="consoleType" class="form-label">Console Family *</label>
                       <select class="form-select bg-dark text-white border-secondary" id="consoleType" name="consoleType">
                         <option value="" disabled>Select console...</option>
-                        <option value="PlayStation" <%= form.consoleType === 'PlayStation' ? 'selected' : '' %>>PlayStation</option>
-                        <option value="Xbox" <%= form.consoleType === 'Xbox' ? 'selected' : '' %>>Xbox</option>
-                        <option value="Nintendo" <%= form.consoleType === 'Nintendo' ? 'selected' : '' %>>Nintendo</option>
-                        <option value="Handheld" <%= form.consoleType === 'Handheld' ? 'selected' : '' %>>SteamDeck / Handheld</option>
-                        <option value="VR" <%= form.consoleType === 'VR' ? 'selected' : '' %>>VR Headset</option>
-                        <option value="Retro" <%= form.consoleType === 'Retro' ? 'selected' : '' %>>Retro Console</option>
+                        <option value="PlayStation 5" <%= form.consoleType === 'PlayStation 5' ? 'selected' : '' %>>PlayStation 5</option>
+                        <option value="PlayStation 4" <%= form.consoleType === 'PlayStation 4' ? 'selected' : '' %>>PlayStation 4</option>
+                        <option value="Xbox Series X/S" <%= form.consoleType === 'Xbox Series X/S' ? 'selected' : '' %>>Xbox Series X/S</option>
+                        <option value="Xbox One" <%= form.consoleType === 'Xbox One' ? 'selected' : '' %>>Xbox One</option>
+                        <option value="Nintendo Switch" <%= form.consoleType === 'Nintendo Switch' ? 'selected' : '' %>>Nintendo Switch</option>
                       </select>
                       <div class="invalid-feedback">Required.</div>
                     </div>
@@ -291,9 +298,10 @@
                         <option value="" disabled>Select type...</option>
                         <option value="Controller" <%= form.accessoryType === 'Controller' ? 'selected' : '' %>>Controller</option>
                         <option value="Headset" <%= form.accessoryType === 'Headset' ? 'selected' : '' %>>Headset</option>
+                        <option value="VR Equipment" <%= form.accessoryType === 'VR Equipment' ? 'selected' : '' %>>VR Equipment</option>
                         <option value="Racing Wheel" <%= form.accessoryType === 'Racing Wheel' ? 'selected' : '' %>>Racing Wheel</option>
                         <option value="Flight Stick" <%= form.accessoryType === 'Flight Stick' ? 'selected' : '' %>>Flight Stick</option>
-                        <option value="Storage" <%= form.accessoryType === 'Storage' ? 'selected' : '' %>>Storage Expansion</option>
+                        <option value="Charging Station" <%= form.accessoryType === 'Charging Station' ? 'selected' : '' %>>Charging Station</option>
                         <option value="Other" <%= form.accessoryType === 'Other' ? 'selected' : '' %>>Other</option>
                       </select>
                       <div class="invalid-feedback">Required.</div>
@@ -338,7 +346,6 @@
           <div class="col-lg-4">
             <div class="section-card sticky-top" style="top: 100px;">
               <h3 class="h5 mb-3 border-bottom border-secondary pb-2"><i class="bi bi-images me-2 text-info"></i>Listing Photos</h3>
-              
               <div class="mb-3">
                 <img src="<%= primaryImage %>" class="img-fluid rounded border border-secondary shadow-sm mb-3 w-100 object-fit-cover" style="aspect-ratio: 16/9;" alt="Listing Thumbnail">
                 <p class="small text-muted mb-3">You can manage, reorder, or upload additional photos in the Image Manager.</p>

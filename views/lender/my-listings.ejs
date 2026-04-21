@@ -161,7 +161,6 @@
                           </div>
                         </a>
                         <div class="card-body d-flex flex-column p-4">
-                          
                           <div class="d-flex justify-content-between align-items-start mb-2">
                             <a href="/lender/listings/<%= item.id %>" class="text-decoration-none text-light pe-2" style="min-width: 0; flex: 1;">
                               <h5 class="card-title mb-0 text-truncate" title="<%= item.title %>"><%= item.title %></h5>
@@ -184,7 +183,7 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                   <form action="/lender/listings/<%= item.id %>?_method=DELETE" method="POST" class="m-0 delete-listing-form">
-                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+                                    <button type="submit" class="dropdown-item text-danger" data-listing-title="<%= item.title %>"><i class="bi bi-trash me-2"></i>Delete</button>
                                   </form>
                                 </li>
                               </ul>
@@ -259,7 +258,9 @@
                             Please contact support to resolve the issue with this listing.
                           </p>
                           <div class="mt-auto pt-3 border-top border-secondary">
-                            <a href="/support" class="btn btn-sm btn-outline-danger w-100">Contact Support</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger w-100 btn-contact-support" data-listing-title="<%= item.title %>">
+                              Contact Support
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -285,7 +286,7 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body text-light">
-            Are you sure you want to delete this listing?
+            Are you sure you want to delete <strong class="text-orange" id="deleteListingTitle">this listing</strong>?
             <br><br>
             <small class="text-muted">This action will permanently archive your listing and remove it from public search results. This cannot be undone.</small>
           </div>
@@ -293,6 +294,32 @@
             <button type="button" class="btn btn-alternate" data-bs-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
               <i class="bi bi-trash me-2"></i>Delete Listing
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="supportModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg rounded-4">
+          <div class="modal-header border-secondary p-4">
+            <h5 class="modal-title text-white fw-bold">
+              <i class="bi bi-headset text-info me-2"></i>Contact Support
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-light p-4">
+            <p>Send a message to the moderation team regarding your suspended listing:<br><strong class="text-warning fs-5 mt-1 d-block" id="supportListingTitle"></strong></p>
+            <div class="mb-2 mt-4">
+              <label for="supportMessage" class="form-label text-muted small text-uppercase fw-bold">Message</label>
+              <textarea class="form-control bg-black text-white border-secondary rounded-3 p-3" id="supportMessage" rows="4" placeholder="Explain the situation or request an appeal..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary p-3">
+            <button type="button" class="btn btn-alternate rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-info rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal" onclick="alert('Message sent to the GameLend Support Team!');">
+              <i class="bi bi-send me-2"></i>Send Message
             </button>
           </div>
         </div>
@@ -334,17 +361,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // --- Delete Listing Modal Logic ---
         const deleteForms = document.querySelectorAll('.delete-listing-form');
         const deleteModalEl = document.getElementById('deleteListingModal');
         if (deleteModalEl) {
           const deleteModal = new bootstrap.Modal(deleteModalEl);
           const confirmBtn = document.getElementById('confirmDeleteBtn');
+          const deleteListingTitle = document.getElementById("deleteListingTitle");
           let currentForm = null;
 
           deleteForms.forEach(form => {
             form.addEventListener('submit', (e) => {
               e.preventDefault();
               currentForm = form;
+              
+              const submitBtn = form.querySelector('button[type="submit"]');
+              const title = submitBtn ? submitBtn.getAttribute("data-listing-title") : "this listing";
+              if (deleteListingTitle) {
+                deleteListingTitle.textContent = title;
+              }
+              
               deleteModal.show();
             });
           });
@@ -358,6 +394,27 @@
               }
             });
           }
+        }
+
+        // --- NEW: Contact Support Modal Logic ---
+        const supportBtns = document.querySelectorAll('.btn-contact-support');
+        const supportModalEl = document.getElementById('supportModal');
+        if (supportModalEl) {
+          const supportModal = new bootstrap.Modal(supportModalEl);
+          const supportListingTitle = document.getElementById('supportListingTitle');
+          const supportMessage = document.getElementById('supportMessage');
+
+          supportBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (supportListingTitle) {
+                supportListingTitle.textContent = btn.getAttribute('data-listing-title');
+              }
+              if (supportMessage) {
+                supportMessage.value = ''; // clear previous text
+              }
+              supportModal.show();
+            });
+          });
         }
       });
     </script>

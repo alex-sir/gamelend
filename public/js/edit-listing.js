@@ -1,6 +1,7 @@
+// public/js/edit-listing.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("editListingForm");
-  const categoryRadios = document.querySelectorAll('input[name="category"]');
 
   const gameFields = document.getElementById("gameFields");
   const consoleFields = document.getElementById("consoleFields");
@@ -19,9 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleCategoryFields() {
-    const selectedCategory = document.querySelector(
-      'input[name="category"]:checked',
-    )?.value;
+    // FIX: Since the category is locked, we read its value from the hidden input
+    const hiddenCategory = document.querySelector(
+      'input[type="hidden"][name="category"]',
+    );
+    const selectedCategory = hiddenCategory ? hiddenCategory.value : null;
 
     if (gameFields) gameFields.style.display = "none";
     if (consoleFields) consoleFields.style.display = "none";
@@ -55,10 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  categoryRadios.forEach((radio) => {
-    radio.addEventListener("change", toggleCategoryFields);
-  });
-
+  // Initialize the correct fields on load
   toggleCategoryFields();
 
   if (form) {

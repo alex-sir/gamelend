@@ -326,11 +326,63 @@ const LenderController = {
         status: "Draft",
       });
 
+      // ENUM Safety Filtering to prevent DB crashes
+      const validPlatforms = [
+        "PlayStation 5",
+        "PlayStation 4",
+        "Xbox Series X/S",
+        "Xbox One",
+        "Nintendo Switch",
+        "PC",
+      ];
+      const validGenres = [
+        "Action",
+        "Adventure",
+        "RPG",
+        "Sports",
+        "Racing",
+        "Fighting",
+        "Strategy",
+        "Simulation",
+      ];
+      const validConsoles = [
+        "PlayStation 5",
+        "PlayStation 4",
+        "Xbox Series X/S",
+        "Xbox One",
+        "Nintendo Switch",
+      ];
+      const validAccessories = [
+        "Controller",
+        "Headset",
+        "VR Equipment",
+        "Racing Wheel",
+        "Flight Stick",
+        "Charging Station",
+        "Other",
+      ];
+
+      let safePlatform = validPlatforms.includes(platform)
+        ? platform
+        : "PlayStation 5";
+      if (platform === "PS5") safePlatform = "PlayStation 5";
+      if (platform === "PS4") safePlatform = "PlayStation 4";
+
+      let safeGenre = validGenres.includes(genre) ? genre : "Action";
+      if (genre && genre.toLowerCase().includes("rpg")) safeGenre = "RPG";
+
+      let safeConsoleType = validConsoles.includes(consoleType)
+        ? consoleType
+        : "PlayStation 5";
+      let safeAccessoryType = validAccessories.includes(accessoryType)
+        ? accessoryType
+        : "Other";
+
       if (category === "Video Game") {
         await Listing_VideoGame.create({
           listingId: newListing.id,
-          platform,
-          genre,
+          platform: safePlatform,
+          genre: safeGenre,
           esrbRating: esrbRating || null,
           publisher: publisher || null,
           releaseYear: releaseYear ? parseInt(releaseYear) : null,
@@ -338,7 +390,7 @@ const LenderController = {
       } else if (category === "Console") {
         await Listing_Console.create({
           listingId: newListing.id,
-          consoleType,
+          consoleType: safeConsoleType,
           storageCapacity: storageCapacity || null,
           controllersIncluded: controllersIncluded === "on",
           controllerQuantity: controllerQuantity
@@ -350,7 +402,7 @@ const LenderController = {
       } else if (category === "Accessory") {
         await Listing_Accessory.create({
           listingId: newListing.id,
-          accessoryType,
+          accessoryType: safeAccessoryType,
           compatiblePlatforms: compatiblePlatforms || null,
           isWireless: isWireless === "on",
           brand: brand || null,
@@ -360,6 +412,7 @@ const LenderController = {
 
       res.redirect(`/lender/listings/${newListing.id}/images`);
     } catch (error) {
+      console.error(error);
       const dynamicCategories = await Category.findAll({
         where: { status: "Active" },
       });
@@ -465,55 +518,120 @@ const LenderController = {
         modelNumber,
       } = req.body;
 
-      // SERVER-SIDE SECURITY LOCK:
-      // Force these variables to explicitly use the original values from the database
+      // SERVER-SIDE SECURITY LOCK: Force use of original database values
       const category = listing.category;
-      const condition = listing.condition;
-      const dailyRate = listing.dailyRate;
 
-      // Update the main listing wrapper
       await listing.update({
         title,
         description,
         quantity: quantity || 1,
-        // Notice we do NOT pass category, condition, or dailyRate into this update object
-        dynamicCategoryId: category === "Other" ? dynamicCategoryId : null,
+        dynamicCategoryId:
+          category === "Other" && dynamicCategoryId ? dynamicCategoryId : null,
       });
 
-      // Clear and re-populate the sub-tables to allow them to fix typos in the specific attributes
+      // Clear sub-tables to cleanly overwrite
       await Listing_VideoGame.destroy({ where: { listingId: listing.id } });
       await Listing_Console.destroy({ where: { listingId: listing.id } });
       await Listing_Accessory.destroy({ where: { listingId: listing.id } });
 
+      // ENUM Safety Filtering to prevent DB crashes during update
+      const validPlatforms = [
+        "PlayStation 5",
+        "PlayStation 4",
+        "Xbox Series X/S",
+        "Xbox One",
+        "Nintendo Switch",
+        "PC",
+      ];
+      const validGenres = [
+        "Action",
+        "Adventure",
+        "RPG",
+        "Sports",
+        "Racing",
+        "Fighting",
+        "Strategy",
+        "Simulation",
+      ];
+      const validConsoles = [
+        "PlayStation 5",
+        "PlayStation 4",
+        "Xbox Series X/S",
+        "Xbox One",
+        "Nintendo Switch",
+      ];
+      const validAccessories = [
+        "Controller",
+        "Headset",
+        "VR Equipment",
+        "Racing Wheel",
+        "Flight Stick",
+        "Charging Station",
+        "Other",
+      ];
+
+      const vgd = listing.videoGameDetails || {};
+      const cd = listing.consoleDetails || {};
+      const ad = listing.accessoryDetails || {};
+
+      let safePlatform = validPlatforms.includes(platform)
+        ? platform
+        : validPlatforms.includes(vgd.platform)
+          ? vgd.platform
+          : "PlayStation 5";
+      let safeGenre = validGenres.includes(genre)
+        ? genre
+        : validGenres.includes(vgd.genre)
+          ? vgd.genre
+          : "Action";
+      let safeConsoleType = validConsoles.includes(consoleType)
+        ? consoleType
+        : validConsoles.includes(cd.consoleType)
+          ? cd.consoleType
+          : "PlayStation 5";
+      let safeAccessoryType = validAccessories.includes(accessoryType)
+        ? accessoryType
+        : validAccessories.includes(ad.accessoryType)
+          ? ad.accessoryType
+          : "Other";
+
+      // Special mapping for common typos/legacy values
+      if (platform === "PS5") safePlatform = "PlayStation 5";
+      if (platform === "PS4") safePlatform = "PlayStation 4";
+      if (genre && genre.toLowerCase().includes("rpg")) safeGenre = "RPG";
+
       if (category === "Video Game") {
         await Listing_VideoGame.create({
           listingId: listing.id,
-          platform,
-          genre,
-          esrbRating: esrbRating || null,
-          publisher: publisher || null,
-          releaseYear: releaseYear ? parseInt(releaseYear) : null,
+          platform: safePlatform,
+          genre: safeGenre,
+          esrbRating: esrbRating || vgd.esrbRating || null,
+          publisher: publisher || vgd.publisher || null,
+          releaseYear: releaseYear
+            ? parseInt(releaseYear)
+            : vgd.releaseYear || null,
         });
       } else if (category === "Console") {
         await Listing_Console.create({
           listingId: listing.id,
-          consoleType,
-          storageCapacity: storageCapacity || null,
+          consoleType: safeConsoleType,
+          storageCapacity: storageCapacity || cd.storageCapacity || null,
           controllersIncluded: controllersIncluded === "on",
           controllerQuantity: controllerQuantity
             ? parseInt(controllerQuantity)
-            : 0,
+            : cd.controllerQuantity || 0,
           cablesIncluded: cablesIncluded === "on",
-          serialNumber: serialNumber || null,
+          serialNumber: serialNumber || cd.serialNumber || null,
         });
       } else if (category === "Accessory") {
         await Listing_Accessory.create({
           listingId: listing.id,
-          accessoryType,
-          compatiblePlatforms: compatiblePlatforms || null,
+          accessoryType: safeAccessoryType,
+          compatiblePlatforms:
+            compatiblePlatforms || ad.compatiblePlatforms || null,
           isWireless: isWireless === "on",
-          brand: brand || null,
-          modelNumber: modelNumber || null,
+          brand: brand || ad.brand || null,
+          modelNumber: modelNumber || ad.modelNumber || null,
         });
       }
 
@@ -909,7 +1027,8 @@ const LenderController = {
   getActiveRentals: async (req, res) => {
     try {
       const rentals = await Rental.findAll({
-        where: { lenderId: req.session.user.id, status: "Active" },
+        // REMOVED: status: "Active" so that the Completed tab can populate on load
+        where: { lenderId: req.session.user.id },
         include: [
           {
             model: RentalRequest,
@@ -924,6 +1043,7 @@ const LenderController = {
             ],
           },
         ],
+        order: [["createdAt", "DESC"]], // Ensure newest rentals appear first
       });
       res.render("lender/active-rentals", { rentals });
     } catch (error) {

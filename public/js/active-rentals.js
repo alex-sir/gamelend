@@ -36,54 +36,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 3. Confirm Return Modal Logic ---
+  // --- 3. Confirm Return Modal Logic (Updated to use native form submission) ---
   const returnModalEl = document.getElementById("returnModal");
   if (returnModalEl) {
     const returnModal = new bootstrap.Modal(returnModalEl);
     const returnBtns = document.querySelectorAll(".btn-confirm-return");
     const returnListingTitle = document.getElementById("returnListingTitle");
-    const confirmReturnBtn = document.getElementById("confirmReturnBtn");
-    const completeRentalForm = document.getElementById("completeRentalForm"); // Grab the hidden form
+    const completeRentalForm = document.getElementById("completeRentalForm");
 
     returnBtns.forEach((btn) => {
       btn.addEventListener("click", function () {
         const title = this.getAttribute("data-listing-title");
         const id = this.getAttribute("data-rental-id");
+
+        // Update Modal UI Details
         if (returnListingTitle) returnListingTitle.textContent = title;
-        if (confirmReturnBtn) confirmReturnBtn.setAttribute("data-active-id", id);
+
+        // Update Form Action so it targets the correct rental ID using PUT method override
+        if (completeRentalForm) {
+          completeRentalForm.action = `/lender/rentals/${id}/complete?_method=PUT`;
+        }
+
         returnModal.show();
       });
     });
 
-    if (confirmReturnBtn) {
-      confirmReturnBtn.addEventListener("click", async function () {
-        const rentalId = this.getAttribute("data-active-id");
-
-        this.innerHTML =
-          '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
-        this.disabled = true;
-
-        try {
-          const response = await fetch(`/lender/rentals/${rentalId}/complete`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-
-          if (response.ok) {
-            returnModal.hide();
-            location.reload(); // Refresh to show the rental in the "Completed" tab
-          } else {
-            alert("Failed to complete rental. Please try again.");
-            this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Confirm Return';
-            this.disabled = false;
-          }
-        } catch (error) {
-          console.error("Error completing rental:", error);
-          alert("An error occurred. Please check your connection.");
-          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Confirm Return';
-          this.disabled = false;
+    // Provide loading state when form is submitted
+    if (completeRentalForm) {
+      completeRentalForm.addEventListener("submit", function () {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          submitBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+          submitBtn.disabled = true;
         }
       });
     }
