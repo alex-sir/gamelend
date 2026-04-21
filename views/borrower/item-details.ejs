@@ -3,11 +3,12 @@
     ? currentUser.firstName
     : ((typeof currentUser !== 'undefined' && currentUser && currentUser.username) ? currentUser.username : 'Borrower');
 
+  // FIXED: Images now respect the exact order set in the Image Manager
   if (listing && listing.images && listing.images.length > 0) {
     listing.images.sort((a, b) => {
       if (a.isPrimary && !b.isPrimary) return -1;
       if (!a.isPrimary && b.isPrimary) return 1;
-      return 0;
+      return new Date(a.createdAt) - new Date(b.createdAt);
     });
   }
 
@@ -54,12 +55,14 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
           </button>
+  
           <div class="mx-lg-4 mt-2 mb-0 search-bar">
             <form class="d-flex" action="/browse" method="GET">
               <input class="form-control" type="search" name="q" placeholder="Search listings..." aria-label="Search" />
               <button class="btn btn-primary search-submit" type="submit"><i class="bi bi-search fs-5"></i></button>
             </form>
           </div>
+         
           <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
             <div class="offcanvas-header">
               <h5 class="offcanvas-title">Menu</h5>
@@ -338,12 +341,46 @@
           </div>
         </div>
         <div class="copyright">
-          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPT_S 489 Course Project. All rights reserved.</p>
+          <p>&copy; <%= new Date().getFullYear() %> GameLend. A WSU CPTS 489 Course Project. All rights reserved.</p>
         </div>
       </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/listing-detail.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const shareBtn = document.getElementById("shareListingBtn");
+        if (shareBtn) {
+          const originalHtml = shareBtn.innerHTML;
+          let copyTimeout;
+
+          shareBtn.addEventListener("click", () => {
+            const url = window.location.origin + "/listing/<%= listing.id %>";
+
+            navigator.clipboard.writeText(url).then(() => {
+                if (copyTimeout) clearTimeout(copyTimeout);
+
+                shareBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Link copied!';
+                shareBtn.classList.replace("btn-alternate", "btn-success");
+
+                copyTimeout = setTimeout(() => {
+                  shareBtn.innerHTML = originalHtml;
+                  shareBtn.classList.replace("btn-success", "btn-alternate");
+                  copyTimeout = null;
+                }, 2500);
+              }).catch((error) => {
+                console.error("Error copying link:", error);
+              });
+          });
+        }
+
+        const myCarousel = document.getElementById('listingCarousel')
+        if (myCarousel) {
+          myCarousel.addEventListener('slid.bs.carousel', function (e) {
+            document.getElementById('currentImageIndex').innerText = (e.to + 1);
+          })
+        }
+      });
+    </script>
   </body>
 </html>
