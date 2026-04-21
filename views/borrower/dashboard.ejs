@@ -59,31 +59,32 @@
 
         <div class="offcanvas offcanvas-end" id="navbarNav" tabindex="-1">
           <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
+            <h5 class="offcanvas-title">Borrower Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
           </div>
           <div class="offcanvas-body">
             <div class="ms-auto d-flex align-items-center gap-3">
               <div class="dropdown">
                 <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  <i class="bi bi-house me-1"></i>Home
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboards
                 </button>
                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                   <% if (typeof currentUser !== 'undefined' && currentUser) { %>
                     <li>
-                      <a class="dropdown-item" href="/<%= currentUser.role %>/dashboard">My Dashboard</a>
+                      <a class="dropdown-item" href="/<%= currentUser.role %>/dashboard"><%= currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) %> Dashboard</a>
                     </li>
                   <% } else { %>
                     <li><a class="dropdown-item" href="/borrower/dashboard">Borrower Dashboard</a></li>
-                    <li><a class="dropdown-item" href="/lender/dashboard">Lender Dashboard</a></li>
                   <% } %>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li><a class="dropdown-item" href="/">Home</a></li>
                 </ul>
               </div>
 
               <% if (typeof currentUser !== 'undefined' && currentUser) { %>
                 <div class="dropdown">
                   <button class="btn btn-alternate dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle me-1"></i><%= currentUser.firstName || currentUser.username || 'Account' %>
+                    <i class="bi bi-person-circle me-1"></i><%= userName %>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                     <li><a class="dropdown-item" href="/profile">Profile Settings</a></li>
