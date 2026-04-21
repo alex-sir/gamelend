@@ -7,6 +7,10 @@ const {
   Listing_Console,
   Listing_Accessory,
   Image,
+  Category,
+  PlatformSettings,
+  Report,
+  AuditLog
 } = require("../models");
 const { sequelize } = require("../models");
 
@@ -25,34 +29,28 @@ async function seedDatabase() {
     // 1. CREATE USERS (Admin, Lender, Borrower)
     // ----------------------------------------------------------------------
     console.log("👥 Seeding Users...");
-    const [admin] = await User.findOrCreate({
-      where: { email: "peach@admin.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Princess",
-        lastName: "Peach",
-        role: "admin",
-      },
+    const admin = await User.create({
+      email: "peach@admin.com",
+      password: "password123",
+      firstName: "Princess",
+      lastName: "Peach",
+      role: "admin",
     });
 
-    const [lender] = await User.findOrCreate({
-      where: { email: "mario@lender.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Mario",
-        lastName: "Bros",
-        role: "lender",
-      },
+    const lender = await User.create({
+      email: "mario@lender.com",
+      password: "password123",
+      firstName: "Mario",
+      lastName: "Bros",
+      role: "lender",
     });
 
-    const [borrower] = await User.findOrCreate({
-      where: { email: "luigi@borrower.com" },
-      defaults: {
-        password: "password123",
-        firstName: "Luigi",
-        lastName: "Bros",
-        role: "borrower",
-      },
+    const borrower = await User.create({
+      email: "luigi@borrower.com",
+      password: "password123",
+      firstName: "Luigi",
+      lastName: "Bros",
+      role: "borrower",
     });
 
     console.log(
@@ -60,7 +58,24 @@ async function seedDatabase() {
     );
 
     // ----------------------------------------------------------------------
-    // 2. CREATE EXHAUSTIVE LISTINGS WITH SUB-TYPES & IMAGES
+    // 2. SEED PLATFORM SETTINGS & CATEGORIES
+    // ----------------------------------------------------------------------
+    console.log("⚙️ Seeding Platform Settings...");
+    await PlatformSettings.bulkCreate([
+      { settingCategory: "Payments", settingKey: "platformFeePercent", settingValue: "10", updatedBy: admin.id },
+      { settingCategory: "Rentals", settingKey: "maintenanceMode", settingValue: "false", updatedBy: admin.id },
+      { settingCategory: "Listings", settingKey: "maxImagesPerListing", settingValue: "8", updatedBy: admin.id }
+    ]);
+
+    console.log("🏷️ Seeding Default Categories...");
+    await Category.bulkCreate([
+      { name: "Console", status: "Active" },
+      { name: "Video Game", status: "Active" },
+      { name: "Accessory", status: "Active" }
+    ]);
+
+    // ----------------------------------------------------------------------
+    // 3. CREATE EXHAUSTIVE LISTINGS WITH SUB-TYPES & IMAGES
     // ----------------------------------------------------------------------
     console.log("📦 Seeding Exhaustive Listings & Images...");
 
@@ -96,12 +111,6 @@ async function seedDatabase() {
         listingId: ps5.id,
         imageUrl:
           "https://media.wired.com/photos/5fa9dbb7ed97b6b30c266262/master/pass/games_gear_ps5-disc.jpg",
-        isPrimary: false,
-      },
-      {
-        listingId: ps5.id,
-        imageUrl:
-          "https://i5.walmartimages.com/asr/fe290a26-8640-4f5f-8027-e608a1b549ad.69c307a933c0fae8e8ea8246d89664ff.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
         isPrimary: false,
       },
     ]);
@@ -473,10 +482,20 @@ async function seedDatabase() {
     console.log("✅ 14 Total Exhaustive Listings Created.");
 
     // ----------------------------------------------------------------------
-    // 3. CREATE RENTAL HISTORY (Simulating time passing)
+    // 4. CREATE RENTAL HISTORY (Simulating time passing)
     // ----------------------------------------------------------------------
     console.log("📅 Simulating Rental History...");
     const now = new Date();
+
+    // ----------------------------------------------------------------------
+    // 3.5 SEED INITIAL AUDIT LOGS
+    // ----------------------------------------------------------------------
+    console.log("📝 Seeding Initial Audit Logs...");
+    await AuditLog.bulkCreate([
+      { adminId: admin.id, action: 'Platform Setup', targetType: 'System', details: 'Initial system seeding and platform configuration completed.' },
+      { adminId: admin.id, action: 'Category Creation', targetType: 'Category', details: 'Standard categories (Console, Video Game, Accessory) initialized.' },
+      { adminId: admin.id, action: 'Security Policy', targetType: 'User', details: 'Admin and test accounts secured with default credentials.' }
+    ]);
 
     // Rental 1: COMPLETED RENTAL (Zelda)
     const compStart = new Date();
