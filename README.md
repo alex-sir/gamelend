@@ -7,8 +7,8 @@ GameLend is a peer-to-peer web application for renting and lending physical vide
 ## Features
 
 - User registration and login with role-based access (borrower, lender, admin)
-- Catalog of rentable items with search and filtering by platform, type, and availability
-- Item detail pages with condition, rental terms, and owner information
+- Catalog of rentable items with search and filtering
+- Item detail pages with rental terms and item information
 - Lender dashboard for managing listings and responding to rental requests
 - Borrower dashboard for tracking active rentals and rental history
 - Admin portal for moderating users, listings, and the game catalog
