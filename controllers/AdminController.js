@@ -11,13 +11,14 @@ const AdminController = {
   getDashboard: async (req, res) => {
     try {
       const activeListingsCount = await Listing.count({ 
-        where: { status: { [Op.ne]: 'Deleted' } } 
+        where: { status: 'Active' } 
       });
       const completedRentalsCount = await Rental.count({ where: { status: 'Completed' } });
 
       // Fetch data for charts
       const categoryDistribution = await Listing.findAll({
         attributes: ['category', [Listing.sequelize.fn('COUNT', Listing.sequelize.col('id')), 'count']],
+        where: { status: 'Active' },
         group: ['category']
       });
 
