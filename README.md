@@ -51,7 +51,7 @@ Go into your browser and type "**localhost:3000**" in the address bar to view th
 
 To develop and test the GameLend application locally, you can set up a local MariaDB database. We use an SQL script to standardize the creation of the database and the required user permissions.
 
-The following instructions assume a Linux system is being used.
+**The following instructions assume a Linux system is being used.**
 
 #### 1. Prerequisites
 
@@ -65,7 +65,7 @@ Security Note: Do not commit real passwords to the repository. The script uses a
 
 #### 3. Executing the Script
 
-To provision your local database, run the script through the MariaDB CLI. You will be prompted to enter your local root MariaDB password.
+To provision your local database, run the script through the MariaDB CLI. You will be prompted to enter your local root MariaDB password. Run this from the project root directory:
 
 ```bash
 sudo mariadb -u root -p < scripts/setup_database.sql
@@ -90,7 +90,7 @@ Because we use Sequelize, you do not need to manually create the tables (Users, 
 Start the application:
 
 ```bash
-node app.js
+npm start
 ```
 
 If the database was set up correctly, you will see the following output in your terminal:
@@ -122,15 +122,19 @@ SELECT * FROM Users;
 A local database dump allows you to snapshot your data as a backup.
 This data can later be restored.
 
-#### 1. Run the dump command
+#### Run the dump command
 
-Dump the data into a file called `gamelend_backup.sql`:
+Dump the data into a file called `gamelend_backup.sql` in the
+`dumps` directory (run from the project root directory):
 
 ```bash
-mariadb-dump -u root -p gamelend > gamelend_backup.sql
+mariadb-dump -u root -p gamelend > dumps/gamelend_backup.sql
 ```
 
-#### 2. Create an empty target database (if it doesn't exist)
+#### Create an empty target database (if it doesn't exist)
+
+> [!NOTE]
+> A `.env` file is required. Follow the [environment variables instructions](#4-update-your-environment-variables) before proceeding.
 
 MariaDB needs a container to pour the data into.
 If the database was dropped, you must recreate it first.
@@ -148,19 +152,21 @@ CREATE DATABASE gamelend;
 EXIT;
 ```
 
-#### 3. Import the dump file
+#### Import the dump file
 
-From your terminal, navigate to the folder where the `gamelend_backup.sql`
-file is saved and run the import command:
+From your terminal, navigate to the root directory of the project
+and run the import command:
 
 ```bash
-mariadb -u root -p gamelend < gamelend_backup.sql
+mariadb -u root -p gamelend < dumps/gamelend_backup.sql
 ```
 
 ### Database Seed Data
 
 To quickly test GameLend with seed data, a script is provided
-to fill a test database with predetermined information:
+to fill a test database with predetermined information.
+
+From the root directory of the project:
 
 ```bash
 npm run seed
